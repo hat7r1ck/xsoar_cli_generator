@@ -46,12 +46,11 @@ After filling out the form and clicking **Generate**, the CLI command will be fo
 ---
 
 ## Customization
-- Modify dropdown options inside `index.html` to add or remove case fields.
+- Modify dropdown options inside `xsoar_cli_generator.html` to add or remove case fields.
 - Change the UI styling inside the `<style>` section for different themes.
 - Adjust JavaScript in `<script>` for additional automation.
 
 ---
-xsoar-cli-example.png
 
 ## Tech Stack
 - **HTML + CSS** (Styled for dark mode)
