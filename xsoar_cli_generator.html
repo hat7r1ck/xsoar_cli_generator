@@ -242,6 +242,13 @@
 
             document.getElementById('cli-output').textContent = cliCommand;
         }
+
+        function copyToClipboard() {
+            const output = document.getElementById('cli-output').textContent;
+            navigator.clipboard.writeText(output).then(() => {
+                alert("CLI Command Copied!");
+            });
+        }
     </script>
 </body>
 </html>
