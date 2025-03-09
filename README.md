@@ -51,8 +51,11 @@ After filling out the form and clicking **Generate**, the CLI command will be fo
 - Adjust JavaScript in `<script>` for additional automation.
 
 ---
+xsoar-cli-example.png
 
 ## Tech Stack
 - **HTML + CSS** (Styled for dark mode)
 - **JavaScript** (Handles input & time conversions)
 - **No external dependencies** (Works as a standalone HTML file)
+
+![image](xsoar-cli-example.png)
