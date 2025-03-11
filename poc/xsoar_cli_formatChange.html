@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>XSOAR Case Tools</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+        }
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            background-color: black;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 8px 12px;
+            cursor: pointer;
+            min-width: 120px;
+            text-align: center;
+        }
+        .tab-button:hover {
+            background-color: #00ff00;
+            color: black;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+            max-width: 600px;
+            margin: auto;
+        }
+        input, select, textarea {
+            padding: 8px;
+            margin: 5px;
+            background-color: black;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 8px 12px;
+            background-color: black;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #00ff00;
+            color: black;
+        }
+        .cli-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .cli-box {
+            background-color: #222;
+            padding: 10px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+            width: 48%;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 60px;
+            background-color: black;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            resize: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border: 2px solid #00ff00;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #00ff00;
+            text-align: center;
+        }
+        hr {
+            border: 1px solid #00ff00;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>XSOAR Case Tools</h1>
+
+    <!-- Tab Navigation -->
+    <div class="tab-container">
+        <button class="tab-button" onclick="showTab('case-cli')">Case CLI</button>
+        <button class="tab-button" onclick="showTab('case-flood')">Case Flood CLI</button>
+        <button class="tab-button" onclick="showTab('case-notes')">Case Notes</button>
+        <button class="tab-button" onclick="showTab('links-library')">Links Library</button>
+    </div>
+
+    <!-- Case Flood CLI -->
+    <div id="case-flood" class="tab-content">
+        <h2>Case Flood CLI</h2>
+        <label>Parent Case Number:</label>
+        <input type="text" id="parent-case" placeholder="Enter Parent Case Number" oninput="updateCaseFloodCLI()">
+
+        <div class="cli-container">
+            <div class="cli-box">
+                <label>Link Cases CLI:</label>
+                <textarea id="link-cases-cli" readonly></textarea>
+                <button onclick="copyToClipboard('link-cases-cli')">Copy Link Command</button>
+            </div>
+            <div class="cli-box">
+                <label>Close Cases CLI:</label>
+                <textarea id="close-cases-cli" readonly></textarea>
+                <button onclick="copyToClipboard('close-cases-cli')">Copy Close Command</button>
+            </div>
+        </div>
+
+        <!-- Separation Line -->
+        <hr>
+
+        <h2>Case Flood Report</h2>
+        <label>Type of Case:</label>
+        <select id="case-type">
+            <option value="Phishing">Phishing</option>
+            <option value="Malware">Malware</option>
+            <option value="Credential Stuffing">Credential Stuffing</option>
+        </select>
+
+        <label>Flood Start Time & Status:</label>
+        <input type="text" id="flood-start" placeholder="Enter start time & status">
+
+        <label>Cadence of Alert Creation:</label>
+        <input type="text" id="cadence" placeholder="Enter alert cadence (e.g., 10 alerts/min)">
+
+        <label>Malicious/Non-Malicious/Undetermined:</label>
+        <select id="malicious">
+            <option value="Malicious">Malicious</option>
+            <option value="Non-Malicious">Non-Malicious</option>
+            <option value="Undetermined">Undetermined</option>
+        </select>
+
+        <button onclick="generateFloodReport()">Generate Report</button>
+        <pre id="flood-report-output"></pre>
+        <button onclick="copyFloodReport()">Copy Report</button>
+    </div>
+
+    <!-- Case Notes -->
+    <div id="case-notes" class="tab-content">
+        <h2>Case Notes Generator</h2>
+        <textarea id="case-notes-input" placeholder="Enter case details here..." rows="5"></textarea>
+        <button onclick="generateCaseNotes()">Generate Notes</button>
+        <pre id="case-notes-output"></pre>
+    </div>
+
+    <!-- Links Library -->
+    <div id="links-library" class="tab-content">
+        <h2>Investigation Links</h2>
+        <table>
+            <tr><td><a href="https://teamworks.company.com" target="_blank">TeamWorks Search</a></td></tr>
+            <tr><td><a href="https://servicenow.company.com" target="_blank">ServiceNow</a></td></tr>
+            <tr><td><a href="https://osint.example.com" target="_blank">OSINT Lookup</a></td></tr>
+        </table>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll(".tab-content").forEach(tab => {
+                tab.style.display = "none";
+            });
+            document.getElementById(tabId).style.display = "block";
+        }
+
+        function updateCaseFloodCLI() {
+            let parentCase = document.getElementById("parent-case").value.trim().replace(/\D/g, '');
+            document.getElementById("link-cases-cli").value = parentCase ? `!linkIncidents linkedIncidentIDs=${parentCase} action=link` : "";
+            document.getElementById("close-cases-cli").value = parentCase ? `!closeInvestigation closeReason="Resolved" closeNotes="Please reference parent case #${parentCase}."` : "";
+        }
+
+        function copyToClipboard(id) {
+            let text = document.getElementById(id);
+            text.select();
+            document.execCommand("copy");
+        }
+    </script>
+</body>
+</html>
