@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>XSOAR CLI & Investigation Tools</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+        }
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            background-color: black;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 10px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .tab-button:hover {
+            background-color: #00ff00;
+            color: black;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+            margin-top: 20px;
+        }
+        input, textarea, button {
+            padding: 10px;
+            margin: 5px;
+            background-color: black;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            width: 80%;
+        }
+        button:hover {
+            background-color: #00ff00;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>XSOAR CLI & Investigation Tools</h1>
+
+    <!-- Tab Navigation -->
+    <div class="tab-container">
+        <button class="tab-button" onclick="showTab('cli-generator')">Case CLI</button>
+        <button class="tab-button" onclick="showTab('case-flood')">Case Flood CLI</button>
+        <button class="tab-button" onclick="showTab('case-notes')">Case Notes</button>
+        <button class="tab-button" onclick="showTab('reference-links')">Reference Links</button>
+    </div>
+
+    <!-- XSOAR CLI Generator -->
+    <div id="cli-generator" class="tab-content">
+        <h2>XSOAR Case CLI Generator</h2>
+        <p>Standard case CLI field generator.</p>
+        <p>**[Existing CLI Generator Content Goes Here]**</p>
+    </div>
+
+    <!-- Case Flood CLI -->
+    <div id="case-flood" class="tab-content">
+        <h2>Case Flood CLI Generator</h2>
+        
+        <label for="parent-case">Parent Case ID:</label>
+        <input type="text" id="parent-case" placeholder="Enter parent case number">
+        
+        <label for="close-reason">Close Reason:</label>
+        <input type="text" id="close-reason" value="Resolved">
+
+        <label for="close-notes">Close Notes:</label>
+        <textarea id="close-notes">Please reference parent case #. All notes, attachments, and resolution will be found there.</textarea>
+
+        <button onclick="generateFloodCLI()">Generate Flood CLI</button>
+
+        <pre id="flood-cli-output"></pre>
+    </div>
+
+    <!-- Case Notes Generator -->
+    <div id="case-notes" class="tab-content">
+        <h2>Case Notes Generator</h2>
+        <p>**[Structured case notes formatting to be added later]**</p>
+    </div>
+
+    <!-- Reference Links Library -->
+    <div id="reference-links" class="tab-content">
+        <h2>Reference Links Library</h2>
+
+        <label for="search-user">User Lookup:</label>
+        <input type="text" id="search-user" placeholder="Enter username">
+        <button onclick="copyUserLinks()">Copy Links</button>
+
+        <label for="search-host">Host Lookup:</label>
+        <input type="text" id="search-host" placeholder="Enter hostname">
+        <button onclick="copyHostLinks()">Copy Links</button>
+
+        <label for="search-ip">IP Lookup:</label>
+        <input type="text" id="search-ip" placeholder="Enter IP address">
+        <button onclick="copyIPLinks()">Copy Links</button>
+
+        <p>Copy links and manually open searches as needed.</p>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll(".tab-content").forEach(tab => {
+                tab.style.display = "none";
+            });
+            document.getElementById(tabId).style.display = "block";
+        }
+
+        function generateFloodCLI() {
+            let parentCase = document.getElementById("parent-case").value.replace(/\D/g, '');
+            let closeReason = document.getElementById("close-reason").value;
+            let closeNotes = document.getElementById("close-notes").value.replace("#", parentCase);
+
+            if (!parentCase) {
+                alert("Enter a valid parent case number.");
+                return;
+            }
+
+            let cliOutput = `!linkIncidents linkedIncidentIDs=${parentCase} action=link\n` +
+                            `!closeInvestigation closeReason="${closeReason}" closeNotes="${closeNotes}"`;
+
+            document.getElementById("flood-cli-output").textContent = cliOutput;
+        }
+
+        function copyUserLinks() {
+            let username = document.getElementById("search-user").value.trim();
+            if (!username) {
+                alert("Enter a username.");
+                return;
+            }
+            let links = [
+                `https://teamworks.company.com/search?query=${encodeURIComponent(username)}`,
+                `https://servicenow.company.com/nav_to.do?uri=/sys_user.do?sysparm_query=user_name=${encodeURIComponent(username)}`
+            ].join("\n");
+            navigator.clipboard.writeText(links);
+            alert("User search links copied.");
+        }
+
+        function copyHostLinks() {
+            let hostname = document.getElementById("search-host").value.trim();
+            if (!hostname) {
+                alert("Enter a hostname.");
+                return;
+            }
+            let links = [
+                `https://internal-tool.com/host-search?query=${encodeURIComponent(hostname)}`,
+                `https://servicenow.company.com/nav_to.do?uri=/cmdb_ci.do?sysparm_query=name=${encodeURIComponent(hostname)}`
+            ].join("\n");
+            navigator.clipboard.writeText(links);
+            alert("Host search links copied.");
+        }
+
+        function copyIPLinks() {
+            let ip = document.getElementById("search-ip").value.trim();
+            if (!ip) {
+                alert("Enter an IP address.");
+                return;
+            }
+            let links = [
+                `https://www.virustotal.com/gui/ip-address/${encodeURIComponent(ip)}`,
+                `https://www.shodan.io/host/${encodeURIComponent(ip)}`,
+                `https://www.abuseipdb.com/check/${encodeURIComponent(ip)}`
+            ].join("\n");
+            navigator.clipboard.writeText(links);
+            alert("OSINT IP search links copied.");
+        }
+    </script>
+</body>
+</html>
