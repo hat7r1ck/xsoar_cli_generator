@@ -1,0 +1,197 @@
+function updateCaseFloodCLI() {
+    let ParentCase = document.getElementById("parent-case").value.trim();
+
+    // Extract only the first case number (ignoring numbers after spaces or underscores)
+    let match = ParentCase.match(/#?(\d+)(?=\s|_)/);
+    let caseNumber = match ? match[1] : ""; // If there's a match, extract the number
+
+    // Set the extracted case number back into the input field (if needed)
+    document.getElementById("parent-case").value = caseNumber;
+
+    // Rest of your function logic... (keep this part unchanged)
+}
+
+<!-- Case Notes Section -->
+<div id="case-notes" class="tab-content">
+    <h2>Case Notes Generator</h2>
+
+    <div class="form-container">
+        <label for="detection-time">Detection Time:</label>
+        <input type="text" id="detection-time">
+
+        <label for="username">Username:</label>
+        <input type="text" id="username">
+
+        <label for="hostname">Host Name:</label>
+        <input type="text" id="hostname">
+
+        <label for="detection-name">Detection Name:</label>
+        <input type="text" id="detection-name">
+
+        <label for="rule-name">Rule Name:</label>
+        <input type="text" id="rule-name">
+
+        <label for="rule-description">Rule Description:</label>
+        <textarea id="rule-description"></textarea>
+
+        <label for="aduser-input">AD User Lookup (Copy from Get-ADUser):</label>
+        <textarea id="aduser-input" placeholder="Paste raw ADUser output"></textarea>
+
+        <label for="investigation-notes">Investigation Notes:</label>
+        <textarea id="investigation-notes"></textarea>
+
+        <label for="severity">30-Day Lookback Severity:</label>
+        <select id="severity">
+            <option value="No change in severity">No change in severity</option>
+            <option value="Requires a change in severity">Requires a change in severity</option>
+        </select>
+
+        <label for="malicious-determination">Determination:</label>
+        <select id="malicious-determination">
+            <option value="Not Malicious and no further action is needed">Not Malicious and no further action is needed</option>
+            <option value="Malicious">Malicious</option>
+        </select>
+
+        <h3>Analysis</h3>
+
+        <label>Checked During Lookback:</label><br>
+        <input type="checkbox" id="checked-cases"> Prior Cases<br>
+        <input type="checkbox" id="checked-hosts"> Prior Hosts<br>
+        <input type="checkbox" id="checked-ioc"> Prior IoCs<br>
+
+        <label for="alert-link">Alert Details (Paste Detection Link):</label>
+        <input type="text" id="alert-link" placeholder="https://example.com/detection">
+
+        <label for="escalation-actions">Escalation Actions:</label>
+        <textarea id="escalation-actions">N/A</textarea>
+
+        <label for="tuning-actions">Tuning Actions:</label>
+        <textarea id="tuning-actions">N/A</textarea>
+
+        <label for="lookup-output">Lookup Output (Optional - for AD or Alert Details):</label>
+        <textarea id="lookup-output"></textarea>
+
+        <div class="button-container">
+            <button onclick="generateCaseNotes()">Generate Notes</button>
+            <button onclick="toggleRawMarkdown()">Toggle Raw Markdown</button>
+            <button onclick="copyNotes()">Copy Notes</button>
+            <button onclick="resetCaseNotes()">Reset</button>
+        </div>
+    </div>
+
+    <div id="rendered-notes" class="notes-box"></div>
+    <pre id="raw-notes" class="notes-box" style="display:none;"></pre>
+</div>
+
+<script>
+    // Function to Generate Case Notes in Markdown
+    function generateCaseNotes() {
+        let detectionTime = document.getElementById("detection-time").value.trim();
+        let username = document.getElementById("username").value.trim();
+        let hostname = document.getElementById("hostname").value.trim();
+        let detectionName = document.getElementById("detection-name").value.trim();
+        let ruleName = document.getElementById("rule-name").value.trim();
+        let ruleDescription = document.getElementById("rule-description").value.trim();
+        let aduserInput = document.getElementById("aduser-input").value.trim();
+        let investigationNotes = document.getElementById("investigation-notes").value.trim();
+        let severity = document.getElementById("severity").value.trim();
+        let maliciousDetermination = document.getElementById("malicious-determination").value.trim();
+        let escalationActions = document.getElementById("escalation-actions").value.trim();
+        let tuningActions = document.getElementById("tuning-actions").value.trim();
+        let lookupOutput = document.getElementById("lookup-output").value.trim();
+        let alertLink = document.getElementById("alert-link").value.trim();
+
+        // Parse AD User Data for Username and Title
+        let adUsername = aduserInput.match(/(?<=Name\s*:\s*)(\S+)/i)?.[0] || "Unknown";
+        let adTitle = aduserInput.match(/(?<=Title\s*:\s*)(.+)/i)?.[0] || "Unknown";
+
+        // Build Checked Items for Lookback Section
+        let checkedItems = [];
+        if (document.getElementById("checked-cases").checked) checkedItems.push("Checked prior cases");
+        if (document.getElementById("checked-hosts").checked) checkedItems.push("Checked prior hosts");
+        if (document.getElementById("checked-ioc").checked) checkedItems.push("Checked prior IoCs");
+        let checkedItemsText = checkedItems.length > 0 ? `- ${checkedItems.join("\n- ")}` : "";
+
+        // Format Alert Link in Markdown
+        let alertDetails = alertLink ? `[Link to detection](${alertLink})` : "N/A";
+
+        // Build Markdown Output
+        let markdownNotes = `
+On **\`${detectionTime}\`**, the CTFC observed an XSOAR case for the user **\`${username}\`** seen generating a detection **\`${detectionName}\`** on the host **\`${hostname}\`**.
+
+> **Rule Name:** ${ruleName}  
+> **Rule Description:** ${ruleDescription}  
+
+The way in which this event occurred was due to the user **\`${adUsername}\`** | **\`${adTitle}\`**  
+${investigationNotes}
+
+Based on a 30-day lookback: **${severity}**  
+
+CTFC has declared this event to be **${maliciousDetermination}**.  
+
+## **Analysis**
+${checkedItemsText}
+
+### **Alert Details**
+${alertDetails}
+
+### **Escalation Actions**
+- ${escalationActions}
+
+### **Tuning Actions**
+- ${tuningActions}
+
+${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ''}
+        `.trim();
+
+        document.getElementById("raw-notes").textContent = markdownNotes;
+        document.getElementById("rendered-notes").innerHTML = marked.parse(markdownNotes);
+    }
+
+    // Function to Toggle Raw Markdown View
+    function toggleRawMarkdown() {
+        let rawNotes = document.getElementById("raw-notes");
+        let renderedNotes = document.getElementById("rendered-notes");
+
+        if (rawNotes.style.display === "none") {
+            rawNotes.style.display = "block";
+            renderedNotes.style.display = "none";
+        } else {
+            rawNotes.style.display = "none";
+            renderedNotes.style.display = "block";
+        }
+    }
+
+    // Function to Copy Markdown Notes to Clipboard
+    function copyNotes() {
+        let markdownText = document.getElementById("raw-notes").textContent;
+        navigator.clipboard.writeText(markdownText).then(() => {
+            alert("Case notes copied in Markdown format!");
+        });
+    }
+
+    // Function to Reset All Fields
+    function resetCaseNotes() {
+        document.querySelectorAll("#case-notes input, #case-notes textarea, #case-notes select").forEach(field => {
+            field.value = field.tagName === "SELECT" ? field.options[0].value : "";
+        });
+
+        document.querySelectorAll("#case-notes input[type=checkbox]").forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        document.getElementById("rendered-notes").innerHTML = "";
+        document.getElementById("raw-notes").textContent = "";
+    }
+</script>
+
+<style>
+    .notes-box {
+        border: 2px solid #00ff00;
+        padding: 10px;
+        margin-top: 15px;
+        background-color: #111;
+        color: #00ff00;
+        white-space: pre-wrap;
+    }
+</style>
