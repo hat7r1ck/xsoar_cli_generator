@@ -31,238 +31,6 @@
 
             <h4>Lookback</h4>
             <div class="lookback-container">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="checked-cases" onchange="updateCaseNotes()"> 
-                    Checked prior cases by host
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="checked-hosts" onchange="updateCaseNotes()"> 
-                    Checked prior cases by user
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="checked-ioc" onchange="updateCaseNotes()"> 
-                    Checked prior cases by IoC
-                </label>
-            </div>
-
-            <label for="alert-link">Alert Details (Paste Detection Link):</label>
-            <input type="text" id="alert-link" placeholder="https://example.com/detection" oninput="updateCaseNotes()">
-
-            <label for="escalation-actions">Escalation Actions:</label>
-            <textarea id="escalation-actions" oninput="updateCaseNotes()">N/A</textarea>
-
-            <label for="tuning-actions">Tuning Actions:</label>
-            <textarea id="tuning-actions" oninput="updateCaseNotes()">N/A</textarea>
-        </div>
-
-        <!-- Right Side: Output Preview -->
-        <div class="output-container">
-            <h3>Generated Case Notes</h3>
-            <pre id="raw-notes" class="notes-box"></pre>
-            <button onclick="copyNotes()">Copy Notes</button>
-            <button onclick="resetCaseNotes()">Reset</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    function updateCaseNotes() {
-        let detectionTime = document.getElementById("detection-time").value.trim();
-        let username = document.getElementById("username").value.trim();
-        let hostname = document.getElementById("hostname").value.trim();
-        let detectionName = document.getElementById("detection-name").value.trim();
-        let ruleName = document.getElementById("rule-name").value.trim();
-        let ruleDescription = document.getElementById("rule-description").value.trim();
-        let aduserInput = document.getElementById("aduser-input").value.trim();
-        let investigationNotes = document.getElementById("investigation-notes").value.trim();
-        let escalationActions = document.getElementById("escalation-actions").value.trim();
-        let tuningActions = document.getElementById("tuning-actions").value.trim();
-        let alertLink = document.getElementById("alert-link").value.trim();
-
-        // Extract username and title from AD User Lookup
-        let adUsername = aduserInput.match(/^Name\s*:\s*(\S+)/im)?.[1] || "Unknown";
-        let adTitle = aduserInput.match(/^Title\s*:\s*(.+)/im)?.[1] || "Unknown";
-
-        // Build Checked Items for Lookback Section
-        let checkedItems = [];
-        if (document.getElementById("checked-cases").checked) checkedItems.push("Checked prior cases");
-        if (document.getElementById("checked-hosts").checked) checkedItems.push("Checked prior hosts");
-        if (document.getElementById("checked-ioc").checked) checkedItems.push("Checked prior IoCs");
-        let checkedItemsText = checkedItems.length > 0 ? `- ${checkedItems.join("\n- ")}` : "";
-
-        // Format Alert Link
-        let alertDetails = alertLink ? `[Link to detection](${alertLink})` : "N/A";
-
-        // Build Markdown Output
-        let markdownNotes = `
-On **\`${detectionTime}\`**, the CTFC observed an XSOAR case for the user **\`${username}\`** seen generating a detection **\`${detectionName}\`** on the host **\`${hostname}\`**.
-
-> **Rule Name:** ${ruleName}  
-> **Rule Description:** ${ruleDescription}  
-
-The way in which this event occurred was due to the user **\`${adUsername}\`** | **\`${adTitle}\`**  
-${investigationNotes}
-
-## **Analysis**
-${checkedItemsText}
-
-### **Alert Details**
-${alertDetails}
-
-### **Escalation Actions**
-- ${escalationActions}
-
-### **Tuning Actions**
-- ${tuningActions}
-        `.trim();
-
-        document.getElementById("raw-notes").textContent = markdownNotes;
-    }
-
-    function copyNotes() {
-        let markdownText = document.getElementById("raw-notes").textContent;
-        navigator.clipboard.writeText(markdownText).then(() => {
-            alert("Case notes copied in Markdown format!");
-        });
-    }
-
-    function resetCaseNotes() {
-        document.querySelectorAll("#case-notes input, #case-notes textarea").forEach(field => {
-            field.value = "";
-        });
-
-        document.querySelectorAll("#case-notes input[type=checkbox]").forEach(checkbox => {
-            checkbox.checked = false;
-        });
-
-        document.getElementById("raw-notes").textContent = "";
-    }
-</script>
-
-<style>
-    /* Common styling for inputs and textareas */
-    input[type="text"], textarea {
-        width: 100%;
-        padding: 8px;
-        margin-bottom: 10px;
-        border: 2px solid #00ff00;
-        border-radius: 4px;
-        background: #111;
-        color: #00ff00;
-        box-sizing: border-box;
-    }
-
-    .notes-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: stretch; /* Both columns stretch equally */
-        gap: 20px;
-    }
-
-    /* Fixed heights for consistent sizing */
-    .form-container, .output-container {
-        width: 50%;
-        height: 600px; /* Ensures both sides are the same size */
-        background: black;
-        padding: 15px;
-        border: 2px solid #00ff00;
-        box-shadow: 0 0 10px #00ff00;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Notes preview box with fixed size and scrollbar */
-    .notes-box {
-        border: 2px solid #00ff00;
-        padding: 10px;
-        background-color: #111;
-        color: #00ff00;
-        white-space: pre-wrap;
-        overflow-y: auto;
-        height: 250px;
-        margin-top: 10px;
-    }
-
-    /* Flex layout for the checkbox section */
-    .lookback-container {
-        border: 2px solid #00ff00;
-        padding: 10px;
-        margin-bottom: 10px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .checkbox-label {
-        display: flex;
-        align-items: center;
-    }
-
-    input[type="checkbox"] {
-        transform: scale(0.8);
-        accent-color: #00ff00;
-        margin-right: 5px;
-    }
-
-    .output-container {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    button {
-        margin-top: 10px;
-        padding: 8px;
-        background: black;
-        color: #00ff00;
-        border: 2px solid #00ff00;
-        cursor: pointer;
-        width: 80%;
-        align-self: center;
-    }
-
-    button:hover {
-        background: #00ff00;
-        color: black;
-    }
-</style>
-
-
-
-<!-- Case Notes Section -->
-<div id="case-notes" class="tab-content">
-    <h2>Case Notes Generator</h2>
-
-    <div class="notes-container">
-        <!-- Left Side: Input Form -->
-        <div class="form-container">
-            <label for="detection-time">Detection Time:</label>
-            <input type="text" id="detection-time" oninput="updateCaseNotes()">
-
-            <label for="username">Username:</label>
-            <input type="text" id="username" oninput="updateCaseNotes()">
-
-            <label for="hostname">Host Name:</label>
-            <input type="text" id="hostname" oninput="updateCaseNotes()">
-
-            <label for="detection-name">Detection Name:</label>
-            <input type="text" id="detection-name" oninput="updateCaseNotes()">
-
-            <label for="rule-name">Rule Name:</label>
-            <input type="text" id="rule-name" oninput="updateCaseNotes()">
-
-            <label for="rule-description">Rule Description:</label>
-            <textarea id="rule-description" oninput="updateCaseNotes()"></textarea>
-
-            <label for="aduser-input">AD User Lookup (Copy from Get-ADUser):</label>
-            <textarea id="aduser-input" placeholder="Paste raw ADUser output" oninput="updateCaseNotes()"></textarea>
-
-            <label for="investigation-notes">Investigation Notes:</label>
-            <textarea id="investigation-notes" oninput="updateCaseNotes()"></textarea>
-
-            <h4>Lookback</h4>
-            <div class="lookback-container">
                 <label><input type="checkbox" id="checked-cases" onchange="updateCaseNotes()"> Checked prior cases by host</label>
                 <label><input type="checkbox" id="checked-hosts" onchange="updateCaseNotes()"> Checked prior cases by user</label>
                 <label><input type="checkbox" id="checked-ioc" onchange="updateCaseNotes()"> Checked prior cases by IoC</label>
@@ -308,10 +76,10 @@ ${alertDetails}
 
         // Build Checked Items for Lookback Section
         let checkedItems = [];
-        if (document.getElementById("checked-cases").checked) checkedItems.push("Checked prior cases by host");
-        if (document.getElementById("checked-hosts").checked) checkedItems.push("Checked prior cases by user");
-        if (document.getElementById("checked-ioc").checked) checkedItems.push("Checked prior cases by IoC");
-        let checkedItemsText = checkedItems.length > 0 ? `- ${checkedItems.join("\n- ")}` : "";
+        if (document.getElementById("checked-cases").checked) checkedItems.push("- Checked prior cases by host");
+        if (document.getElementById("checked-hosts").checked) checkedItems.push("- Checked prior cases by user");
+        if (document.getElementById("checked-ioc").checked) checkedItems.push("- Checked prior cases by IoC");
+        let checkedItemsText = checkedItems.length > 0 ? checkedItems.join("\n") : "";
 
         // Format Alert Link
         let alertDetails = alertLink ? `[Link to detection](${alertLink})` : "N/A";
@@ -376,7 +144,7 @@ ${alertDetails}
         padding: 15px;
         border: 2px solid #00ff00;
         box-shadow: 0 0 10px #00ff00;
-        border-radius: 8px; /* Matching rounded corners */
+        border-radius: 8px;
     }
 
     .notes-box {
@@ -386,20 +154,22 @@ ${alertDetails}
         background-color: #111;
         color: #00ff00;
         white-space: pre-wrap;
-        overflow-y: auto; /* Scroll if too long */
-        height: 300px; /* Fixed height */
+        overflow-y: auto;
+        height: 400px;
     }
 
     .lookback-container {
         border: 2px solid #00ff00;
         padding: 10px;
         margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
 
     input[type="checkbox"] {
         transform: scale(1);
         accent-color: #00ff00;
-        margin-right: 10px;
     }
 
     button {
