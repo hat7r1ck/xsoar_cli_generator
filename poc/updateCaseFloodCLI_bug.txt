@@ -42,14 +42,12 @@
         <h3>Analysis</h3>
 
         <div class="notes-container">
-            <!-- Checkbox Column -->
             <div class="checkbox-group">
                 <label><input type="checkbox" id="checked-cases"> Checked prior cases</label>
                 <label><input type="checkbox" id="checked-hosts"> Checked prior hosts</label>
                 <label><input type="checkbox" id="checked-ioc"> Checked prior IoCs</label>
             </div>
 
-            <!-- Notes Output Column -->
             <div class="notes-output">
                 <label for="alert-link">Alert Details (Paste Detection Link):</label>
                 <input type="text" id="alert-link" placeholder="https://example.com/detection">
@@ -67,18 +65,13 @@
 
         <div class="button-container">
             <button onclick="generateCaseNotes()">Generate Notes</button>
-            <button onclick="toggleRawMarkdown()">Toggle Raw Markdown</button>
             <button onclick="copyNotes()">Copy Notes</button>
             <button onclick="resetCaseNotes()">Reset</button>
         </div>
     </div>
 
-    <div id="rendered-notes" class="notes-box"></div>
-    <pre id="raw-notes" class="notes-box" style="display:none;"></pre>
+    <pre id="raw-notes" class="notes-box"></pre>
 </div>
-
-<!-- Load Marked.js for Markdown Rendering -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.0/marked.min.js"></script>
 
 <script>
     function generateCaseNotes() {
@@ -131,20 +124,6 @@ ${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ""}
 `.trim();
 
         document.getElementById("raw-notes").textContent = markdownNotes;
-        document.getElementById("rendered-notes").innerHTML = marked.parse(markdownNotes);
-    }
-
-    function toggleRawMarkdown() {
-        let rawNotes = document.getElementById("raw-notes");
-        let renderedNotes = document.getElementById("rendered-notes");
-
-        if (rawNotes.style.display === "none") {
-            rawNotes.style.display = "block";
-            renderedNotes.style.display = "none";
-        } else {
-            rawNotes.style.display = "none";
-            renderedNotes.style.display = "block";
-        }
     }
 
     function copyNotes() {
@@ -163,7 +142,6 @@ ${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ""}
             checkbox.checked = false;
         });
 
-        document.getElementById("rendered-notes").innerHTML = "";
         document.getElementById("raw-notes").textContent = "";
     }
 </script>
