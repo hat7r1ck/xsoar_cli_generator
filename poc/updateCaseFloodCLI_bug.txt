@@ -2,74 +2,68 @@
 <div id="case-notes" class="tab-content">
     <h2>Case Notes Generator</h2>
 
-    <div class="form-container">
-        <label for="detection-time">Detection Time:</label>
-        <input type="text" id="detection-time">
+    <div class="notes-container">
+        <!-- Left Side: Input Form -->
+        <div class="form-container">
+            <label for="detection-time">Detection Time:</label>
+            <input type="text" id="detection-time" oninput="updateCaseNotes()">
 
-        <label for="username">Username:</label>
-        <input type="text" id="username">
+            <label for="username">Username:</label>
+            <input type="text" id="username" oninput="updateCaseNotes()">
 
-        <label for="hostname">Host Name:</label>
-        <input type="text" id="hostname">
+            <label for="hostname">Host Name:</label>
+            <input type="text" id="hostname" oninput="updateCaseNotes()">
 
-        <label for="detection-name">Detection Name:</label>
-        <input type="text" id="detection-name">
+            <label for="detection-name">Detection Name:</label>
+            <input type="text" id="detection-name" oninput="updateCaseNotes()">
 
-        <label for="rule-name">Rule Name:</label>
-        <input type="text" id="rule-name">
+            <label for="rule-name">Rule Name:</label>
+            <input type="text" id="rule-name" oninput="updateCaseNotes()">
 
-        <label for="rule-description">Rule Description:</label>
-        <textarea id="rule-description"></textarea>
+            <label for="rule-description">Rule Description:</label>
+            <textarea id="rule-description" oninput="updateCaseNotes()"></textarea>
 
-        <label for="aduser-input">AD User Lookup (Copy from Get-ADUser):</label>
-        <textarea id="aduser-input" placeholder="Paste raw ADUser output"></textarea>
+            <label for="aduser-input">AD User Lookup (Copy from Get-ADUser):</label>
+            <textarea id="aduser-input" placeholder="Paste raw ADUser output" oninput="updateCaseNotes()"></textarea>
 
-        <label for="investigation-notes">Investigation Notes:</label>
-        <textarea id="investigation-notes"></textarea>
+            <label for="investigation-notes">Investigation Notes:</label>
+            <textarea id="investigation-notes" oninput="updateCaseNotes()"></textarea>
 
-        <label for="severity">30-Day Lookback Severity:</label>
-        <select id="severity">
-            <option value="No change in severity">No change in severity</option>
-            <option value="Requires a change in severity">Requires a change in severity</option>
-        </select>
+            <h4>Lookback</h4>
+            <div class="lookback-container">
+                <div class="lookback-item">
+                    <span>Checked prior cases by host</span> <input type="checkbox" id="checked-cases" onchange="updateCaseNotes()">
+                </div>
+                <div class="lookback-item">
+                    <span>Checked prior cases by user</span> <input type="checkbox" id="checked-hosts" onchange="updateCaseNotes()">
+                </div>
+                <div class="lookback-item">
+                    <span>Checked prior cases by IoC</span> <input type="checkbox" id="checked-ioc" onchange="updateCaseNotes()">
+                </div>
+            </div>
 
-        <label for="malicious-determination">Determination:</label>
-        <select id="malicious-determination">
-            <option value="Not Malicious and no further action is needed">Not Malicious and no further action is needed</option>
-            <option value="Malicious">Malicious</option>
-        </select>
+            <label for="alert-link">Alert Details (Paste Detection Link):</label>
+            <input type="text" id="alert-link" placeholder="https://example.com/detection" oninput="updateCaseNotes()">
 
-        <h3>Analysis</h3>
+            <label for="escalation-actions">Escalation Actions:</label>
+            <textarea id="escalation-actions" oninput="updateCaseNotes()">N/A</textarea>
 
-        <label>Checked During Lookback:</label><br>
-        <label><input type="checkbox" id="checked-cases"> Prior Cases</label><br>
-        <label><input type="checkbox" id="checked-hosts"> Prior Hosts</label><br>
-        <label><input type="checkbox" id="checked-ioc"> Prior IoCs</label><br>
+            <label for="tuning-actions">Tuning Actions:</label>
+            <textarea id="tuning-actions" oninput="updateCaseNotes()">N/A</textarea>
+        </div>
 
-        <label for="alert-link">Alert Details (Paste Detection Link):</label>
-        <input type="text" id="alert-link" placeholder="https://example.com/detection">
-
-        <label for="escalation-actions">Escalation Actions:</label>
-        <textarea id="escalation-actions">N/A</textarea>
-
-        <label for="tuning-actions">Tuning Actions:</label>
-        <textarea id="tuning-actions">N/A</textarea>
-
-        <label for="lookup-output">Lookup Output (Optional - for AD or Alert Details):</label>
-        <textarea id="lookup-output"></textarea>
-
-        <div class="button-container">
-            <button onclick="generateCaseNotes()">Generate Notes</button>
+        <!-- Right Side: Output Preview -->
+        <div class="output-container">
+            <h3>Generated Case Notes</h3>
+            <pre id="raw-notes" class="notes-box"></pre>
             <button onclick="copyNotes()">Copy Notes</button>
             <button onclick="resetCaseNotes()">Reset</button>
         </div>
     </div>
-
-    <div id="raw-notes" class="notes-box"></div>
 </div>
 
 <script>
-    function generateCaseNotes() {
+    function updateCaseNotes() {
         let detectionTime = document.getElementById("detection-time").value.trim();
         let username = document.getElementById("username").value.trim();
         let hostname = document.getElementById("hostname").value.trim();
@@ -78,25 +72,22 @@
         let ruleDescription = document.getElementById("rule-description").value.trim();
         let aduserInput = document.getElementById("aduser-input").value.trim();
         let investigationNotes = document.getElementById("investigation-notes").value.trim();
-        let severity = document.getElementById("severity").value.trim();
-        let maliciousDetermination = document.getElementById("malicious-determination").value.trim();
         let escalationActions = document.getElementById("escalation-actions").value.trim();
         let tuningActions = document.getElementById("tuning-actions").value.trim();
-        let lookupOutput = document.getElementById("lookup-output").value.trim();
         let alertLink = document.getElementById("alert-link").value.trim();
 
-        // Extract Username & Title from AD User Data
-        let adUsername = aduserInput.match(/(?<=Name\s*:\s*)(\S+)/i)?.[0] || "Unknown";
-        let adTitle = aduserInput.match(/(?<=Title\s*:\s*)(.+)/i)?.[0] || "Unknown";
+        // Extract username and title from AD User Lookup
+        let adUsername = aduserInput.match(/^Name\s*:\s*(\S+)/im)?.[1] || "Unknown";
+        let adTitle = aduserInput.match(/^Title\s*:\s*(.+)/im)?.[1] || "Unknown";
 
         // Build Checked Items for Lookback Section
         let checkedItems = [];
-        if (document.getElementById("checked-cases").checked) checkedItems.push("- Checked prior cases");
-        if (document.getElementById("checked-hosts").checked) checkedItems.push("- Checked prior hosts");
-        if (document.getElementById("checked-ioc").checked) checkedItems.push("- Checked prior IoCs");
-        let checkedItemsText = checkedItems.length > 0 ? checkedItems.join("\n") : "";
+        if (document.getElementById("checked-cases").checked) checkedItems.push("Checked prior cases");
+        if (document.getElementById("checked-hosts").checked) checkedItems.push("Checked prior hosts");
+        if (document.getElementById("checked-ioc").checked) checkedItems.push("Checked prior IoCs");
+        let checkedItemsText = checkedItems.length > 0 ? `- ${checkedItems.join("\n- ")}` : "";
 
-        // Format Alert Link in Markdown
+        // Format Alert Link
         let alertDetails = alertLink ? `[Link to detection](${alertLink})` : "N/A";
 
         // Build Markdown Output
@@ -109,10 +100,6 @@ On **\`${detectionTime}\`**, the CTFC observed an XSOAR case for the user **\`${
 The way in which this event occurred was due to the user **\`${adUsername}\`** | **\`${adTitle}\`**  
 ${investigationNotes}
 
-Based on a 30-day lookback: **${severity}**  
-
-CTFC has declared this event to be **${maliciousDetermination}**.  
-
 ## **Analysis**
 ${checkedItemsText}
 
@@ -124,8 +111,6 @@ ${alertDetails}
 
 ### **Tuning Actions**
 - ${tuningActions}
-
-${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ''}
         `.trim();
 
         document.getElementById("raw-notes").textContent = markdownNotes;
@@ -139,8 +124,8 @@ ${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ''}
     }
 
     function resetCaseNotes() {
-        document.querySelectorAll("#case-notes input, #case-notes textarea, #case-notes select").forEach(field => {
-            field.value = field.tagName === "SELECT" ? field.options[0].value : "";
+        document.querySelectorAll("#case-notes input, #case-notes textarea").forEach(field => {
+            field.value = "";
         });
 
         document.querySelectorAll("#case-notes input[type=checkbox]").forEach(checkbox => {
@@ -152,19 +137,49 @@ ${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ''}
 </script>
 
 <style>
+    .notes-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .form-container {
+        width: 50%;
+    }
+
+    .output-container {
+        width: 45%;
+        background: black;
+        padding: 10px;
+        border: 2px solid #00ff00;
+        box-shadow: 0 0 10px #00ff00;
+    }
+
     .notes-box {
         border: 2px solid #00ff00;
         padding: 10px;
-        margin-top: 15px;
+        margin-top: 10px;
         background-color: #111;
         color: #00ff00;
         white-space: pre-wrap;
     }
 
-    /* Fix checkboxes styling */
+    .lookback-container {
+        border: 2px solid #00ff00;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+
+    .lookback-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 5px 0;
+    }
+
     input[type="checkbox"] {
-        accent-color: #00ff00; /* Makes checkboxes green */
-        transform: scale(1.2); /* Adjusts size */
-        margin-right: 5px;
+        transform: scale(0.8);
+        accent-color: #00ff00;
     }
 </style>
