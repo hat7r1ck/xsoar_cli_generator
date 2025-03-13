@@ -147,15 +147,36 @@ ${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ""}
 </script>
 
 <style>
+    /* Checkboxes now green and properly sized */
     .checkbox-group input {
         transform: scale(0.8);
         margin-right: 5px;
+        background-color: black;
+        border: 2px solid #00ff00;
+        color: #00ff00;
     }
+
+    /* Adjusting text areas and layout */
+    .notes-container {
+        display: flex;
+        gap: 20px;
+        justify-content: space-between;
+    }
+
+    .checkbox-group {
+        width: 40%;
+    }
+
+    .notes-output {
+        width: 55%;
+    }
+
     .notes-box {
         border: 2px solid #00ff00;
         padding: 10px;
         background-color: #111;
         color: #00ff00;
         white-space: pre-wrap;
+        margin-top: 20px;
     }
 </style>
