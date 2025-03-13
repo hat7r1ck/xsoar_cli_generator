@@ -41,27 +41,22 @@
 
         <h3>Analysis</h3>
 
-        <div class="notes-container">
-            <div class="checkbox-group">
-                <label><input type="checkbox" id="checked-cases"> Checked prior cases</label>
-                <label><input type="checkbox" id="checked-hosts"> Checked prior hosts</label>
-                <label><input type="checkbox" id="checked-ioc"> Checked prior IoCs</label>
-            </div>
+        <label>Checked During Lookback:</label><br>
+        <label><input type="checkbox" id="checked-cases"> Prior Cases</label><br>
+        <label><input type="checkbox" id="checked-hosts"> Prior Hosts</label><br>
+        <label><input type="checkbox" id="checked-ioc"> Prior IoCs</label><br>
 
-            <div class="notes-output">
-                <label for="alert-link">Alert Details (Paste Detection Link):</label>
-                <input type="text" id="alert-link" placeholder="https://example.com/detection">
+        <label for="alert-link">Alert Details (Paste Detection Link):</label>
+        <input type="text" id="alert-link" placeholder="https://example.com/detection">
 
-                <label for="escalation-actions">Escalation Actions:</label>
-                <textarea id="escalation-actions">N/A</textarea>
+        <label for="escalation-actions">Escalation Actions:</label>
+        <textarea id="escalation-actions">N/A</textarea>
 
-                <label for="tuning-actions">Tuning Actions:</label>
-                <textarea id="tuning-actions">N/A</textarea>
+        <label for="tuning-actions">Tuning Actions:</label>
+        <textarea id="tuning-actions">N/A</textarea>
 
-                <label for="lookup-output">Lookup Output (Optional - for AD or Alert Details):</label>
-                <textarea id="lookup-output"></textarea>
-            </div>
-        </div>
+        <label for="lookup-output">Lookup Output (Optional - for AD or Alert Details):</label>
+        <textarea id="lookup-output"></textarea>
 
         <div class="button-container">
             <button onclick="generateCaseNotes()">Generate Notes</button>
@@ -70,7 +65,7 @@
         </div>
     </div>
 
-    <pre id="raw-notes" class="notes-box"></pre>
+    <div id="raw-notes" class="notes-box"></div>
 </div>
 
 <script>
@@ -90,38 +85,48 @@
         let lookupOutput = document.getElementById("lookup-output").value.trim();
         let alertLink = document.getElementById("alert-link").value.trim();
 
+        // Extract Username & Title from AD User Data
+        let adUsername = aduserInput.match(/(?<=Name\s*:\s*)(\S+)/i)?.[0] || "Unknown";
+        let adTitle = aduserInput.match(/(?<=Title\s*:\s*)(.+)/i)?.[0] || "Unknown";
+
+        // Build Checked Items for Lookback Section
+        let checkedItems = [];
+        if (document.getElementById("checked-cases").checked) checkedItems.push("- Checked prior cases");
+        if (document.getElementById("checked-hosts").checked) checkedItems.push("- Checked prior hosts");
+        if (document.getElementById("checked-ioc").checked) checkedItems.push("- Checked prior IoCs");
+        let checkedItemsText = checkedItems.length > 0 ? checkedItems.join("\n") : "";
+
+        // Format Alert Link in Markdown
+        let alertDetails = alertLink ? `[Link to detection](${alertLink})` : "N/A";
+
+        // Build Markdown Output
         let markdownNotes = `
-### **Incident Summary**
 On **\`${detectionTime}\`**, the CTFC observed an XSOAR case for the user **\`${username}\`** seen generating a detection **\`${detectionName}\`** on the host **\`${hostname}\`**.
 
-**Rule Name:** ${ruleName}  
-**Rule Description:** ${ruleDescription}  
+> **Rule Name:** ${ruleName}  
+> **Rule Description:** ${ruleDescription}  
 
-### **Investigation Notes**
+The way in which this event occurred was due to the user **\`${adUsername}\`** | **\`${adTitle}\`**  
 ${investigationNotes}
 
-### **30-Day Lookback**
-Severity: **${severity}**
+Based on a 30-day lookback: **${severity}**  
 
-### **Determination**
-CTFC has declared this event to be **${maliciousDetermination}**.
+CTFC has declared this event to be **${maliciousDetermination}**.  
 
-### **Checked During Lookback**
-${document.getElementById("checked-cases").checked ? "- Checked prior cases\n" : ""}
-${document.getElementById("checked-hosts").checked ? "- Checked prior hosts\n" : ""}
-${document.getElementById("checked-ioc").checked ? "- Checked prior IoCs\n" : ""}
+## **Analysis**
+${checkedItemsText}
 
 ### **Alert Details**
-${alertLink ? `[Link to detection](${alertLink})` : "N/A"}
+${alertDetails}
 
 ### **Escalation Actions**
-${escalationActions}
+- ${escalationActions}
 
 ### **Tuning Actions**
-${tuningActions}
+- ${tuningActions}
 
-${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ""}
-`.trim();
+${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ''}
+        `.trim();
 
         document.getElementById("raw-notes").textContent = markdownNotes;
     }
@@ -147,36 +152,19 @@ ${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ""}
 </script>
 
 <style>
-    /* Checkboxes now green and properly sized */
-    .checkbox-group input {
-        transform: scale(0.8);
-        margin-right: 5px;
-        background-color: black;
-        border: 2px solid #00ff00;
-        color: #00ff00;
-    }
-
-    /* Adjusting text areas and layout */
-    .notes-container {
-        display: flex;
-        gap: 20px;
-        justify-content: space-between;
-    }
-
-    .checkbox-group {
-        width: 40%;
-    }
-
-    .notes-output {
-        width: 55%;
-    }
-
     .notes-box {
         border: 2px solid #00ff00;
         padding: 10px;
+        margin-top: 15px;
         background-color: #111;
         color: #00ff00;
         white-space: pre-wrap;
-        margin-top: 20px;
+    }
+
+    /* Fix checkboxes styling */
+    input[type="checkbox"] {
+        accent-color: #00ff00; /* Makes checkboxes green */
+        transform: scale(1.2); /* Adjusts size */
+        margin-right: 5px;
     }
 </style>
