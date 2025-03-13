@@ -156,20 +156,22 @@ ${alertDetails}
         white-space: pre-wrap;
         overflow-y: auto;
         height: 400px;
+        width: 100%;
     }
 
     .lookback-container {
-        border: 2px solid #00ff00;
-        padding: 10px;
-        margin-bottom: 10px;
         display: flex;
         flex-direction: column;
         gap: 8px;
+        border: 2px solid #00ff00;
+        padding: 10px;
+        margin-bottom: 10px;
     }
 
     input[type="checkbox"] {
-        transform: scale(1);
+        transform: scale(1.2);
         accent-color: #00ff00;
+        margin-right: 8px;
     }
 
     button {
