@@ -77,8 +77,10 @@
     <pre id="raw-notes" class="notes-box" style="display:none;"></pre>
 </div>
 
+<!-- Load Marked.js for Markdown Rendering -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.0/marked.min.js"></script>
+
 <script>
-    // Function to Generate Case Notes in Markdown
     function generateCaseNotes() {
         let detectionTime = document.getElementById("detection-time").value.trim();
         let username = document.getElementById("username").value.trim();
@@ -95,54 +97,43 @@
         let lookupOutput = document.getElementById("lookup-output").value.trim();
         let alertLink = document.getElementById("alert-link").value.trim();
 
-        // Parse AD User Data for Username and Title
-        let adUsername = aduserInput.match(/(?<=Name\s*:\s*)(\S+)/i)?.[0] || "Unknown";
-        let adTitle = aduserInput.match(/(?<=Title\s*:\s*)(.+)/i)?.[0] || "Unknown";
-
-        // Build Checked Items for Lookback Section
-        let checkedItems = [];
-        if (document.getElementById("checked-cases").checked) checkedItems.push("Checked prior cases");
-        if (document.getElementById("checked-hosts").checked) checkedItems.push("Checked prior hosts");
-        if (document.getElementById("checked-ioc").checked) checkedItems.push("Checked prior IoCs");
-        let checkedItemsText = checkedItems.length > 0 ? `- ${checkedItems.join("\n- ")}` : "";
-
-        // Format Alert Link in Markdown
-        let alertDetails = alertLink ? `[Link to detection](${alertLink})` : "N/A";
-
-        // Build Markdown Output
         let markdownNotes = `
+### **Incident Summary**
 On **\`${detectionTime}\`**, the CTFC observed an XSOAR case for the user **\`${username}\`** seen generating a detection **\`${detectionName}\`** on the host **\`${hostname}\`**.
 
-> **Rule Name:** ${ruleName}  
-> **Rule Description:** ${ruleDescription}  
+**Rule Name:** ${ruleName}  
+**Rule Description:** ${ruleDescription}  
 
-The way in which this event occurred was due to the user **\`${adUsername}\`** | **\`${adTitle}\`**  
+### **Investigation Notes**
 ${investigationNotes}
 
-Based on a 30-day lookback: **${severity}**  
+### **30-Day Lookback**
+Severity: **${severity}**
 
-CTFC has declared this event to be **${maliciousDetermination}**.  
+### **Determination**
+CTFC has declared this event to be **${maliciousDetermination}**.
 
-## **Analysis**
-${checkedItemsText}
+### **Checked During Lookback**
+${document.getElementById("checked-cases").checked ? "- Checked prior cases\n" : ""}
+${document.getElementById("checked-hosts").checked ? "- Checked prior hosts\n" : ""}
+${document.getElementById("checked-ioc").checked ? "- Checked prior IoCs\n" : ""}
 
 ### **Alert Details**
-${alertDetails}
+${alertLink ? `[Link to detection](${alertLink})` : "N/A"}
 
 ### **Escalation Actions**
-- ${escalationActions}
+${escalationActions}
 
 ### **Tuning Actions**
-- ${tuningActions}
+${tuningActions}
 
-${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ''}
-        `.trim();
+${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ""}
+`.trim();
 
         document.getElementById("raw-notes").textContent = markdownNotes;
         document.getElementById("rendered-notes").innerHTML = marked.parse(markdownNotes);
     }
 
-    // Function to Toggle Raw Markdown View
     function toggleRawMarkdown() {
         let rawNotes = document.getElementById("raw-notes");
         let renderedNotes = document.getElementById("rendered-notes");
@@ -156,7 +147,6 @@ ${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ''}
         }
     }
 
-    // Function to Copy Markdown Notes to Clipboard
     function copyNotes() {
         let markdownText = document.getElementById("raw-notes").textContent;
         navigator.clipboard.writeText(markdownText).then(() => {
@@ -164,7 +154,6 @@ ${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ''}
         });
     }
 
-    // Function to Reset All Fields
     function resetCaseNotes() {
         document.querySelectorAll("#case-notes input, #case-notes textarea, #case-notes select").forEach(field => {
             field.value = field.tagName === "SELECT" ? field.options[0].value : "";
@@ -178,3 +167,17 @@ ${lookupOutput ? `### **Lookup Output**\n\`\`\`\n${lookupOutput}\n\`\`\`` : ''}
         document.getElementById("raw-notes").textContent = "";
     }
 </script>
+
+<style>
+    .checkbox-group input {
+        transform: scale(0.8);
+        margin-right: 5px;
+    }
+    .notes-box {
+        border: 2px solid #00ff00;
+        padding: 10px;
+        background-color: #111;
+        color: #00ff00;
+        white-space: pre-wrap;
+    }
+</style>
