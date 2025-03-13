@@ -1,0 +1,17 @@
+function resetForm() {
+    document.getElementById("xsoar-cli-form").reset(); // Standard form reset
+
+    // Loop through all inputs, selects, and textareas inside the form
+    document.querySelectorAll("#xsoar-cli-form input, #xsoar-cli-form select, #xsoar-cli-form textarea").forEach(field => {
+        if (field.tagName === "TEXTAREA") {
+            field.value = "N/A"; // Reset text areas to N/A
+        } else if (field.tagName === "INPUT" && field.type !== "checkbox") {
+            field.value = ""; // Clear input fields
+        } else if (field.tagName === "SELECT") {
+            field.selectedIndex = 0; // Reset dropdowns to first option
+        }
+    });
+
+    // Clear CLI output box
+    document.getElementById("cli-output").textContent = "";
+}
