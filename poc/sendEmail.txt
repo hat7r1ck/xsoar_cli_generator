@@ -1,86 +1,68 @@
-function sendEmail() {
-    let caseNumber = document.getElementById("report-case-number").textContent;
-    let linkedCases = document.getElementById("report-linked-cases").textContent;
-    let closeReason = document.getElementById("report-close-reason").textContent;
-
-    let emailSubject = `Case Flood Report - ${caseNumber}`;
-
-    let emailBody = `
-        <p>Dear Team,</p>
-        <p>This email is being sent to provide details on the case flood related to case number <strong>${caseNumber}</strong>.</p>
-        <p>Below are the details of the case flood:</p>
-        <table border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; width: 100%; font-family: Courier New;">
-            <tr>
-                <th style="background-color: #111; color: #00ff00; border: 1px solid #00ff00;">Field</th>
-                <th style="background-color: #111; color: #00ff00; border: 1px solid #00ff00;">Value</th>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #00ff00;">Parent Case Number</td>
-                <td style="border: 1px solid #00ff00;">${caseNumber}</td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #00ff00;">Linked Cases</td>
-                <td style="border: 1px solid #00ff00;">${linkedCases}</td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #00ff00;">Close Reason</td>
-                <td style="border: 1px solid #00ff00;">${closeReason}</td>
-            </tr>
-        </table>
-        <p>If there are any questions or concerns, please let me know.</p>
-        <p>Best regards,<br>[Your Name]</p>
-    `;
-
-    let mailtoLink = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    
-    let emailWindow = window.open();
-    emailWindow.document.write(`
-        <html>
-            <head><title>Email Preview</title></head>
-            <body style="background-color: black; color: #00ff00; font-family: Courier New;">
-                ${emailBody}
-                <p><strong>Click below to open your email client:</strong></p>
-                <a href="${mailtoLink}" style="color: #00ff00; font-weight: bold;">Send Email</a>
-            </body>
-        </html>
-    `);
-}
-
-function generateFloodReportEmail() {
-    let caseNumber = document.getElementById("parent-case").value.trim();
+function generateFloodReport() {
+    let caseID = document.getElementById("parent-case").value.trim();
     let linkedCases = document.getElementById("link-cases-cli").value;
-    let closeReason = document.getElementById("close-cases-cli").value;
+    let closeCases = document.getElementById("close-cases-cli").value;
 
-    if (!caseNumber) {
-        alert("No case number provided.");
+    if (!caseID) {
+        alert("Enter a valid Case ID before generating the report.");
         return;
     }
 
-    let emailSubject = `Case Flood Report - ${caseNumber}`;
+    let tableHTML = `
+        <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background-color: #222; color: #00ff00;">
+                    <th style="padding: 8px; border: 1px solid #00ff00;">Case ID</th>
+                    <th style="padding: 8px; border: 1px solid #00ff00;">Linked Cases</th>
+                    <th style="padding: 8px; border: 1px solid #00ff00;">Close Cases</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #00ff00;">${caseID}</td>
+                    <td style="padding: 8px; border: 1px solid #00ff00;">${linkedCases}</td>
+                    <td style="padding: 8px; border: 1px solid #00ff00;">${closeCases}</td>
+                </tr>
+            </tbody>
+        </table>
+    `;
+
+    document.getElementById("flood-report-output").innerHTML = tableHTML;
+}
+
+function generateFloodReportEmail() {
+    let floodReportOutput = document.getElementById("flood-report-output").innerHTML;
+    if (!floodReportOutput.trim()) {
+        alert("No flood report has been generated yet.");
+        return;
+    }
+
+    let caseID = document.getElementById("parent-case").value.trim();
+    let subject = `Case Flood Report - ${caseID || "[Insert Case ID Here]"}`;
+
     let emailBody = `
-Dear [Recipient Name],
+Dear Team,
 
-This email is being sent to provide details on a case flood situation that has been observed.
+This email provides details on the recent case floods.
 
----
+--------------------------------
+${floodReportOutput.replace(/<\/?[^>]+(>|$)/g, '')} <!-- Converts the table into text -->
+--------------------------------
 
-**Parent Case Number:** ${caseNumber}  
-**Linked Cases:** ${linkedCases}  
-**Close Reason:** ${closeReason}  
+If you have any questions, please let me know.
 
----
-
-If there are any questions or concerns, please let me know.
-
-Best regards,  
+Best,
 [Your Name]
     `;
 
-    // Open default email client with a pre-filled draft
-    let mailtoLink = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    let mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
     window.location.href = mailtoLink;
 }
 
 
-<div id="case-flood-output" style="margin-top: 15px; text-align: left;"></div>
+<button onclick="generateFloodReport()">Generate Report</button>
 <button onclick="generateFloodReportEmail()">Generate Email</button>
+
+<div id="flood-report-output" style="margin-top: 15px; padding: 10px; border: 2px solid #00ff00; background-color: #111; color: #00ff00;">
+    <!-- Flood report preview will appear here -->
+</div>
