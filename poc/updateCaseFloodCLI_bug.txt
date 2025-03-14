@@ -50,6 +50,11 @@
 
             <label for="alert-link">Alert Details (Paste Detection Link):</label>
             <input type="text" id="alert-link" placeholder="https://example.com/detection">
+
+            <div class="button-container">
+                <button onclick="copyNotes()">Copy Notes</button>
+                <button onclick="resetCaseNotes()">Reset</button>
+            </div>
         </div>
 
         <!-- Right: Case Notes Output -->
@@ -59,7 +64,6 @@
         </div>
     </div>
 </div>
-
 
 .notes-container {
     display: flex;
@@ -111,7 +115,6 @@ input[type="checkbox"] {
     transform: scale(1.2);
     accent-color: #00ff00;
 }
-
 
 // Auto-generate notes as user types
 document.querySelectorAll("#case-notes input, #case-notes textarea, #case-notes select").forEach(field => {
@@ -168,4 +171,25 @@ ${alertDetails}
     `.trim();
 
     document.getElementById("raw-notes").textContent = markdownNotes;
+}
+
+// Function to Copy Markdown Notes to Clipboard
+function copyNotes() {
+    let markdownText = document.getElementById("raw-notes").textContent;
+    navigator.clipboard.writeText(markdownText).then(() => {
+        alert("Case notes copied in Markdown format!");
+    });
+}
+
+// Function to Reset All Fields
+function resetCaseNotes() {
+    document.querySelectorAll("#case-notes input, #case-notes textarea, #case-notes select").forEach(field => {
+        field.value = field.tagName === "SELECT" ? field.options[0].value : "";
+    });
+
+    document.querySelectorAll("#case-notes input[type=checkbox]").forEach(checkbox => {
+        checkbox.checked = false;
+    });
+
+    document.getElementById("raw-notes").textContent = "";
 }
