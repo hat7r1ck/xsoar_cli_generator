@@ -1,226 +1,165 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="dark">
-    <title>XSOAR Case Tools</title>
-    <style>
-        /* === Global Styles === */
-        body {
-            background-color: #000;
-            color: #00ff00;
-            font-family: 'Courier New', Courier, monospace;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-shadow: 0 0 10px #00ff00;
-        }
-        .form-container, .tab-content {
-            width: 90%;
-            max-width: 800px;
-            margin: auto;
-            text-align: left;
-            border: 2px solid #00ff00;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #111;
-            box-shadow: 0 0 15px #00ff00;
-        }
-        .tab-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .tab-button {
-            background-color: black;
-            color: #00ff00;
-            border: 2px solid #00ff00;
-            padding: 10px 15px;
-            cursor: pointer;
-            text-align: center;
-        }
-        .tab-button:hover {
-            background-color: #00ff00;
-            color: black;
-        }
-        .tab-content {
-            display: none;
-        }
-        .active-tab {
-            display: block;
-        }
+<!-- Case Notes Section -->
+<div id="case-notes" class="tab-content">
+    <h2>Case Notes Generator</h2>
 
-        /* === Case Notes Layout === */
-        #case-notes {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        #notes-left, #notes-right {
-            width: 48%;
-            padding: 15px;
-            border: 2px solid #00ff00;
-            box-shadow: 0 0 10px #00ff00;
-            border-radius: 8px;
-        }
-        #notes-left input, #notes-left select, #notes-left textarea {
-            width: 100%;
-            margin-top: 5px;
-            padding: 8px;
-            background: black;
-            color: #00ff00;
-            border: 1px solid #00ff00;
-            box-sizing: border-box;
-        }
-        #notes-left textarea {
-            resize: vertical;
-            height: 50px;
-        }
-        #lookback-container {
-            border: 2px solid #00ff00;
-            padding: 10px;
-            background: #111;
-            margin-top: 10px;
-        }
-        .lookback-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 5px;
-        }
-        .lookback-item label {
-            flex: 1;
-        }
-        .lookback-item input[type="checkbox"] {
-            transform: scale(1.2);
-            accent-color: #00ff00;
-        }
-        #notes-output {
-            border: 2px solid #00ff00;
-            background: #111;
-            color: #00ff00;
-            white-space: pre-wrap;
-            overflow-y: auto;
-            height: 400px;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-        .button-container button {
-            width: 48%;
-            padding: 10px;
-            background: black;
-            color: #00ff00;
-            border: 2px solid #00ff00;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 0 5px #00ff00;
-        }
-        .button-container button:hover {
-            background: #00ff00;
-            color: black;
-        }
-    </style>
-</head>
-<body>
+    <div class="form-container">
+        <label for="detection-time">Detection Time:</label>
+        <input type="text" id="detection-time" oninput="updateCaseNotes()">
 
-    <h1>XSOAR Case Tools</h1>
+        <label for="username">Username:</label>
+        <input type="text" id="username" oninput="updateCaseNotes()">
 
-    <div class="tab-container">
-        <button class="tab-button" onclick="showTab('cli-generator')">CLI Generator</button>
-        <button class="tab-button" onclick="showTab('case-notes')">Case Notes</button>
-    </div>
+        <label for="hostname">Host Name:</label>
+        <input type="text" id="hostname" oninput="updateCaseNotes()">
 
-    <!-- CLI Generator -->
-    <div id="cli-generator" class="tab-content active-tab">
-        <h2>CLI Generator</h2>
-        <div class="form-container">
-            <label for="occurred-time">Occurred Time (UTC):</label>
-            <input type="datetime-local" id="occurred-time">
-            <button onclick="generateCLI()">Generate</button>
-            <pre id="cli-output"></pre>
-            <button onclick="copyCLI()">Copy</button>
-        </div>
-    </div>
+        <label for="detection-name">Detection Name:</label>
+        <input type="text" id="detection-name" oninput="updateCaseNotes()">
 
-    <!-- Case Notes Generator -->
-    <div id="case-notes" class="tab-content">
-        <h2>Case Notes Generator</h2>
-        <div id="notes-left">
-            <label for="detection-time">Detection Time:</label>
-            <input type="text" id="detection-time" oninput="generateNotes()">
+        <label for="rule-name">Rule Name:</label>
+        <input type="text" id="rule-name" oninput="updateCaseNotes()">
 
-            <label for="username">Username:</label>
-            <input type="text" id="username" oninput="generateNotes()">
+        <label for="rule-description">Rule Description:</label>
+        <textarea id="rule-description" oninput="updateCaseNotes()"></textarea>
 
-            <label for="hostname">Host Name:</label>
-            <input type="text" id="hostname" oninput="generateNotes()">
+        <label for="aduser-input">AD User Lookup (Copy from Get-ADUser):</label>
+        <textarea id="aduser-input" placeholder="Paste raw ADUser output" oninput="updateCaseNotes()"></textarea>
 
-            <label for="detection-name">Detection Name:</label>
-            <input type="text" id="detection-name" oninput="generateNotes()">
+        <label for="investigation-notes">Investigation Notes:</label>
+        <textarea id="investigation-notes" oninput="updateCaseNotes()"></textarea>
 
+        <label for="severity">30-Day Lookback Severity:</label>
+        <select id="severity" onchange="updateCaseNotes()">
+            <option value="No change in severity">No change in severity</option>
+            <option value="Requires a change in severity">Requires a change in severity</option>
+        </select>
+
+        <label for="malicious-determination">Determination:</label>
+        <select id="malicious-determination" onchange="updateCaseNotes()">
+            <option value="Not Malicious and no further action is needed">Not Malicious and no further action is needed</option>
+            <option value="Malicious">Malicious</option>
+        </select>
+
+        <!-- Lookback Section -->
+        <div class="checkbox-container">
             <h4>Lookback</h4>
-            <div id="lookback-container">
-                <div class="lookback-item">
-                    <input type="checkbox" id="checked-cases" onchange="generateNotes()">
-                    <label for="checked-cases">Checked prior cases</label>
-                </div>
-                <div class="lookback-item">
-                    <input type="checkbox" id="checked-hosts" onchange="generateNotes()">
-                    <label for="checked-hosts">Checked prior hosts</label>
-                </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="checked-cases" onchange="updateCaseNotes()"> Checked prior cases
             </div>
-
-            <div class="button-container">
-                <button onclick="copyNotes()">Copy Notes</button>
-                <button onclick="resetNotes()">Reset</button>
+            <div class="checkbox-item">
+                <input type="checkbox" id="checked-hosts" onchange="updateCaseNotes()"> Checked prior hosts
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="checked-ioc" onchange="updateCaseNotes()"> Checked prior IoCs
             </div>
         </div>
 
-        <div id="notes-right">
-            <h3>Generated Case Notes</h3>
-            <pre id="notes-output"></pre>
+        <label for="alert-link">Alert Details (Paste Detection Link):</label>
+        <input type="text" id="alert-link" placeholder="https://example.com/detection" oninput="updateCaseNotes()">
+
+        <!-- Case Notes Output -->
+        <h3>Generated Case Notes</h3>
+        <textarea id="case-notes-output" readonly></textarea>
+
+        <div class="button-container">
+            <button onclick="copyNotes()">Copy Notes</button>
+            <button onclick="resetCaseNotes()">Reset</button>
         </div>
     </div>
+</div>
 
-    <script>
-        function showTab(tabId) {
-            document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active-tab"));
-            document.getElementById(tabId).classList.add("active-tab");
-        }
+<script>
+    function updateCaseNotes() {
+        let detectionTime = document.getElementById("detection-time").value.trim();
+        let username = document.getElementById("username").value.trim();
+        let hostname = document.getElementById("hostname").value.trim();
+        let detectionName = document.getElementById("detection-name").value.trim();
+        let ruleName = document.getElementById("rule-name").value.trim();
+        let ruleDescription = document.getElementById("rule-description").value.trim();
+        let aduserInput = document.getElementById("aduser-input").value.trim();
+        let investigationNotes = document.getElementById("investigation-notes").value.trim();
+        let severity = document.getElementById("severity").value.trim();
+        let maliciousDetermination = document.getElementById("malicious-determination").value.trim();
+        let alertLink = document.getElementById("alert-link").value.trim();
 
-        function generateNotes() {
-            let detectionTime = document.getElementById("detection-time").value.trim();
-            let username = document.getElementById("username").value.trim();
-            let hostname = document.getElementById("hostname").value.trim();
-            let detectionName = document.getElementById("detection-name").value.trim();
+        // Lookback checkboxes
+        let checkedItems = [];
+        if (document.getElementById("checked-cases").checked) checkedItems.push("- Checked prior cases");
+        if (document.getElementById("checked-hosts").checked) checkedItems.push("- Checked prior hosts");
+        if (document.getElementById("checked-ioc").checked) checkedItems.push("- Checked prior IoCs");
+        let checkedItemsText = checkedItems.length > 0 ? checkedItems.join("\n") : "";
 
-            let md = `
-On **\`${detectionTime}\`**, XSOAR detected activity for **\`${username}\`** on **\`${hostname}\`**.
+        // AD User Parsing
+        let adUsername = aduserInput.match(/^Name\s*:\s*(.+)$/im)?.[1] || "Unknown";
+        let adTitle = aduserInput.match(/^Title\s*:\s*(.+)$/im)?.[1] || "Unknown";
 
-Detection Name: **${detectionName}**
-            `.trim();
+        // Alert Link Formatting
+        let alertDetails = alertLink ? `[Link to detection](${alertLink})` : "N/A";
 
-            document.getElementById("notes-output").textContent = md;
-        }
+        // Build Case Notes
+        let caseNotes = `
+On **${detectionTime}**, the CTFC observed an XSOAR case for the user **${username}** seen generating a detection **${detectionName}** on the host **${hostname}**.
 
-        function copyNotes() {
-            navigator.clipboard.writeText(document.getElementById("notes-output").textContent);
-        }
+> **Rule Name:** ${ruleName}  
+> **Rule Description:** ${ruleDescription}  
 
-        function resetNotes() {
-            document.querySelectorAll("#case-notes input").forEach(el => el.value = "");
-            document.getElementById("notes-output").textContent = "";
-        }
-    </script>
-</body>
-</html>
+The way in which this event occurred was due to the user **${adUsername}** | **${adTitle}**  
+${investigationNotes}
+
+Based on a 30-day lookback: **${severity}**  
+
+CTFC has declared this event to be **${maliciousDetermination}**.  
+
+## **Analysis**
+${checkedItemsText}
+
+### **Alert Details**
+${alertDetails}
+        `.trim();
+
+        document.getElementById("case-notes-output").value = caseNotes;
+    }
+
+    function copyNotes() {
+        let notes = document.getElementById("case-notes-output").value;
+        navigator.clipboard.writeText(notes).then(() => {
+            alert("Case notes copied!");
+        });
+    }
+
+    function resetCaseNotes() {
+        document.querySelectorAll("#case-notes input, #case-notes textarea, #case-notes select").forEach(field => {
+            field.value = field.tagName === "SELECT" ? field.options[0].value : "";
+        });
+
+        document.querySelectorAll("#case-notes input[type=checkbox]").forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        document.getElementById("case-notes-output").value = "";
+    }
+</script>
+
+<style>
+    .checkbox-container {
+        border: 2px solid #00ff00;
+        padding: 10px;
+        margin: 10px 0;
+        background-color: #111;
+    }
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    .checkbox-item input {
+        margin-right: 10px;
+    }
+    #case-notes-output {
+        width: 100%;
+        height: 150px;
+        background-color: #111;
+        color: #00ff00;
+        border: 2px solid #00ff00;
+        white-space: pre-wrap;
+    }
+</style>
