@@ -1,0 +1,49 @@
+function sendEmail() {
+    let caseNumber = document.getElementById("report-case-number").textContent;
+    let linkedCases = document.getElementById("report-linked-cases").textContent;
+    let closeReason = document.getElementById("report-close-reason").textContent;
+
+    let emailSubject = `Case Flood Report - ${caseNumber}`;
+
+    let emailBody = `
+        <p>Dear Team,</p>
+        <p>This email is being sent to provide details on the case flood related to case number <strong>${caseNumber}</strong>.</p>
+        <p>Below are the details of the case flood:</p>
+        <table border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; width: 100%; font-family: Courier New;">
+            <tr>
+                <th style="background-color: #111; color: #00ff00; border: 1px solid #00ff00;">Field</th>
+                <th style="background-color: #111; color: #00ff00; border: 1px solid #00ff00;">Value</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #00ff00;">Parent Case Number</td>
+                <td style="border: 1px solid #00ff00;">${caseNumber}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #00ff00;">Linked Cases</td>
+                <td style="border: 1px solid #00ff00;">${linkedCases}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #00ff00;">Close Reason</td>
+                <td style="border: 1px solid #00ff00;">${closeReason}</td>
+            </tr>
+        </table>
+        <p>If there are any questions or concerns, please let me know.</p>
+        <p>Best regards,<br>[Your Name]</p>
+    `;
+
+    let mailtoLink = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    
+    let emailWindow = window.open();
+    emailWindow.document.write(`
+        <html>
+            <head><title>Email Preview</title></head>
+            <body style="background-color: black; color: #00ff00; font-family: Courier New;">
+                ${emailBody}
+                <p><strong>Click below to open your email client:</strong></p>
+                <a href="${mailtoLink}" style="color: #00ff00; font-weight: bold;">Send Email</a>
+            </body>
+        </html>
+    `);
+}
+
+<div id="case-flood-output" style="margin-top: 15px; text-align: left;"></div>
