@@ -91,17 +91,18 @@
     overflow-y: auto;
     height: 400px;
     width: 100%;
+    border-radius: 10px;
 }
 
 .checkbox-group {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    border: 2px solid #00ff00;
+    gap: 8px;
     padding: 10px;
     margin-top: 10px;
     border-radius: 5px;
     background-color: #111;
+    border: 2px solid #00ff00;
 }
 
 .checkbox-group label {
@@ -114,6 +115,12 @@
 input[type="checkbox"] {
     transform: scale(1.2);
     accent-color: #00ff00;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 10px;
 }
 
 // Auto-generate notes as user types
@@ -135,11 +142,11 @@ function generateCaseNotes() {
     let maliciousDetermination = document.getElementById("malicious-determination").value.trim();
     let alertLink = document.getElementById("alert-link").value.trim();
 
-    // AD User Lookup Parsing (CORRECTED)
+    // AD User Lookup Parsing (FIXED)
     let adUsername = aduserInput.match(/^Name\s*:\s*(.+)$/m)?.[1]?.trim() || "Unknown";
     let adTitle = aduserInput.match(/^Title\s*:\s*(.+)$/m)?.[1]?.trim() || "Unknown";
 
-    // Lookback Section Checkboxes (SINGLE LINE SPACING FIXED)
+    // Lookback Section Checkboxes (PROPERLY FORMATTED)
     let checkedItems = [];
     if (document.getElementById("checked-cases").checked) checkedItems.push("- Checked prior cases");
     if (document.getElementById("checked-hosts").checked) checkedItems.push("- Checked prior hosts");
