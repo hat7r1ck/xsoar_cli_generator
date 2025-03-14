@@ -1,0 +1,23 @@
+function updateCaseFloodCLI() {
+    let parentCaseInput = document.getElementById("parent-case");
+    let parentCase = parentCaseInput.value.trim();
+
+    // Extract the first number and discard everything after a space/underscore
+    let match = parentCase.match(/^#?(\d+)(?=\s|_|$)/);
+    let caseNumber = match ? match[1] : "";
+
+    // If completely empty, ensure total reset (no stuck digit)
+    if (!caseNumber) {
+        parentCaseInput.value = "";
+        document.getElementById("link-cases-cli").value = "";
+        document.getElementById("close-cases-cli").value = "";
+        return;
+    }
+
+    // Set cleaned case number back into the input field
+    parentCaseInput.value = caseNumber;
+
+    // Generate CLI outputs
+    document.getElementById("link-cases-cli").value = `!linkIncidents linkedIncidentIDs=${caseNumber} action=link`;
+    document.getElementById("close-cases-cli").value = `!closeInvestigation closeReason="Resolved" closeNotes="Please reference parent case #${caseNumber}. All notes, attachments, and resolution will be found there."`;
+}
