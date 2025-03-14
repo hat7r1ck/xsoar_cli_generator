@@ -41,23 +41,24 @@ function generateFloodReportEmail() {
     let subject = `Case Flood Report - ${caseID || "[Insert Case ID Here]"}`;
 
     let emailBody = `
-Dear Team,
-
-This email provides details on the recent case floods.
-
---------------------------------
-${floodReportOutput.replace(/<\/?[^>]+(>|$)/g, '')} <!-- Converts the table into text -->
---------------------------------
-
-If you have any questions, please let me know.
-
-Best,
-[Your Name]
+        <p>Dear Team,</p>
+        <p>This email provides details on the recent case floods.</p>
+        <hr>
+        ${floodReportOutput}  <!-- This keeps the table formatting -->
+        <hr>
+        <p>If you have any questions, please let me know.</p>
+        <p>Best,<br>[Your Name]</p>
     `;
 
     let mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-    window.location.href = mailtoLink;
+
+    // Open email client with formatted HTML
+    let emailWindow = window.open(mailtoLink, "_blank");
+    if (!emailWindow) {
+        alert("Pop-up blocked! Allow pop-ups for this site to use the email function.");
+    }
 }
+
 
 
 <button onclick="generateFloodReport()">Generate Report</button>
