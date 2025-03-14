@@ -1,8 +1,107 @@
-<div class="notes-container">
-    <!-- Case Notes Input -->
-    <div class="notes-form">
-        <h2>Case Notes Generator</h2>
+document.querySelectorAll("#case-notes input, #case-notes textarea, #case-notes select").forEach(field => {
+    field.addEventListener("input", generateCaseNotes);
+    field.addEventListener("change", generateCaseNotes);
+});
 
+function generateCaseNotes() {
+    let detectionTime = document.getElementById("detection-time").value.trim();
+    let username = document.getElementById("username").value.trim();
+    let hostname = document.getElementById("hostname").value.trim();
+    let detectionName = document.getElementById("detection-name").value.trim();
+    let ruleName = document.getElementById("rule-name").value.trim();
+    let ruleDescription = document.getElementById("rule-description").value.trim();
+    let aduserInput = document.getElementById("aduser-input").value.trim();
+    let investigationNotes = document.getElementById("investigation-notes").value.trim();
+    let severity = document.getElementById("severity").value.trim();
+    let maliciousDetermination = document.getElementById("malicious-determination").value.trim();
+    let alertLink = document.getElementById("alert-link").value.trim();
+
+    // AD User Lookup Parsing (Corrected)
+    let adUsername = aduserInput.match(/^Name\s*:\s*(.+)$/m)?.[1]?.trim() || "Unknown";
+    let adTitle = aduserInput.match(/^Title\s*:\s*(.+)$/m)?.[1]?.trim() || "Unknown";
+
+    // Lookback Section Checkboxes
+    let checkedItems = [];
+    if (document.getElementById("checked-cases").checked) checkedItems.push("Checked prior cases");
+    if (document.getElementById("checked-hosts").checked) checkedItems.push("Checked prior hosts");
+    if (document.getElementById("checked-ioc").checked) checkedItems.push("Checked prior IoCs");
+    let checkedItemsText = checkedItems.length > 0 ? `- ${checkedItems.join("\n- ")}` : "N/A";
+
+    // Alert Link Markdown Formatting
+    let alertDetails = alertLink ? `[Link to detection](${alertLink})` : "N/A";
+
+    // Markdown Output
+    let markdownNotes = `
+On **\`${detectionTime}\`**, the CTFC observed an XSOAR case for the user **\`${username}\`** seen generating a detection **\`${detectionName}\`** on the host **\`${hostname}\`**.
+
+> **Rule Name:** ${ruleName}  
+> **Rule Description:** ${ruleDescription}  
+
+The way in which this event occurred was due to the user **\`${adUsername}\`** | **\`${adTitle}\`**  
+${investigationNotes}
+
+Based on a 30-day lookback: **${severity}**  
+
+CTFC has declared this event to be **${maliciousDetermination}**.  
+
+## **Analysis**
+${checkedItemsText}
+
+### **Alert Details**
+${alertDetails}
+    `.trim();
+
+    document.getElementById("raw-notes").textContent = markdownNotes;
+}
+
+.notes-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    width: 90%;
+    margin: auto;
+}
+
+.notes-form, .output-container {
+    width: 48%;
+    background: black;
+    padding: 15px;
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+    border-radius: 10px;
+}
+
+.notes-box {
+    border: 2px solid #00ff00;
+    padding: 10px;
+    background-color: #111;
+    color: #00ff00;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    height: 400px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+input[type="checkbox"] {
+    transform: scale(1.2);
+    accent-color: #00ff00;
+}
+
+<div class="notes-container">
+    <!-- Left: Input Fields -->
+    <div class="notes-form">
         <label for="detection-time">Detection Time:</label>
         <input type="text" id="detection-time">
 
@@ -40,89 +139,19 @@
         </select>
 
         <h4>Lookback</h4>
-        <div class="lookback-section">
-            <div class="lookback-item">
-                <input type="checkbox" id="checked-cases">
-                <label for="checked-cases">Checked prior cases by host</label>
-            </div>
-            <div class="lookback-item">
-                <input type="checkbox" id="checked-hosts">
-                <label for="checked-hosts">Checked prior cases by user</label>
-            </div>
-            <div class="lookback-item">
-                <input type="checkbox" id="checked-ioc">
-                <label for="checked-ioc">Checked prior cases by IoC</label>
-            </div>
+        <div class="checkbox-group">
+            <label><input type="checkbox" id="checked-cases"> Checked prior cases</label>
+            <label><input type="checkbox" id="checked-hosts"> Checked prior hosts</label>
+            <label><input type="checkbox" id="checked-ioc"> Checked prior IoCs</label>
         </div>
 
         <label for="alert-link">Alert Details (Paste Detection Link):</label>
         <input type="text" id="alert-link" placeholder="https://example.com/detection">
-
-        <label for="escalation-actions">Escalation Actions:</label>
-        <textarea id="escalation-actions">N/A</textarea>
-
-        <label for="tuning-actions">Tuning Actions:</label>
-        <textarea id="tuning-actions">N/A</textarea>
-
-        <div class="button-container">
-            <button onclick="copyNotes()">Copy Notes</button>
-            <button onclick="resetCaseNotes()">Reset</button>
-        </div>
     </div>
 
-    <!-- Output Case Notes -->
+    <!-- Right: Case Notes Output -->
     <div class="output-container">
-        <h2>Generated Case Notes</h2>
-        <pre id="raw-notes"></pre>
+        <h3>Generated Case Notes</h3>
+        <pre id="raw-notes" class="notes-box"></pre>
     </div>
 </div>
-
-
-.notes-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
-    width: 90%; /* Match existing layout */
-    margin: auto;
-}
-
-.notes-form, .output-container {
-    width: 48%; /* Ensures side-by-side */
-    background: black;
-    padding: 15px;
-    border: 2px solid #00ff00;
-    box-shadow: 0 0 10px #00ff00;
-    border-radius: 8px;
-}
-
-#rendered-notes, #raw-notes {
-    width: 100%;
-    min-height: 300px; /* Large enough to see */
-    max-height: 500px; /* Prevents overflow */
-    overflow-y: auto; /* Adds scrolling if needed */
-    border: 2px solid #00ff00;
-    padding: 10px;
-    background: black;
-    color: #00ff00;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-.lookback-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.lookback-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: #00ff00;
-}
