@@ -46,4 +46,41 @@ function sendEmail() {
     `);
 }
 
+function generateFloodReportEmail() {
+    let caseNumber = document.getElementById("parent-case").value.trim();
+    let linkedCases = document.getElementById("link-cases-cli").value;
+    let closeReason = document.getElementById("close-cases-cli").value;
+
+    if (!caseNumber) {
+        alert("No case number provided.");
+        return;
+    }
+
+    let emailSubject = `Case Flood Report - ${caseNumber}`;
+    let emailBody = `
+Dear [Recipient Name],
+
+This email is being sent to provide details on a case flood situation that has been observed.
+
+---
+
+**Parent Case Number:** ${caseNumber}  
+**Linked Cases:** ${linkedCases}  
+**Close Reason:** ${closeReason}  
+
+---
+
+If there are any questions or concerns, please let me know.
+
+Best regards,  
+[Your Name]
+    `;
+
+    // Open default email client with a pre-filled draft
+    let mailtoLink = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    window.location.href = mailtoLink;
+}
+
+
 <div id="case-flood-output" style="margin-top: 15px; text-align: left;"></div>
+<button onclick="generateFloodReportEmail()">Generate Email</button>
