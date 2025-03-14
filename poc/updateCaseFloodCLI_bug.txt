@@ -1,3 +1,119 @@
+<!-- Case Notes Section -->
+<div id="case-notes" class="tab-content">
+    <h2>Case Notes Generator</h2>
+
+    <div class="notes-container">
+        <!-- Left: Input Fields -->
+        <div class="notes-form">
+            <label for="detection-time">Detection Time:</label>
+            <input type="text" id="detection-time">
+
+            <label for="username">Username:</label>
+            <input type="text" id="username">
+
+            <label for="hostname">Host Name:</label>
+            <input type="text" id="hostname">
+
+            <label for="detection-name">Detection Name:</label>
+            <input type="text" id="detection-name">
+
+            <label for="rule-name">Rule Name:</label>
+            <input type="text" id="rule-name">
+
+            <label for="rule-description">Rule Description:</label>
+            <textarea id="rule-description"></textarea>
+
+            <label for="aduser-input">AD User Lookup (Copy from Get-ADUser):</label>
+            <textarea id="aduser-input" placeholder="Paste raw ADUser output"></textarea>
+
+            <label for="investigation-notes">Investigation Notes:</label>
+            <textarea id="investigation-notes"></textarea>
+
+            <label for="severity">30-Day Lookback Severity:</label>
+            <select id="severity">
+                <option value="No change in severity">No change in severity</option>
+                <option value="Requires a change in severity">Requires a change in severity</option>
+            </select>
+
+            <label for="malicious-determination">Determination:</label>
+            <select id="malicious-determination">
+                <option value="Not Malicious and no further action is needed">Not Malicious and no further action is needed</option>
+                <option value="Malicious">Malicious</option>
+            </select>
+
+            <h4>Lookback</h4>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="checked-cases"> Checked prior cases</label>
+                <label><input type="checkbox" id="checked-hosts"> Checked prior hosts</label>
+                <label><input type="checkbox" id="checked-ioc"> Checked prior IoCs</label>
+            </div>
+
+            <label for="alert-link">Alert Details (Paste Detection Link):</label>
+            <input type="text" id="alert-link" placeholder="https://example.com/detection">
+        </div>
+
+        <!-- Right: Case Notes Output -->
+        <div class="output-container">
+            <h3>Generated Case Notes</h3>
+            <pre id="raw-notes" class="notes-box"></pre>
+        </div>
+    </div>
+</div>
+
+
+.notes-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+}
+
+.notes-form, .output-container {
+    width: 48%;
+    background: black;
+    padding: 15px;
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+    border-radius: 10px;
+}
+
+.notes-box {
+    border: 2px solid #00ff00;
+    padding: 10px;
+    background-color: #111;
+    color: #00ff00;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    height: 400px;
+    width: 100%;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border: 2px solid #00ff00;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    background-color: #111;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+input[type="checkbox"] {
+    transform: scale(1.2);
+    accent-color: #00ff00;
+}
+
+
+// Auto-generate notes as user types
 document.querySelectorAll("#case-notes input, #case-notes textarea, #case-notes select").forEach(field => {
     field.addEventListener("input", generateCaseNotes);
     field.addEventListener("change", generateCaseNotes);
@@ -16,16 +132,16 @@ function generateCaseNotes() {
     let maliciousDetermination = document.getElementById("malicious-determination").value.trim();
     let alertLink = document.getElementById("alert-link").value.trim();
 
-    // AD User Lookup Parsing (Corrected)
+    // AD User Lookup Parsing (CORRECTED)
     let adUsername = aduserInput.match(/^Name\s*:\s*(.+)$/m)?.[1]?.trim() || "Unknown";
     let adTitle = aduserInput.match(/^Title\s*:\s*(.+)$/m)?.[1]?.trim() || "Unknown";
 
-    // Lookback Section Checkboxes
+    // Lookback Section Checkboxes (SINGLE LINE SPACING FIXED)
     let checkedItems = [];
-    if (document.getElementById("checked-cases").checked) checkedItems.push("Checked prior cases");
-    if (document.getElementById("checked-hosts").checked) checkedItems.push("Checked prior hosts");
-    if (document.getElementById("checked-ioc").checked) checkedItems.push("Checked prior IoCs");
-    let checkedItemsText = checkedItems.length > 0 ? `- ${checkedItems.join("\n- ")}` : "N/A";
+    if (document.getElementById("checked-cases").checked) checkedItems.push("- Checked prior cases");
+    if (document.getElementById("checked-hosts").checked) checkedItems.push("- Checked prior hosts");
+    if (document.getElementById("checked-ioc").checked) checkedItems.push("- Checked prior IoCs");
+    let checkedItemsText = checkedItems.length > 0 ? checkedItems.join("\n") : "N/A";
 
     // Alert Link Markdown Formatting
     let alertDetails = alertLink ? `[Link to detection](${alertLink})` : "N/A";
@@ -53,105 +169,3 @@ ${alertDetails}
 
     document.getElementById("raw-notes").textContent = markdownNotes;
 }
-
-.notes-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
-    width: 90%;
-    margin: auto;
-}
-
-.notes-form, .output-container {
-    width: 48%;
-    background: black;
-    padding: 15px;
-    border: 2px solid #00ff00;
-    box-shadow: 0 0 10px #00ff00;
-    border-radius: 10px;
-}
-
-.notes-box {
-    border: 2px solid #00ff00;
-    padding: 10px;
-    background-color: #111;
-    color: #00ff00;
-    white-space: pre-wrap;
-    overflow-y: auto;
-    height: 400px;
-}
-
-.checkbox-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.checkbox-group label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-input[type="checkbox"] {
-    transform: scale(1.2);
-    accent-color: #00ff00;
-}
-
-<div class="notes-container">
-    <!-- Left: Input Fields -->
-    <div class="notes-form">
-        <label for="detection-time">Detection Time:</label>
-        <input type="text" id="detection-time">
-
-        <label for="username">Username:</label>
-        <input type="text" id="username">
-
-        <label for="hostname">Host Name:</label>
-        <input type="text" id="hostname">
-
-        <label for="detection-name">Detection Name:</label>
-        <input type="text" id="detection-name">
-
-        <label for="rule-name">Rule Name:</label>
-        <input type="text" id="rule-name">
-
-        <label for="rule-description">Rule Description:</label>
-        <textarea id="rule-description"></textarea>
-
-        <label for="aduser-input">AD User Lookup (Copy from Get-ADUser):</label>
-        <textarea id="aduser-input" placeholder="Paste raw ADUser output"></textarea>
-
-        <label for="investigation-notes">Investigation Notes:</label>
-        <textarea id="investigation-notes"></textarea>
-
-        <label for="severity">30-Day Lookback Severity:</label>
-        <select id="severity">
-            <option value="No change in severity">No change in severity</option>
-            <option value="Requires a change in severity">Requires a change in severity</option>
-        </select>
-
-        <label for="malicious-determination">Determination:</label>
-        <select id="malicious-determination">
-            <option value="Not Malicious and no further action is needed">Not Malicious and no further action is needed</option>
-            <option value="Malicious">Malicious</option>
-        </select>
-
-        <h4>Lookback</h4>
-        <div class="checkbox-group">
-            <label><input type="checkbox" id="checked-cases"> Checked prior cases</label>
-            <label><input type="checkbox" id="checked-hosts"> Checked prior hosts</label>
-            <label><input type="checkbox" id="checked-ioc"> Checked prior IoCs</label>
-        </div>
-
-        <label for="alert-link">Alert Details (Paste Detection Link):</label>
-        <input type="text" id="alert-link" placeholder="https://example.com/detection">
-    </div>
-
-    <!-- Right: Case Notes Output -->
-    <div class="output-container">
-        <h3>Generated Case Notes</h3>
-        <pre id="raw-notes" class="notes-box"></pre>
-    </div>
-</div>
