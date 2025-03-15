@@ -157,3 +157,42 @@ function resetFloodReport() {
         }
     });
 }
+
+
+
+<div class="checkbox-container">
+    <span class="checkbox-label">Checked Prior Cases</span>
+    <input type="checkbox" id="prior-cases">
+</div>
+<div class="checkbox-container">
+    <span class="checkbox-label">Checked Prior Hosts</span>
+    <input type="checkbox" id="prior-hosts">
+</div>
+<div class="checkbox-container">
+    <span class="checkbox-label">Checked Prior Docs</span>
+    <input type="checkbox" id="prior-docs">
+</div>
+
+
+.checkbox-container {
+    display: flex;
+    justify-content: space-between; /* Spaces text on the left, checkbox on the right */
+    align-items: center; /* Keeps everything aligned */
+    border: 2px solid #00ff00; /* Keeps it inside a neat box */
+    padding: 8px;
+    margin-bottom: 5px;
+    background-color: #111;
+    width: 100%; /* Ensures it doesn't overflow */
+}
+
+.checkbox-label {
+    flex-grow: 1; /* Pushes the text to the left side */
+    text-align: left;
+    padding-left: 5px; /* Ensures it doesn’t touch the left border */
+    color: #00ff00; /* Keeps it styled properly */
+}
+
+input[type="checkbox"] {
+    transform: scale(1.2); /* Increases checkbox size slightly */
+    margin-right: 10px; /* Adds space to the right */
+}
