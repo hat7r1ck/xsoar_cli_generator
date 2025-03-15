@@ -200,3 +200,15 @@ input[type="checkbox"] {
     margin-left: 10px;
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    let cliCaseID = document.getElementById("cli-case-id");
+    let reportCaseID = document.getElementById("report-case-id");
+
+    function syncCaseID(event) {
+        cliCaseID.value = event.target.value;
+        reportCaseID.value = event.target.value;
+    }
+
+    cliCaseID.addEventListener("input", syncCaseID);
+    reportCaseID.addEventListener("input", syncCaseID);
+});
