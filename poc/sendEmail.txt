@@ -118,5 +118,29 @@ function copyTableToClipboard() {
     }
 }
 
+function generateFloodReport() {
+    // Get today's date and format it as MM/DD/YYYY
+    let today = new Date();
+    let formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+
+    let reportTitle = `Case Flood Report - ${formattedDate}`;
+
+    let tableHTML = `
+        <h3>${reportTitle}</h3>  <!-- Adds the current date above the table -->
+        <table border="1">
+            <tr>
+                <th>Column 1</th>
+                <th>Column 2</th>
+            </tr>
+            <tr>
+                <td>Data 1</td>
+                <td>Data 2</td>
+            </tr>
+        </table>
+    `;
+
+    document.getElementById("flood-report-output").innerHTML = tableHTML;
+}
+
 
 
