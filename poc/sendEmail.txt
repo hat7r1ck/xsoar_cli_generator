@@ -1,69 +1,102 @@
+/* General styling for select dropdowns */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: black;
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Placeholder-style effect */
+select.placeholder-shown {
+    color: grey !important; /* Grey text for placeholder */
+}
+
+/* Selected option turns green */
+select.placeholder-hidden {
+    color: #00ff00 !important; /* Default green */
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    let dropdowns = document.querySelectorAll("select");
+
+    dropdowns.forEach(select => {
+        // Add placeholder effect initially
+        if (!select.value) select.classList.add("placeholder-shown");
+
+        select.addEventListener("change", function () {
+            if (this.value) {
+                this.classList.remove("placeholder-shown");
+                this.classList.add("placeholder-hidden");
+            } else {
+                this.classList.add("placeholder-shown");
+                this.classList.remove("placeholder-hidden");
+            }
+        });
+    });
+});
+
+
+function generateFloodReportEmail() {
+    let subject = `CTFC Case Flood Report - ${getFloodDataValue()}`;
+    let recipient = "G-managers@example.com";
+    
+    let emailBody = `
+Dear Team,
+
+This email is being sent to provide details on case floods.
+
+Below is the report:
+
+${generateFloodReportTable()}
+
+If there are any questions or concerns, please let me know.
+
+Best regards,
+[Your Name]
+`;
+
+    let mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+    window.location.href = mailtoLink;
+}
+
+
 function generateFloodReport() {
-    let caseID = document.getElementById("parent-case").value.trim();
-    let linkedCases = document.getElementById("link-cases-cli").value;
-    let closeCases = document.getElementById("close-cases-cli").value;
+    let caseId = document.getElementById("flood-case-id").value.trim() || "N/A";
+    let escalation = document.getElementById("escalation-type").value.trim() || "N/A";
+    let severity = document.getElementById("severity-level").value.trim() || "N/A";
 
-    if (!caseID) {
-        alert("Enter a valid Case ID before generating the report.");
-        return;
-    }
-
-    let tableHTML = `
-        <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="background-color: #222; color: #00ff00;">
-                    <th style="padding: 8px; border: 1px solid #00ff00;">Case ID</th>
-                    <th style="padding: 8px; border: 1px solid #00ff00;">Linked Cases</th>
-                    <th style="padding: 8px; border: 1px solid #00ff00;">Close Cases</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="padding: 8px; border: 1px solid #00ff00;">${caseID}</td>
-                    <td style="padding: 8px; border: 1px solid #00ff00;">${linkedCases}</td>
-                    <td style="padding: 8px; border: 1px solid #00ff00;">${closeCases}</td>
-                </tr>
-            </tbody>
+    let reportContent = `
+        <table id="caseFloodTable" border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: left;">
+            <tr>
+                <th style="border: 1px solid #00ff00; padding: 5px;">Case ID</th>
+                <th style="border: 1px solid #00ff00; padding: 5px;">Escalation Type</th>
+                <th style="border: 1px solid #00ff00; padding: 5px;">Severity Level</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #00ff00; padding: 5px;">${caseId}</td>
+                <td style="border: 1px solid #00ff00; padding: 5px;">${escalation}</td>
+                <td style="border: 1px solid #00ff00; padding: 5px;">${severity}</td>
+            </tr>
         </table>
     `;
 
-    document.getElementById("flood-report-output").innerHTML = tableHTML;
+    document.getElementById("caseFloodReport").innerHTML = reportContent;
 }
 
-function generateFloodReportEmail() {
-    let floodReportOutput = document.getElementById("flood-report-output").innerHTML;
-    if (!floodReportOutput.trim()) {
-        alert("No flood report has been generated yet.");
-        return;
-    }
+<!-- Case Flood Report Section -->
+<h2>Case Flood Report</h2>
+<input type="text" id="flood-case-id" placeholder="Enter Case ID" oninput="generateFloodReport()">
+<input type="text" id="escalation-type" placeholder="Enter Escalation Type" oninput="generateFloodReport()">
+<input type="text" id="severity-level" placeholder="Enter Severity Level" oninput="generateFloodReport()">
 
-    let caseID = document.getElementById("parent-case").value.trim();
-    let subject = `Case Flood Report - ${caseID || "[Insert Case ID Here]"}`;
+<!-- Live Report Preview -->
+<div id="caseFloodReport"></div>
 
-    let emailBody = `
-        <p>Dear Team,</p>
-        <p>This email provides details on the recent case floods.</p>
-        <hr>
-        ${floodReportOutput}  <!-- This keeps the table formatting -->
-        <hr>
-        <p>If you have any questions, please let me know.</p>
-        <p>Best,<br>[Your Name]</p>
-    `;
-
-    let mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-
-    // Open email client with formatted HTML
-    let emailWindow = window.open(mailtoLink, "_blank");
-    if (!emailWindow) {
-        alert("Pop-up blocked! Allow pop-ups for this site to use the email function.");
-    }
-}
-
-
-
-<button onclick="generateFloodReport()">Generate Report</button>
-<button onclick="generateFloodReportEmail()">Generate Email</button>
-
-<div id="flood-report-output" style="margin-top: 15px; padding: 10px; border: 2px solid #00ff00; background-color: #111; color: #00ff00;">
-    <!-- Flood report preview will appear here -->
-</div>
+<!-- Buttons for Copying and Email -->
+<button onclick="copyFloodReport()">Copy Report</button>
+<button onclick="openFloodEmail()">Generate Email</button>
