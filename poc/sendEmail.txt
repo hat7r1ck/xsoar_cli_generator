@@ -79,31 +79,22 @@ function generateFloodReport() {
 <button onclick="openFloodEmail()">Generate Email</button>
 
 
- function copyFloodReport() {
-    let reportContent = document.getElementById("flood-report-output").innerHTML;
-
-    // Create a temporary div element
-    let tempDiv = document.createElement("div");
-
-    // Remove background colors and force clean table styles
-    tempDiv.innerHTML = reportContent.replace(/background-color:\s*[^;]+;/gi, '') // Remove background colors
-                                     .replace(/border:\s*[^;]+;/gi, '') // Remove borders
-                                     .replace(/color:\s*#[0-9A-Fa-f]+;/gi, ''); // Remove text colors (to match email client)
-    
-    document.body.appendChild(tempDiv);
-
-    let range = document.createRange();
-    range.selectNode(tempDiv);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-
+ function copyTableToClipboard() {
     try {
-        document.execCommand("copy");
-        alert("Flood report copied to clipboard! Paste into Outlook.");
-    } catch (err) {
-        alert("Failed to copy report.");
-    }
+        const table = document.getElementById("flood-report-output"); // Update with your actual table ID
+        const htmlContent = table.outerHTML;
 
-    window.getSelection().removeAllRanges();
-    document.body.removeChild(tempDiv);
+        navigator.clipboard.write([
+            new ClipboardItem({
+                "text/html": new Blob([htmlContent], { type: "text/html" })
+            })
+        ]).then(() => {
+            alert("Flood report copied! You can now paste it into an email.");
+        }).catch(err => {
+            console.error("Clipboard copy failed:", err);
+        });
+
+    } catch (err) {
+        console.error("Error copying table:", err);
+    }
 }
