@@ -79,12 +79,16 @@ function generateFloodReport() {
 <button onclick="openFloodEmail()">Generate Email</button>
 
 
-function copyFloodReport() {
+ function copyFloodReport() {
     let reportContent = document.getElementById("flood-report-output").innerHTML;
 
-    // Create a temporary div element to copy the HTML table as rich content
+    // Create a temporary div element
     let tempDiv = document.createElement("div");
-    tempDiv.innerHTML = reportContent;
+
+    // Remove background colors and force clean table styles
+    tempDiv.innerHTML = reportContent.replace(/background-color:\s*[^;]+;/gi, '') // Remove background colors
+                                     .replace(/border:\s*[^;]+;/gi, '') // Remove borders
+                                     .replace(/color:\s*#[0-9A-Fa-f]+;/gi, ''); // Remove text colors (to match email client)
     
     document.body.appendChild(tempDiv);
 
@@ -95,7 +99,7 @@ function copyFloodReport() {
 
     try {
         document.execCommand("copy");
-        alert("Flood report copied to clipboard as a table!");
+        alert("Flood report copied to clipboard! Paste into Outlook.");
     } catch (err) {
         alert("Failed to copy report.");
     }
