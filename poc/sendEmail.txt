@@ -146,14 +146,14 @@ function resetFloodReport() {
     // Clear the report preview
     document.getElementById("flood-report-output").innerHTML = "";
 
-    // Clear all input fields related to the flood report
-    document.querySelectorAll(".flood-report-input").forEach(input => {
-        if (input.tagName === "SELECT") {
-            input.selectedIndex = 0;  // Reset dropdowns to default
+    // Loop through all inputs inside the form
+    document.querySelectorAll("#flood-report-form input, #flood-report-form textarea, #flood-report-form select").forEach(input => {
+        if (input.type === "checkbox") {
+            input.checked = false;  // Uncheck checkboxes
+        } else if (input.tagName === "SELECT") {
+            input.selectedIndex = 0;  // Reset dropdowns to the first option
         } else {
-            input.value = "";  // Reset text inputs
+            input.value = "";  // Clear text and number inputs
         }
     });
 }
-
-
