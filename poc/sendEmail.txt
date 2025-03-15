@@ -79,17 +79,31 @@ function generateFloodReport() {
 <button onclick="openFloodEmail()">Generate Email</button>
 
 
- function copyTableToClipboard() {
+function copyTableToClipboard() {
     try {
-        const table = document.getElementById("flood-report-output"); // Update with your actual table ID
-        const htmlContent = table.outerHTML;
+        const table = document.getElementById("flood-report-output"); // Ensure correct ID
+
+        // Extract only the table's content without tool styling
+        let tableRows = table.getElementsByTagName("tr");
+        let plainTable = "<table style='width: 100%; border-collapse: collapse; font-family: Calibri, sans-serif; font-size: 11pt; text-align: left;'>";
+
+        for (let row of tableRows) {
+            plainTable += "<tr>";
+            let cells = row.getElementsByTagName("td");
+
+            for (let cell of cells) {
+                plainTable += `<td style='border: 1px solid #000; padding: 6px;'>${cell.innerText}</td>`;
+            }
+            plainTable += "</tr>";
+        }
+        plainTable += "</table>";
 
         navigator.clipboard.write([
             new ClipboardItem({
-                "text/html": new Blob([htmlContent], { type: "text/html" })
+                "text/html": new Blob([plainTable], { type: "text/html" })
             })
         ]).then(() => {
-            alert("Flood report copied! You can now paste it into an email.");
+            alert("Flood report copied! Paste into an email.");
         }).catch(err => {
             console.error("Clipboard copy failed:", err);
         });
@@ -98,3 +112,4 @@ function generateFloodReport() {
         console.error("Error copying table:", err);
     }
 }
+
