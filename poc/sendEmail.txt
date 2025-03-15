@@ -81,17 +81,23 @@ function generateFloodReport() {
 
 function copyTableToClipboard() {
     try {
-        const table = document.getElementById("flood-report-output"); // Ensure correct ID
+        const table = document.getElementById("flood-report-output");
 
         let tableRows = table.getElementsByTagName("tr");
-        let plainTable = `<table style='width: 100%; border-collapse: collapse; font-family: Calibri, sans-serif; font-size: 11pt; text-align: left;'>`;
+        let plainTable = `
+            <table style='width: 100%; border-collapse: collapse; font-family: Calibri, sans-serif; font-size: 11pt; text-align: left;'>
+        `;
 
         for (let row of tableRows) {
             plainTable += "<tr>";
             let cells = row.getElementsByTagName("td");
 
             for (let cell of cells) {
-                plainTable += `<td style='border: 1px solid #000; padding: 6px; width: 4.3in;'>${cell.innerText}</td>`;
+                plainTable += `
+                    <td style='border: 1px solid black; padding: 4px 6px; width: 4.3in; font-family: Calibri, sans-serif; font-size: 11pt;'>
+                        ${cell.innerText}
+                    </td>
+                `;
             }
             plainTable += "</tr>";
         }
@@ -111,5 +117,6 @@ function copyTableToClipboard() {
         console.error("Error copying table:", err);
     }
 }
+
 
 
