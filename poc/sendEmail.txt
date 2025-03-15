@@ -236,3 +236,27 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    function syncFields(event) {
+        let targetValue = event.target.value;
+        let targetName = event.target.getAttribute("data-sync"); // Using data-sync instead of name
+
+        if (!targetName) return; // Skip if no data-sync attribute
+
+        // Sync all fields with the matching data-sync value
+        document.querySelectorAll(`[data-sync="${targetName}"]`).forEach(field => {
+            if (field !== event.target) {
+                field.value = targetValue;
+            }
+        });
+    }
+
+    // Attach event listeners to all sync-enabled fields
+    document.querySelectorAll(".sync-field").forEach(input => {
+        input.addEventListener("input", syncFields);
+        input.addEventListener("change", syncFields); // Ensures time pickers update
+    });
+});
+
