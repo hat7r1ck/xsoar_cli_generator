@@ -142,5 +142,18 @@ function generateFloodReport() {
     document.getElementById("flood-report-output").innerHTML = tableHTML;
 }
 
+function resetFloodReport() {
+    // Clear the report preview
+    document.getElementById("flood-report-output").innerHTML = "";
+
+    // Clear all input fields related to the flood report
+    document.querySelectorAll(".flood-report-input").forEach(input => {
+        if (input.tagName === "SELECT") {
+            input.selectedIndex = 0;  // Reset dropdowns to default
+        } else {
+            input.value = "";  // Reset text inputs
+        }
+    });
+}
 
 
