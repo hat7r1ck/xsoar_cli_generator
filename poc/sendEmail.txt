@@ -200,15 +200,28 @@ input[type="checkbox"] {
     margin-left: 10px;
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    let cliCaseID = document.getElementById("cli-case-id");
-    let reportCaseID = document.getElementById("report-case-id");
+function syncFields() {
+    let fieldPairs = [
+        { cli: "cli-case-id", report: "report-case-id" },
+        { cli: "cli-username", report: "report-username" },
+        { cli: "cli-detection", report: "report-detection" }
+    ];
 
-    function syncCaseID(event) {
-        cliCaseID.value = event.target.value;
-        reportCaseID.value = event.target.value;
+    function updateField(event) {
+        fieldPairs.forEach(pair => {
+            if (event.target.id === pair.cli) {
+                document.getElementById(pair.report).value = event.target.value;
+            } else if (event.target.id === pair.report) {
+                document.getElementById(pair.cli).value = event.target.value;
+            }
+        });
     }
 
-    cliCaseID.addEventListener("input", syncCaseID);
-    reportCaseID.addEventListener("input", syncCaseID);
-});
+    fieldPairs.forEach(pair => {
+        document.getElementById(pair.cli).addEventListener("input", updateField);
+        document.getElementById(pair.report).addEventListener("input", updateField);
+    });
+}
+
+// Ensure sync runs when the page loads
+document.addEventListener("DOMContentLoaded", syncFields);
