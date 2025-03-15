@@ -214,3 +214,25 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    let inputs = document.querySelectorAll(".sync-field");
+
+    inputs.forEach(input => {
+        // Listen for both `input` and `change` events to ensure syncing works
+        input.addEventListener("input", syncFields);
+        input.addEventListener("change", syncFields);
+    });
+
+    function syncFields(event) {
+        let value = event.target.value;
+        let type = event.target.type;
+
+        inputs.forEach(otherInput => {
+            if (otherInput !== event.target && otherInput.type === type) {
+                otherInput.value = value;
+            }
+        });
+    }
+});
