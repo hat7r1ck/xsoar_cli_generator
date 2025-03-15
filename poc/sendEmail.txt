@@ -1,26 +1,3 @@
-/* General styling for select dropdowns */
-select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-color: black;
-    color: #00ff00;
-    border: 2px solid #00ff00;
-    padding: 8px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Placeholder-style effect */
-select.placeholder-shown {
-    color: grey !important; /* Grey text for placeholder */
-}
-
-/* Selected option turns green */
-select.placeholder-hidden {
-    color: #00ff00 !important; /* Default green */
-}
-
 document.addEventListener("DOMContentLoaded", function () {
     let dropdowns = document.querySelectorAll("select");
 
@@ -100,3 +77,29 @@ function generateFloodReport() {
 <!-- Buttons for Copying and Email -->
 <button onclick="copyFloodReport()">Copy Report</button>
 <button onclick="openFloodEmail()">Generate Email</button>
+
+
+function copyFloodReport() {
+    let reportContent = document.getElementById("flood-report-output").innerHTML;
+
+    // Create a temporary div element to copy the HTML table as rich content
+    let tempDiv = document.createElement("div");
+    tempDiv.innerHTML = reportContent;
+    
+    document.body.appendChild(tempDiv);
+
+    let range = document.createRange();
+    range.selectNode(tempDiv);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+
+    try {
+        document.execCommand("copy");
+        alert("Flood report copied to clipboard as a table!");
+    } catch (err) {
+        alert("Failed to copy report.");
+    }
+
+    window.getSelection().removeAllRanges();
+    document.body.removeChild(tempDiv);
+}
