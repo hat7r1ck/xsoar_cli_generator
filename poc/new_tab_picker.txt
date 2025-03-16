@@ -136,3 +136,43 @@ function drawMatrix() {
         drops[index]++;
     });
 }
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const themePicker = document.getElementById("theme-color");
+    const customColorInput = document.getElementById("custom-color");
+
+    // **Ensure it's completely hidden on page load**
+    customColorInput.style.display = "none"; 
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem("selectedTheme");
+    if (savedTheme) {
+        document.documentElement.style.setProperty("--theme-color", savedTheme);
+        themePicker.value = savedTheme.startsWith("#") ? savedTheme : "custom";
+        
+        // **ONLY show if "custom" was previously selected**
+        if (themePicker.value === "custom") {
+            customColorInput.style.display = "inline-block";
+        }
+    }
+
+    themePicker.addEventListener("change", function () {
+        if (themePicker.value === "custom") {
+            customColorInput.style.display = "inline-block";
+            customColorInput.focus(); // Focus on the input box for easy access
+        } else {
+            customColorInput.style.display = "none";
+            document.documentElement.style.setProperty("--theme-color", themePicker.value);
+            localStorage.setItem("selectedTheme", themePicker.value);
+        }
+    });
+
+    customColorInput.addEventListener("input", function () {
+        const customColor = customColorInput.value;
+        if (/^#[0-9A-F]{6}$/i.test(customColor)) { // Validate hex format
+            document.documentElement.style.setProperty("--theme-color", customColor);
+            localStorage.setItem("selectedTheme", customColor);
+        }
+    });
+});
