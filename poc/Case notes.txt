@@ -61,6 +61,29 @@
     color: var(--theme-color);
     border: 2px solid var(--theme-color);
 }
+.input-row {
+    display: flex;
+    gap: 10px; /* Adds space between input fields */
+    flex-wrap: wrap; /* Prevents overflow issues */
+    align-items: flex-start; /* Aligns everything to the top */
+    justify-content: flex-start; /* Aligns fields to the left */
+    width: 100%;
+}
+
+.input-row label {
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 3px; /* Ensures spacing between label and input */
+}
+
+.input-row .field-container {
+    display: flex;
+    flex-direction: column; /* Stack label above input */
+    flex: 1; /* Allows fields to resize properly */
+    min-width: 150px; /* Prevents fields from getting too small */
+}
+
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -95,14 +118,20 @@ document.querySelectorAll("#case-notes input").forEach(input => {
 });
 
 <div class="input-row">
-    <label for="hostname">Hostname:</label>
-    <input type="text" id="hostname" placeholder="Enter Hostname">
+    <div class="field-container">
+        <label for="hostname">Hostname</label>
+        <input type="text" id="hostname" placeholder="Enter hostname">
+    </div>
 
-    <label for="ip-address">IP:</label>
-    <input type="text" id="ip-address" placeholder="Enter IP Address">
+    <div class="field-container">
+        <label for="ip-address">IP Address</label>
+        <input type="text" id="ip-address" placeholder="Enter IP address">
+    </div>
 
-    <label for="cloud-resource">Resource:</label>
-    <input type="text" id="cloud-resource" placeholder="Enter Cloud Resource">
+    <div class="field-container">
+        <label for="cloud-resource">Cloud Resource</label>
+        <input type="text" id="cloud-resource" placeholder="Enter resource">
+    </div>
 </div>
 
 
