@@ -75,3 +75,64 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const themePicker = document.getElementById("theme-color");
+    const customColorInput = document.getElementById("custom-color");
+
+    // Hide the custom color input at start
+    customColorInput.style.display = "none";
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem("selectedTheme");
+    if (savedTheme) {
+        document.documentElement.style.setProperty("--theme-color", savedTheme);
+        themePicker.value = savedTheme.startsWith("#") ? savedTheme : "custom";
+        if (savedTheme.startsWith("#")) {
+            customColorInput.value = savedTheme;
+            customColorInput.style.display = "inline-block"; // Only show if custom
+        }
+    }
+
+    themePicker.addEventListener("change", function () {
+        if (themePicker.value === "custom") {
+            customColorInput.style.display = "inline-block";
+        } else {
+            customColorInput.style.display = "none";
+            document.documentElement.style.setProperty("--theme-color", themePicker.value);
+            localStorage.setItem("selectedTheme", themePicker.value);
+        }
+    });
+
+    customColorInput.addEventListener("input", function () {
+        const customColor = customColorInput.value;
+        if (/^#[0-9A-F]{6}$/i.test(customColor)) { // Validate hex format
+            document.documentElement.style.setProperty("--theme-color", customColor);
+            localStorage.setItem("selectedTheme", customColor);
+        }
+    });
+});
+
+function drawMatrix() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Get the currently selected theme color
+    let themeColor = getComputedStyle(document.documentElement)
+        .getPropertyValue("--theme-color").trim() || "#00ff00";
+
+    ctx.fillStyle = themeColor; // Set text to match user theme
+    ctx.font = `${fontSize}px Courier New`;
+
+    drops.forEach((y, index) => {
+        const text = matrix[Math.floor(Math.random() * matrix.length)];
+        const x = index * fontSize;
+        ctx.fillText(text, x, y * fontSize);
+
+        if (y * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[index] = 0;
+        }
+        drops[index]++;
+    });
+}
