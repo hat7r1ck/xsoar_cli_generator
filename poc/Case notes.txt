@@ -1,182 +1,142 @@
-/* General Page Styling */
-body {
-    background-color: #1e1e1e;
-    color: #00ff00;
-    font-family: 'Courier New', Courier, monospace;
-    margin: 0;
-    padding: 0;
-    text-align: center;
+<div class="tab-container">
+    <button class="tab-button" onclick="showTab('case-cli')">Case CLI</button>
+    <button class="tab-button" onclick="showTab('case-flood')">Case Flood CLI</button>
+    <button class="tab-button" onclick="showTab('case-notes')">Case Notes</button>
+    <button class="tab-button" onclick="showTab('links-library')">Links Library</button>
+    <button class="tab-button" onclick="showTab('readme')">ReadMe</button>
+</div>
+
+<div id="links-library" class="tab-content">
+    <h2>Links Library</h2>
+
+    <h3>Static Links</h3>
+    <ul id="static-links">
+        <li><a href="https://virustotal.com" target="_blank">VirusTotal</a></li>
+        <li><a href="https://whois.domaintools.com/" target="_blank">WHOIS Lookup</a></li>
+        <li><a href="https://www.abuseipdb.com/" target="_blank">AbuseIPDB</a></li>
+    </ul>
+
+    <h3>Dynamic Links</h3>
+    <ul id="dynamic-links">
+        <li>
+            <a id="iplookup-link" href="#" target="_blank" class="disabled-link">IP Lookup</a>
+        </li>
+        <li>
+            <a id="hostlookup-link" href="#" target="_blank" class="disabled-link">Hostname Lookup</a>
+        </li>
+        <li>
+            <a id="cloudresource-link" href="#" target="_blank" class="disabled-link">Cloud Resource Lookup</a>
+        </li>
+    </ul>
+</div>
+
+.disabled-link {
+    color: gray;
+    pointer-events: none;
+    text-decoration: line-through;
 }
 
-/* Tabs Styling */
-.tab-container {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-    margin-bottom: 20px;
+.active-link {
+    color: var(--theme-color);
+    pointer-events: auto;
+    text-decoration: none;
 }
-
-.tab-button {
-    background-color: black;
-    color: #00ff00;
-    border: 2px solid #00ff00;
-    padding: 8px 12px;
-    cursor: pointer;
-    min-width: 120px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.tab-button:hover {
-    background-color: #00ff00;
-    color: black;
-}
-
-/* Tab Content Sections */
-.tab-content {
-    display: none;
-    padding: 20px;
-    border: 2px solid #00ff00;
-    box-shadow: 0 0 10px #00ff00;
-    width: 90%;
-    max-width: 900px;
-    margin: auto;
-    background-color: #111;
-    border-radius: 10px;
-}
-
-/* Form Styling */
-.form-container {
-    width: 100%;
-    text-align: left;
-}
-
-.field-container {
-    margin: 10px 0;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-/* Input, Select, and Textarea */
-input, select, textarea {
-    width: 100%;
-    padding: 8px;
-    background-color: black;
-    color: #00ff00;
-    border: 2px solid #00ff00;
-    box-sizing: border-box;
-    font-size: 14px;
-}
-
-textarea {
-    resize: vertical;
-    height: 80px;
-}
-
-/* CLI Containers */
-.cli-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.cli-box {
-    background-color: #222;
-    padding: 10px;
-    border: 2px solid #00ff00;
-    box-shadow: 0 0 10px #00ff00;
-    width: 48%;
-    text-align: center;
-    border-radius: 8px;
-}
-
-/* Output Boxes */
-#cli-output, #case-notes-output {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #111;
-    color: #00ff00;
-    border: 2px solid #00ff00;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    height: 150px;
-    overflow-y: auto;
-    font-size: 14px;
-}
-
-/* Buttons */
-.button-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-}
-
-button {
-    padding: 10px;
-    background-color: black;
-    color: #00ff00;
-    border: 2px solid #00ff00;
-    cursor: pointer;
-    font-weight: bold;
-    width: 48%;
-}
-
-button:hover {
-    background-color: #00ff00;
-    color: black;
-}
-
-/* Checkboxes - Fixing Alignment */
-.checkbox-container {
-    border: 2px solid #00ff00;
-    padding: 10px;
-    background-color: #111;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.checkbox-item {
+.input-row {
     display: flex;
     align-items: center;
-    justify-content: left;
     gap: 10px;
+    justify-content: space-between;
 }
 
-.checkbox-item input {
-    transform: scale(1.2);
-    margin-right: 5px;
+.input-row label {
+    white-space: nowrap;
+    font-weight: bold;
 }
 
-/* Tables */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    border: 2px solid #00ff00;
+.input-row input {
+    flex: 1;
+    min-width: 120px;
+    padding: 5px;
+    background-color: black;
+    color: var(--theme-color);
+    border: 2px solid var(--theme-color);
 }
 
-td {
-    padding: 10px;
-    border: 1px solid #00ff00;
-    text-align: center;
+
+document.addEventListener("DOMContentLoaded", function () {
+    updateDynamicLinks();
+});
+
+function updateDynamicLinks() {
+    let ip = document.getElementById("ip-address").value.trim();
+    let host = document.getElementById("hostname").value.trim();
+    let cloud = document.getElementById("cloud-resource").value.trim();
+
+    setLink("iplookup-link", `https://whois.domaintools.com/${ip}`, ip);
+    setLink("hostlookup-link", `https://dnslookup.com/${host}`, host);
+    setLink("cloudresource-link", `https://cloudlookup.com/${cloud}`, cloud);
 }
 
-hr {
-    border: 1px solid #00ff00;
-    margin: 20px 0;
+function setLink(elementId, url, condition) {
+    let link = document.getElementById(elementId);
+    if (condition) {
+        link.href = url;
+        link.classList.remove("disabled-link");
+        link.classList.add("active-link");
+    } else {
+        link.href = "#";
+        link.classList.add("disabled-link");
+        link.classList.remove("active-link");
+    }
 }
 
-/* Footer */
-.footer {
-    margin-top: 20px;
-    font-size: 14px;
-    color: #00ff00;
+document.querySelectorAll("#case-notes input").forEach(input => {
+    input.addEventListener("input", updateDynamicLinks);
+});
+
+<div class="input-row">
+    <label for="hostname">Hostname:</label>
+    <input type="text" id="hostname" placeholder="Enter Hostname">
+
+    <label for="ip-address">IP:</label>
+    <input type="text" id="ip-address" placeholder="Enter IP Address">
+
+    <label for="cloud-resource">Resource:</label>
+    <input type="text" id="cloud-resource" placeholder="Enter Cloud Resource">
+</div>
+
+
+
+function generateCaseNotes() {
+    let hostname = document.getElementById("hostname").value.trim();
+    let ipAddress = document.getElementById("ip-address").value.trim();
+    let cloudResource = document.getElementById("cloud-resource").value.trim();
+
+    // Collect non-empty values with labels
+    let entities = [];
+    if (hostname) entities.push(`host **${hostname}**`);
+    if (ipAddress) entities.push(`IP **${ipAddress}**`);
+    if (cloudResource) entities.push(`resource **${cloudResource}**`);
+
+    // Determine how to phrase it correctly
+    let entityString;
+    if (entities.length === 1) {
+        entityString = entities[0];  // "on host X"
+    } else if (entities.length === 2) {
+        entityString = `${entities[0]} and ${entities[1]}`;  // "on host X and IP Y"
+    } else if (entities.length === 3) {
+        entityString = `${entities[0]}, ${entities[1]}, and ${entities[2]}`;  // "on host X, IP Y, and resource Z"
+    } else {
+        entityString = "an unknown entity";  // If all fields are empty
+    }
+
+    // Other case note values
+    let date = new Date().toLocaleDateString("en-US");  // Get today's date
+    let detectionName = document.getElementById("detection-name").value.trim() || "an unspecified detection";
+
+    // Construct the final case notes output
+    let caseNotes = `On ${date}, the CTFC observed an XSOAR case for the user seen generating **${detectionName}** on ${entityString}.\n\nFurther investigation is ongoing.`;
+
+    // Output to the textarea
+    document.getElementById("case-notes-output").value = caseNotes;
 }
