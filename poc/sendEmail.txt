@@ -260,3 +260,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Select all input fields and dropdowns that should trigger updates
+    let inputsToSync = document.querySelectorAll("#case-notes input, #case-notes select, #case-flood input, #case-flood select");
+
+    // Attach the event listener to each relevant field
+    inputsToSync.forEach(input => {
+        input.addEventListener("input", function () {
+            generateFloodReport();
+            generateCaseNotes();
+        });
+        input.addEventListener("change", function () {
+            generateFloodReport();
+            generateCaseNotes();
+        });
+    });
+});
+
