@@ -1,0 +1,77 @@
+<div class="tab-container">
+    <button class="tab-button" onclick="showTab('readme')">ReadMe</button> <!-- NEW TAB -->
+</div>
+
+<div id="readme" class="tab-content">
+    <h2>Instructions & Customization</h2>
+    <p>Welcome to XSOAR Case Tools! Use this tab to customize your experience.</p>
+
+    <h3>Theme Color Picker</h3>
+    <div class="theme-picker-container">
+        <label for="theme-color">Choose Theme: </label>
+        <select id="theme-color">
+            <option value="#00ff00" selected>Green (Default)</option>
+            <option value="#ff0000">Red</option>
+            <option value="#00aaff">Blue</option>
+            <option value="#ff9900">Orange</option>
+            <option value="#ffffff">White</option>
+            <option value="custom">Custom...</option>
+        </select>
+        
+        <input type="text" id="custom-color" placeholder="Enter Hex Code" style="display:none;">
+    </div>
+</div>
+
+.theme-picker-container {
+    margin-top: 10px;
+    padding: 10px;
+    border: 2px solid var(--theme-color);
+    text-align: center;
+    background-color: #111;
+    box-shadow: 0 0 10px var(--theme-color);
+}
+
+#custom-color {
+    margin-top: 5px;
+    padding: 8px;
+    width: 150px;
+    text-align: center;
+    border: 2px solid var(--theme-color);
+    background-color: black;
+    color: var(--theme-color);
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const themePicker = document.getElementById("theme-color");
+    const customColorInput = document.getElementById("custom-color");
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem("selectedTheme");
+    if (savedTheme) {
+        document.documentElement.style.setProperty("--theme-color", savedTheme);
+        themePicker.value = savedTheme.startsWith("#") ? savedTheme : "custom";
+        if (savedTheme.startsWith("#")) {
+            customColorInput.value = savedTheme;
+            customColorInput.style.display = "inline-block";
+        }
+    }
+
+    themePicker.addEventListener("change", function () {
+        if (themePicker.value === "custom") {
+            customColorInput.style.display = "inline-block";
+        } else {
+            customColorInput.style.display = "none";
+            document.documentElement.style.setProperty("--theme-color", themePicker.value);
+            localStorage.setItem("selectedTheme", themePicker.value);
+        }
+    });
+
+    customColorInput.addEventListener("input", function () {
+        const customColor = customColorInput.value;
+        if (/^#[0-9A-F]{6}$/i.test(customColor)) { // Validate hex format
+            document.documentElement.style.setProperty("--theme-color", customColor);
+            localStorage.setItem("selectedTheme", customColor);
+        }
+    });
+});
