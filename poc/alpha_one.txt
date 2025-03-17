@@ -1,0 +1,142 @@
+#readme h2, #readme h3 {
+    text-align: center;
+    text-shadow: 0 0 8px var(--theme-color);
+    color: var(--theme-color);
+    margin-top: 15px;
+}
+
+#readme p {
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+#readme ul {
+    list-style-type: square;
+    padding-left: 20px;
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+#readme ul li {
+    padding: 5px;
+    transition: color 0.3s ease-in-out;
+}
+
+#readme ul li:hover {
+    color: var(--theme-color);
+}
+
+.theme-picker-container {
+    margin-top: 10px;
+    padding: 10px;
+    border: 2px solid var(--theme-color);
+    text-align: center;
+    background-color: #111;
+    box-shadow: 0 0 10px var(--theme-color);
+}
+
+#custom-color {
+    margin-top: 5px;
+    padding: 8px;
+    width: 150px;
+    text-align: center;
+    border: 2px solid var(--theme-color);
+    background-color: black;
+    color: var(--theme-color);
+}
+
+/* Bug Report Link */
+.bug-report {
+    font-weight: bold;
+    color: var(--theme-color);
+    text-decoration: none;
+    transition: color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+}
+
+.bug-report:hover {
+    color: white;
+    text-shadow: 0 0 10px var(--theme-color);
+}
+.warning-icon {
+    color: yellow; /* Makes the warning symbol yellow */
+    text-shadow: 0 0 8px rgba(255, 255, 0, 0.8), 0 0 12px rgba(255, 255, 0, 0.6); /* Adds a glowing effect */
+    font-size: 1.2em; /* Slightly larger for emphasis */
+    font-weight: bold; /* Makes it stand out more */
+    margin-right: 5px; /* Adds space between icon and text */
+}
+
+
+
+<div id="readme" class="tab-content">
+    <h2>Welcome to XSOAR Case Tools</h2>
+    <p>Your all-in-one toolkit for streamlining case documentation and CLI automation.</p>
+
+    <h3><span class="warning-icon">&#9888;</span> Alpha Version Notice</h3>
+    <p>This is the <strong>Alpha version</strong> of XSOAR Case Tools. Expect frequent updates and improvements.</p>
+
+
+    <h3>Installation</h3>
+    <p>To use this tool, save your HTML file (and any associated CSS/JS files) locally.  
+    Then, simply open <strong>index.html</strong> in your browser—no additional setup required.</p>
+
+    <h3>Browser Support</h3>
+    <p>Currently tested in <strong>Google Chrome</strong>. Other browsers may have unexpected behavior.</p>
+
+    <hr>
+
+    <h2>Features</h2>
+
+    <h3>Customization</h3>
+    <p>Modify your experience with the Theme Color Picker below.</p>
+    <div class="theme-picker-container">
+        <label for="theme-color">Choose Theme:</label>
+        <select id="theme-color">
+            <option value="#00ff00" selected>Green (Default)</option>
+            <option value="#ff0000">Red</option>
+            <option value="#00aaff">Blue</option>
+            <option value="#ff9900">Orange</option>
+            <option value="#ffffff">White</option>
+            <option value="custom">Custom...</option>
+        </select>
+        <input type="text" id="custom-color" placeholder="Enter Hex Code" style="display:none;">
+    </div>
+
+    <h3>Case CLI Generator</h3>
+    <ul>
+        <li>Auto-generates XSOAR CLI commands with required fields.</li>
+        <li>Time selection includes 24-hour conversion for clarity.</li>
+        <li>Copy buttons allow quick insertion into XSOAR.</li>
+    </ul>
+
+    <h3>Case Flood CLI</h3>
+    <ul>
+        <li>Automatically parses parent case numbers for linking.</li>
+        <li>Generates a formatted Case Flood Report.</li>
+        <li>Copy button for quick pasting into Outlook.</li>
+        <li>Generate Email feature is under development.</li>
+    </ul>
+
+    <h3>Case Notes Generator</h3>
+    <ul>
+        <li>Synchronizes key fields across tabs.</li>
+        <li>Formats case notes in raw Markdown for direct use.</li>
+        <li>Copy button allows quick note transfers.</li>
+    </ul>
+
+    <h3>Links Library</h3>
+    <p><strong>Work in Progress:</strong> This section is under development.</p>
+    <ul>
+        <li>Static links provide quick access to common resources.</li>
+        <li><strong>Dynamic links:</strong> In development – will change color when required fields are populated.</li>
+        <li>Feedback on link functionality is welcome!</li>
+    </ul>
+
+    <hr>
+
+    <h3>Found a Bug?</h3>
+    <p>All feedback is appreciated—whether you love it or hate it!</p>
+    <p><a href="mailto:your.email@example.com" class="bug-report">📧 Report a Bug</a></p>
+</div>
+
+
