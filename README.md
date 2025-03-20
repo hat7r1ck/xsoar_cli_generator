@@ -57,4 +57,4 @@ After filling out the form and clicking **Generate**, the CLI command will be fo
 - **JavaScript** (Handles input & time conversions)
 - **No external dependencies** (Works as a standalone HTML file)
 
-![image](xsoar-cli-example.png)
+![image](assets/xsoar-cli-example.png)
