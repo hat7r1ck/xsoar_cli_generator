@@ -93,3 +93,39 @@
 // If some things still use static values (like hardcoded color: white), just replace them with:
 color: var(--text-color);
 background-color: var(--background-color);
+
+
+<script>
+  const themeSelect = document.getElementById("theme-color");
+  const customColorInput = document.getElementById("custom-color");
+
+  function applyTheme(colorValue) {
+    document.body.removeAttribute('data-theme');
+
+    if (colorValue === "custom") {
+      customColorInput.style.display = "inline-block";
+      const stored = localStorage.getItem("custom-theme-color");
+      if (stored) {
+        document.documentElement.style.setProperty("--theme-color", stored);
+      }
+    } else if (colorValue === "latte" || colorValue === "mocha") {
+      customColorInput.style.display = "none";
+      document.body.setAttribute("data-theme", colorValue);
+    } else {
+      customColorInput.style.display = "none";
+      document.documentElement.style.setProperty("--theme-color", colorValue);
+    }
+  }
+
+  themeSelect.addEventListener("change", function () {
+    applyTheme(this.value);
+  });
+
+  customColorInput.addEventListener("input", function () {
+    const customColor = this.value;
+    localStorage.setItem("custom-theme-color", customColor);
+    document.documentElement.style.setProperty("--theme-color", customColor);
+  });
+
+  // Optional: persist theme on reload if you want
+</script>
