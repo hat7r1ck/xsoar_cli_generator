@@ -1,0 +1,69 @@
+<div class="theme-picker-container">
+  <label for="theme-palette">Theme Mode:</label>
+  <select id="theme-palette">
+    <option value="default" selected>Green (Default)</option>
+    <option value="latte">Catppuccin Latte</option>
+    <option value="mocha">Catppuccin Mocha</option>
+  </select>
+</div>
+
+body[data-theme="default"] {
+  --theme-color: #00ff00;
+  --bg-color: #111;
+  --text-color: #ffffff;
+}
+
+body[data-theme="latte"] {
+  --theme-color: #1e66f5; /* Blue from Catppuccin Latte */
+  --bg-color: #eff1f5;
+  --text-color: #4c4f69;
+}
+
+body[data-theme="mocha"] {
+  --theme-color: #89b4fa; /* Blue from Catppuccin Mocha */
+  --bg-color: #1e1e2e;
+  --text-color: #cdd6f4;
+}
+
+/* Global text & background from selected palette */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+<script>
+document.getElementById("theme-palette").addEventListener("change", function () {
+  const selectedTheme = this.value;
+  document.body.setAttribute("data-theme", selectedTheme);
+
+  // Reset theme-color picker to default when switching modes
+  if (selectedTheme !== "default") {
+    document.getElementById("theme-color").disabled = true;
+    document.getElementById("custom-color").style.display = "none";
+  } else {
+    document.getElementById("theme-color").disabled = false;
+    const selectedColor = document.getElementById("theme-color").value;
+    updateThemeColor(selectedColor);
+  }
+});
+
+document.getElementById("theme-color").addEventListener("change", function () {
+  updateThemeColor(this.value);
+});
+
+document.getElementById("custom-color").addEventListener("input", function () {
+  updateThemeColor(this.value);
+});
+
+function updateThemeColor(color) {
+  if (color === "custom") {
+    document.getElementById("custom-color").style.display = "inline-block";
+  } else {
+    document.getElementById("custom-color").style.display = "none";
+    document.documentElement.style.setProperty("--theme-color", color);
+  }
+}
+
+// Init theme on load
+document.body.setAttribute("data-theme", "default");
+</script>
