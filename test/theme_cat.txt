@@ -1,4 +1,3 @@
-<!-- PLACE THIS NEAR THE END OF YOUR CURRENT <style> TAG OR CSS SECTION -->
 <style>
   :root {
     --theme-color: #00ff00; /* default */
@@ -25,7 +24,7 @@
   }
 
   [data-theme="mocha"] {
-    --theme-color: #89b4fa;
+    --theme-color: #a6e3a1;
     --background-color: #1e1e2e;
     --text-color: #cdd6f4;
     --card-bg: #313244;
@@ -78,43 +77,6 @@
   }
 </style>
 
-<!-- PLACE THIS SCRIPT NEAR THE BOTTOM OF <body> -->
-<script>
-  const themeSelect = document.getElementById("theme-color");
-  const customColorInput = document.getElementById("custom-color");
-
-  function applyTheme(colorValue) {
-    document.body.removeAttribute('data-theme');
-
-    if (colorValue === "custom") {
-      customColorInput.style.display = "inline-block";
-      const stored = localStorage.getItem("custom-theme-color");
-      if (stored) {
-        document.documentElement.style.setProperty("--theme-color", stored);
-      }
-    } else if (colorValue === "latte" || colorValue === "mocha") {
-      customColorInput.style.display = "none";
-      document.body.setAttribute("data-theme", colorValue);
-    } else {
-      customColorInput.style.display = "none";
-      document.documentElement.style.setProperty("--theme-color", colorValue);
-    }
-  }
-
-  themeSelect.addEventListener("change", function () {
-    applyTheme(this.value);
-  });
-
-  customColorInput.addEventListener("input", function () {
-    const customColor = this.value;
-    localStorage.setItem("custom-theme-color", customColor);
-    document.documentElement.style.setProperty("--theme-color", customColor);
-  });
-
-  // OPTIONAL: auto-apply saved theme if you want to persist it
-</script>
-
-<!-- UPDATE YOUR DROPDOWN TO INCLUDE NEW THEMES -->
 <select id="theme-color">
   <option value="#00ff00" selected>Green (Default)</option>
   <option value="#ff0000">Red</option>
@@ -126,3 +88,8 @@
   <option value="custom">Custom...</option>
 </select>
 <input type="text" id="custom-color" placeholder="Enter Hex Code" style="display:none;">
+
+
+// If some things still use static values (like hardcoded color: white), just replace them with:
+color: var(--text-color);
+background-color: var(--background-color);
