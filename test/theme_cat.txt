@@ -1,69 +1,128 @@
-<div class="theme-picker-container">
-  <label for="theme-palette">Theme Mode:</label>
-  <select id="theme-palette">
-    <option value="default" selected>Green (Default)</option>
-    <option value="latte">Catppuccin Latte</option>
-    <option value="mocha">Catppuccin Mocha</option>
-  </select>
-</div>
+<!-- PLACE THIS NEAR THE END OF YOUR CURRENT <style> TAG OR CSS SECTION -->
+<style>
+  :root {
+    --theme-color: #00ff00; /* default */
+    --background-color: #000;
+    --text-color: #fff;
+    --card-bg: #111;
+    --input-border: #333;
+    --button-bg: #222;
+    --button-hover: #333;
+    --accent-color: #00ff00;
+    --heading-font: 'Segoe UI', sans-serif;
+  }
 
-body[data-theme="default"] {
-  --theme-color: #00ff00;
-  --bg-color: #111;
-  --text-color: #ffffff;
-}
+  [data-theme="latte"] {
+    --theme-color: #d20f39;
+    --background-color: #f5e0dc;
+    --text-color: #4c4f69;
+    --card-bg: #ffffff;
+    --input-border: #dc8a78;
+    --button-bg: #dfdad9;
+    --button-hover: #e6cbd0;
+    --accent-color: #8839ef;
+    --heading-font: 'Fira Code', monospace;
+  }
 
-body[data-theme="latte"] {
-  --theme-color: #1e66f5; /* Blue from Catppuccin Latte */
-  --bg-color: #eff1f5;
-  --text-color: #4c4f69;
-}
+  [data-theme="mocha"] {
+    --theme-color: #89b4fa;
+    --background-color: #1e1e2e;
+    --text-color: #cdd6f4;
+    --card-bg: #313244;
+    --input-border: #45475a;
+    --button-bg: #45475a;
+    --button-hover: #585b70;
+    --accent-color: #f38ba8;
+    --heading-font: 'JetBrains Mono', monospace;
+  }
 
-body[data-theme="mocha"] {
-  --theme-color: #89b4fa; /* Blue from Catppuccin Mocha */
-  --bg-color: #1e1e2e;
-  --text-color: #cdd6f4;
-}
+  body, .form-container, .tab-content, input, textarea, select, button {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--heading-font);
+  }
 
-/* Global text & background from selected palette */
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
+  .tab-button {
+    background-color: var(--button-bg);
+    border: 1px solid var(--input-border);
+  }
 
+  .tab-button:hover, .active-tab {
+    background-color: var(--button-hover);
+    box-shadow: 0 0 8px var(--accent-color);
+  }
+
+  .form-container, .theme-picker-container {
+    background-color: var(--card-bg);
+    border: 2px solid var(--theme-color);
+    box-shadow: 0 0 10px var(--theme-color);
+  }
+
+  input, textarea, select {
+    border: 2px solid var(--input-border);
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+
+  h2, h3 {
+    color: var(--theme-color);
+    text-shadow: 0 0 8px var(--theme-color);
+  }
+
+  .bug-report, #readme ul li:hover {
+    color: var(--accent-color);
+  }
+
+  #readme ul li {
+    transition: color 0.3s;
+  }
+</style>
+
+<!-- PLACE THIS SCRIPT NEAR THE BOTTOM OF <body> -->
 <script>
-document.getElementById("theme-palette").addEventListener("change", function () {
-  const selectedTheme = this.value;
-  document.body.setAttribute("data-theme", selectedTheme);
+  const themeSelect = document.getElementById("theme-color");
+  const customColorInput = document.getElementById("custom-color");
 
-  // Reset theme-color picker to default when switching modes
-  if (selectedTheme !== "default") {
-    document.getElementById("theme-color").disabled = true;
-    document.getElementById("custom-color").style.display = "none";
-  } else {
-    document.getElementById("theme-color").disabled = false;
-    const selectedColor = document.getElementById("theme-color").value;
-    updateThemeColor(selectedColor);
+  function applyTheme(colorValue) {
+    document.body.removeAttribute('data-theme');
+
+    if (colorValue === "custom") {
+      customColorInput.style.display = "inline-block";
+      const stored = localStorage.getItem("custom-theme-color");
+      if (stored) {
+        document.documentElement.style.setProperty("--theme-color", stored);
+      }
+    } else if (colorValue === "latte" || colorValue === "mocha") {
+      customColorInput.style.display = "none";
+      document.body.setAttribute("data-theme", colorValue);
+    } else {
+      customColorInput.style.display = "none";
+      document.documentElement.style.setProperty("--theme-color", colorValue);
+    }
   }
-});
 
-document.getElementById("theme-color").addEventListener("change", function () {
-  updateThemeColor(this.value);
-});
+  themeSelect.addEventListener("change", function () {
+    applyTheme(this.value);
+  });
 
-document.getElementById("custom-color").addEventListener("input", function () {
-  updateThemeColor(this.value);
-});
+  customColorInput.addEventListener("input", function () {
+    const customColor = this.value;
+    localStorage.setItem("custom-theme-color", customColor);
+    document.documentElement.style.setProperty("--theme-color", customColor);
+  });
 
-function updateThemeColor(color) {
-  if (color === "custom") {
-    document.getElementById("custom-color").style.display = "inline-block";
-  } else {
-    document.getElementById("custom-color").style.display = "none";
-    document.documentElement.style.setProperty("--theme-color", color);
-  }
-}
-
-// Init theme on load
-document.body.setAttribute("data-theme", "default");
+  // OPTIONAL: auto-apply saved theme if you want to persist it
 </script>
+
+<!-- UPDATE YOUR DROPDOWN TO INCLUDE NEW THEMES -->
+<select id="theme-color">
+  <option value="#00ff00" selected>Green (Default)</option>
+  <option value="#ff0000">Red</option>
+  <option value="#00aaff">Blue</option>
+  <option value="#ff9900">Orange</option>
+  <option value="#ffffff">White</option>
+  <option value="latte">Catppuccin Latte</option>
+  <option value="mocha">Catppuccin Mocha</option>
+  <option value="custom">Custom...</option>
+</select>
+<input type="text" id="custom-color" placeholder="Enter Hex Code" style="display:none;">
