@@ -1,132 +1,34 @@
-<style>
-  /* === Catppuccin Latte Theme === */
-  body[data-theme="latte"] {
-    --theme-color: #d20f39;
-    --background-color: #f5e0dc;
-    --text-color: #4c4f69;
-    --card-bg: #ffffff;
-    --input-border: #dc8a78;
-    --button-bg: #dfdad9;
-    --button-hover: #e6cbd0;
-    --accent-color: #8839ef;
-    --heading-font: 'Fira Code', monospace;
-  }
+function applyTheme(colorValue) {
+  document.body.removeAttribute("data-theme");
 
-  /* === Catppuccin Mocha Theme === */
-  body[data-theme="mocha"] {
-    --theme-color: #89b4fa;
-    --background-color: #1e1e2e;
-    --text-color: #cdd6f4;
-    --card-bg: #313244;
-    --input-border: #45475a;
-    --button-bg: #45475a;
-    --button-hover: #585b70;
-    --accent-color: #f38ba8;
-    --heading-font: 'JetBrains Mono', monospace;
-  }
-
-  /* === Apply Theme Variables Only When Latte or Mocha Is Active === */
-  body[data-theme="latte"] *,
-  body[data-theme="mocha"] * {
-    font-family: var(--heading-font) !important;
-    color: var(--text-color) !important;
-  }
-
-  body[data-theme="latte"] .tab-content,
-  body[data-theme="mocha"] .tab-content,
-  body[data-theme="latte"] .form-container,
-  body[data-theme="mocha"] .form-container,
-  body[data-theme="latte"] table,
-  body[data-theme="mocha"] table,
-  body[data-theme="latte"] .theme-picker-container,
-  body[data-theme="mocha"] .theme-picker-container {
-    background-color: var(--card-bg) !important;
-    color: var(--text-color) !important;
-    border-color: var(--theme-color) !important;
-  }
-
-  body[data-theme="latte"] input,
-  body[data-theme="mocha"] input,
-  body[data-theme="latte"] textarea,
-  body[data-theme="mocha"] textarea,
-  body[data-theme="latte"] select,
-  body[data-theme="mocha"] select {
-    background-color: var(--background-color) !important;
-    border: 2px solid var(--input-border) !important;
-    color: var(--text-color) !important;
-  }
-
-  body[data-theme="latte"] button,
-  body[data-theme="mocha"] button,
-  body[data-theme="latte"] .tab-button,
-  body[data-theme="mocha"] .tab-button {
-    background-color: var(--button-bg) !important;
-    border: 1px solid var(--input-border) !important;
-    color: var(--text-color) !important;
-  }
-
-  body[data-theme="latte"] .tab-button:hover,
-  body[data-theme="mocha"] .tab-button:hover {
-    background-color: var(--button-hover) !important;
-    box-shadow: 0 0 8px var(--accent-color);
-    color: var(--accent-color) !important;
-  }
-
-  body[data-theme="latte"] h2,
-  body[data-theme="mocha"] h2,
-  body[data-theme="latte"] h3,
-  body[data-theme="mocha"] h3 {
-    color: var(--theme-color) !important;
-    text-shadow: 0 0 8px var(--theme-color);
-  }
-
-  body[data-theme="latte"] .bug-report,
-  body[data-theme="mocha"] .bug-report,
-  body[data-theme="latte"] #readme ul li:hover,
-  body[data-theme="mocha"] #readme ul li:hover {
-    color: var(--accent-color) !important;
-  }
-
-  body[data-theme="latte"] .case-notes,
-  body[data-theme="mocha"] .case-notes {
-    background-color: var(--card-bg) !important;
-    color: var(--text-color) !important;
-    border-color: var(--input-border) !important;
-  }
-</style>
-
-<script>
-  const themeSelect = document.getElementById("theme-color");
-  const customColorInput = document.getElementById("custom-color");
-
-  function applyTheme(colorValue) {
-    document.body.removeAttribute("data-theme");
-
-    if (colorValue === "custom") {
-      customColorInput.style.display = "inline-block";
-      const stored = localStorage.getItem("custom-theme-color");
-      if (stored) {
-        document.documentElement.style.setProperty("--theme-color", stored);
-      }
-    } else if (colorValue === "latte" || colorValue === "mocha") {
-      customColorInput.style.display = "none";
-      document.body.setAttribute("data-theme", colorValue);
-    } else {
-      customColorInput.style.display = "none";
-      document.documentElement.style.setProperty("--theme-color", colorValue);
+  if (colorValue === "custom") {
+    customColorInput.style.display = "inline-block";
+    const stored = localStorage.getItem("custom-theme-color");
+    if (stored) {
+      document.documentElement.style.setProperty("--theme-color", stored);
     }
+  } else if (colorValue.includes("accent")) {
+    customColorInput.style.display = "none";
+    document.body.setAttribute("data-theme", colorValue);
+  } else {
+    customColorInput.style.display = "none";
+    document.documentElement.style.setProperty("--theme-color", colorValue);
   }
+}
 
-  themeSelect.addEventListener("change", function () {
-    applyTheme(this.value);
-  });
+body[data-theme="latte-accent"] {
+  --theme-color: #d20f39;
+  --accent-color: #8839ef;
+  --background-color: #f5e0dc;
+  --text-color: #4c4f69;
+}
 
-  customColorInput.addEventListener("input", function () {
-    const customColor = this.value;
-    localStorage.setItem("custom-theme-color", customColor);
-    document.documentElement.style.setProperty("--theme-color", customColor);
-  });
-</script>
+body[data-theme="mocha-accent"] {
+  --theme-color: #89b4fa;
+  --accent-color: #f38ba8;
+  --background-color: #1e1e2e;
+  --text-color: #cdd6f4;
+}
 
-<option value="latte">Catppuccin Latte</option>
-<option value="mocha">Catppuccin Mocha</option>
+<option value="latte-accent">Latte Accent</option>
+<option value="mocha-accent">Mocha Accent</option>
