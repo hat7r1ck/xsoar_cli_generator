@@ -1,17 +1,8 @@
+<!-- THEME CSS (Place this in your existing <style> tag, AFTER your current styles) -->
 <style>
-  :root {
-    --theme-color: #00ff00; /* default */
-    --background-color: #000;
-    --text-color: #fff;
-    --card-bg: #111;
-    --input-border: #333;
-    --button-bg: #222;
-    --button-hover: #333;
-    --accent-color: #00ff00;
-    --heading-font: 'Segoe UI', sans-serif;
-  }
+  /* Default Matrix theme remains unchanged */
 
-  [data-theme="latte"] {
+  body[data-theme="latte"] {
     --theme-color: #d20f39;
     --background-color: #f5e0dc;
     --text-color: #4c4f69;
@@ -23,8 +14,8 @@
     --heading-font: 'Fira Code', monospace;
   }
 
-  [data-theme="mocha"] {
-    --theme-color: #a6e3a1;
+  body[data-theme="mocha"] {
+    --theme-color: #89b4fa;
     --background-color: #1e1e2e;
     --text-color: #cdd6f4;
     --card-bg: #313244;
@@ -35,72 +26,65 @@
     --heading-font: 'JetBrains Mono', monospace;
   }
 
-  body, .form-container, .tab-content, input, textarea, select, button {
-    background-color: var(--background-color);
-    color: var(--text-color);
-    font-family: var(--heading-font);
+  body[data-theme="latte"] *,
+  body[data-theme="mocha"] * {
+    background-color: unset;
+    color: unset;
+    font-family: unset;
   }
 
-  .tab-button {
-    background-color: var(--button-bg);
-    border: 1px solid var(--input-border);
+  body[data-theme="latte"] #readme,
+  body[data-theme="mocha"] #readme,
+  body[data-theme="latte"] .form-container,
+  body[data-theme="mocha"] .form-container,
+  body[data-theme="latte"] .tab-content,
+  body[data-theme="mocha"] .tab-content,
+  body[data-theme="latte"] .tab-button,
+  body[data-theme="mocha"] .tab-button,
+  body[data-theme="latte"] input,
+  body[data-theme="mocha"] input,
+  body[data-theme="latte"] textarea,
+  body[data-theme="mocha"] textarea,
+  body[data-theme="latte"] select,
+  body[data-theme="mocha"] select,
+  body[data-theme="latte"] button,
+  body[data-theme="mocha"] button {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+    font-family: var(--heading-font) !important;
+    border-color: var(--input-border) !important;
   }
 
-  .tab-button:hover, .active-tab {
+  body[data-theme="latte"] h2,
+  body[data-theme="mocha"] h2,
+  body[data-theme="latte"] h3,
+  body[data-theme="mocha"] h3 {
+    color: var(--theme-color) !important;
+    text-shadow: 0 0 8px var(--theme-color);
+  }
+
+  body[data-theme="latte"] .tab-button:hover,
+  body[data-theme="mocha"] .tab-button:hover {
     background-color: var(--button-hover);
     box-shadow: 0 0 8px var(--accent-color);
   }
 
-  .form-container, .theme-picker-container {
-    background-color: var(--card-bg);
-    border: 2px solid var(--theme-color);
-    box-shadow: 0 0 10px var(--theme-color);
-  }
-
-  input, textarea, select {
-    border: 2px solid var(--input-border);
-    background-color: var(--background-color);
-    color: var(--text-color);
-  }
-
-  h2, h3 {
-    color: var(--theme-color);
-    text-shadow: 0 0 8px var(--theme-color);
-  }
-
-  .bug-report, #readme ul li:hover {
+  body[data-theme="latte"] .bug-report,
+  body[data-theme="mocha"] .bug-report,
+  body[data-theme="latte"] #readme ul li:hover,
+  body[data-theme="mocha"] #readme ul li:hover {
     color: var(--accent-color);
-  }
-
-  #readme ul li {
-    transition: color 0.3s;
   }
 </style>
 
-<select id="theme-color">
-  <option value="#00ff00" selected>Green (Default)</option>
-  <option value="#ff0000">Red</option>
-  <option value="#00aaff">Blue</option>
-  <option value="#ff9900">Orange</option>
-  <option value="#ffffff">White</option>
-  <option value="latte">Catppuccin Latte</option>
-  <option value="mocha">Catppuccin Mocha</option>
-  <option value="custom">Custom...</option>
-</select>
-<input type="text" id="custom-color" placeholder="Enter Hex Code" style="display:none;">
 
-
-// If some things still use static values (like hardcoded color: white), just replace them with:
-color: var(--text-color);
-background-color: var(--background-color);
-
-
+<!-- THEME TOGGLE SCRIPT (Place before </body>) -->
 <script>
   const themeSelect = document.getElementById("theme-color");
   const customColorInput = document.getElementById("custom-color");
 
   function applyTheme(colorValue) {
-    document.body.removeAttribute('data-theme');
+    document.body.removeAttribute("data-theme");
 
     if (colorValue === "custom") {
       customColorInput.style.display = "inline-block";
@@ -126,6 +110,9 @@ background-color: var(--background-color);
     localStorage.setItem("custom-theme-color", customColor);
     document.documentElement.style.setProperty("--theme-color", customColor);
   });
-
-  // Optional: persist theme on reload if you want
 </script>
+
+
+<!-- DROPDOWN UPDATE (use your existing one, just add these lines) -->
+<option value="latte">Catppuccin Latte</option>
+<option value="mocha">Catppuccin Mocha</option>
