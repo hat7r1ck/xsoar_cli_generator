@@ -1,4 +1,4 @@
-[data-theme="latte"] {
+body[data-theme="latte"] {
   --theme-color: #d20f39;
   --background-color: #f5e0dc;
   --text-color: #4c4f69;
@@ -10,7 +10,7 @@
   --heading-font: 'Fira Code', monospace;
 }
 
-[data-theme="mocha"] {
+body[data-theme="mocha"] {
   --theme-color: #89b4fa;
   --background-color: #1e1e2e;
   --text-color: #cdd6f4;
@@ -22,119 +22,93 @@
   --heading-font: 'JetBrains Mono', monospace;
 }
 
-body,
-.form-container,
-.tab-content,
-input,
-textarea,
-select,
-button {
-  background-color: var(--background-color);
-  color: var(--text-color);
-  font-family: var(--heading-font, 'Segoe UI', sans-serif);
-}
-
-.tab-button {
-  background-color: var(--button-bg);
-  border: 1px solid var(--input-border);
-}
-
-.tab-button:hover,
-.active-tab {
-  background-color: var(--button-hover);
-  box-shadow: 0 0 8px var(--accent-color);
-}
-
-.form-container,
-.theme-picker-container {
+/* Override select elements ONLY when latte/mocha is selected */
+body[data-theme="latte"] .form-container,
+body[data-theme="mocha"] .form-container,
+body[data-theme="latte"] .tab-content,
+body[data-theme="mocha"] .tab-content,
+body[data-theme="latte"] .theme-picker-container,
+body[data-theme="mocha"] .theme-picker-container {
   background-color: var(--card-bg);
   border: 2px solid var(--theme-color);
   box-shadow: 0 0 10px var(--theme-color);
 }
 
-input,
-textarea,
-select {
-  border: 2px solid var(--input-border);
+body[data-theme="latte"] input,
+body[data-theme="mocha"] input,
+body[data-theme="latte"] textarea,
+body[data-theme="mocha"] textarea,
+body[data-theme="latte"] select,
+body[data-theme="mocha"] select {
   background-color: var(--background-color);
+  border: 2px solid var(--input-border);
   color: var(--text-color);
 }
 
-h2,
-h3 {
+body[data-theme="latte"] h2,
+body[data-theme="mocha"] h2,
+body[data-theme="latte"] h3,
+body[data-theme="mocha"] h3 {
   color: var(--theme-color);
   text-shadow: 0 0 8px var(--theme-color);
+  font-family: var(--heading-font);
 }
 
-.bug-report,
-#readme ul li:hover {
+body[data-theme="latte"] button,
+body[data-theme="mocha"] button,
+body[data-theme="latte"] .tab-button,
+body[data-theme="mocha"] .tab-button {
+  background-color: var(--button-bg);
+  border-color: var(--input-border);
+  color: var(--text-color);
+  font-family: var(--heading-font);
+}
+
+body[data-theme="latte"] .tab-button:hover,
+body[data-theme="mocha"] .tab-button:hover {
+  background-color: var(--button-hover);
+  box-shadow: 0 0 8px var(--accent-color);
+}
+
+body[data-theme="latte"] .bug-report,
+body[data-theme="mocha"] .bug-report,
+body[data-theme="latte"] #readme ul li:hover,
+body[data-theme="mocha"] #readme ul li:hover {
   color: var(--accent-color);
 }
 
-#readme ul li {
-  transition: color 0.3s;
-}
-
 <script>
-const themeSelect = document.getElementById("theme-color");
-const customColorInput = document.getElementById("custom-color");
+  const themeSelect = document.getElementById("theme-color");
+  const customColorInput = document.getElementById("custom-color");
 
-function applyTheme(value) {
-  // Remove current theme
-  document.body.removeAttribute("data-theme");
-
-  // If switching to Latte or Mocha
-  if (value === "latte" || value === "mocha") {
-    customColorInput.style.display = "none";
-    document.body.setAttribute("data-theme", value);
-  }
-  // If switching to custom hex code
-  else if (value === "custom") {
-    customColorInput.style.display = "inline-block";
-    const savedColor = localStorage.getItem("custom-theme-color");
-    if (savedColor) {
-      document.documentElement.style.setProperty("--theme-color", savedColor);
-    }
-  }
-  // Default colors (Matrix style)
-  else {
-    customColorInput.style.display = "none";
-    document.documentElement.style.setProperty("--theme-color", value);
-
-    // Reset all Catppuccin overrides by removing data-theme
+  function applyTheme(colorValue) {
     document.body.removeAttribute("data-theme");
 
-    // Reset other vars to Matrix defaults
-    document.documentElement.style.setProperty("--background-color", "#000");
-    document.documentElement.style.setProperty("--text-color", "#fff");
-    document.documentElement.style.setProperty("--card-bg", "#111");
-    document.documentElement.style.setProperty("--input-border", "#333");
-    document.documentElement.style.setProperty("--button-bg", "#222");
-    document.documentElement.style.setProperty("--button-hover", "#333");
-    document.documentElement.style.setProperty("--accent-color", value);
-    document.documentElement.style.setProperty("--heading-font", "'Segoe UI', sans-serif");
+    if (colorValue === "custom") {
+      customColorInput.style.display = "inline-block";
+      const stored = localStorage.getItem("custom-theme-color");
+      if (stored) {
+        document.documentElement.style.setProperty("--theme-color", stored);
+      }
+    } else if (colorValue === "latte" || colorValue === "mocha") {
+      customColorInput.style.display = "none";
+      document.body.setAttribute("data-theme", colorValue);
+    } else {
+      customColorInput.style.display = "none";
+      document.documentElement.style.setProperty("--theme-color", colorValue);
+    }
   }
-}
 
-themeSelect.addEventListener("change", function () {
-  applyTheme(this.value);
-});
+  themeSelect.addEventListener("change", function () {
+    applyTheme(this.value);
+  });
 
-customColorInput.addEventListener("input", function () {
-  const color = this.value;
-  localStorage.setItem("custom-theme-color", color);
-  document.documentElement.style.setProperty("--theme-color", color);
-});
+  customColorInput.addEventListener("input", function () {
+    const customColor = this.value;
+    localStorage.setItem("custom-theme-color", customColor);
+    document.documentElement.style.setProperty("--theme-color", customColor);
+  });
 </script>
 
-<select id="theme-color">
-  <option value="#00ff00" selected>Green (Matrix)</option>
-  <option value="#ff0000">Red</option>
-  <option value="#00aaff">Blue</option>
-  <option value="#ff9900">Orange</option>
-  <option value="#ffffff">White</option>
-  <option value="latte">Catppuccin Latte</option>
-  <option value="mocha">Catppuccin Mocha</option>
-  <option value="custom">Custom...</option>
-</select>
-<input type="text" id="custom-color" placeholder="Enter Hex Code" style="display:none;">
+<option value="latte">Catppuccin Latte</option>
+<option value="mocha">Catppuccin Mocha</option>
