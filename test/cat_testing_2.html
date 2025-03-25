@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="matrix" data-matrix="false">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>XSOAR CLI Generator</title>
+  <style>
+    /*****************************************************************
+     *  1) MATRIX RAIN
+     *****************************************************************/
+    #matrix-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+      display: none; /* toggled on/off by Red/Blue pill */
+    }
+    .matrix-toggle-container {
+      position: fixed; bottom: 15px; right: 15px;
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 5px 10px;
+      border: 2px solid #0f0;
+      border-radius: 5px;
+    }
+    .matrix-toggle-label {
+      color: #0f0;
+      font-size: 14px; font-weight: bold;
+    }
+    .matrix-switch {
+      position: relative; display: inline-block; width: 40px; height: 20px;
+    }
+    .matrix-switch input { opacity: 0; width: 0; height: 0; }
+    .matrix-slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: blue; /* OFF = Blue Pill */
+      border: 1px solid #0f0;
+      transition: .4s;
+    }
+    .matrix-slider:before {
+      content: "";
+      position: absolute;
+      height: 14px; width: 14px;
+      left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .4s;
+    }
+    input:checked + .matrix-slider {
+      background-color: red; /* ON = Red Pill */
+    }
+    input:checked + .matrix-slider:before {
+      transform: translateX(18px);
+    }
+    .matrix-slider.square { border-radius: 4px; }
+
+    :root[data-matrix="true"] #matrix-canvas {
+      display: block;
+    }
+
+    /*****************************************************************
+     *  2) THEME VARIABLES: MATRIX, MOCHA, LATTE
+     *****************************************************************/
+
+    /* ---------- Matrix Theme ---------- */
+    :root[data-theme="matrix"] {
+      --bg-color: #000;
+      --text-color: #00ff00;
+      --surface-color: #111;
+      --border-color: #00ff00;
+
+      /* Matrix accent versions (for the heading gradient or custom picks) */
+      --ctp-blue:       #00ffff;
+      --ctp-lavender:   #cc66ff;
+      --ctp-sapphire:   #00aaff;
+      --ctp-sky:        #00ffcc;
+      --ctp-teal:       #00ff99;
+      --ctp-green:      #00ff00; /* default */
+      --ctp-yellow:     #ffff00;
+      --ctp-peach:      #ffbb66;
+      --ctp-maroon:     #ff0055;
+      --ctp-red:        #ff0000;
+      --ctp-mauve:      #ff77ff;
+      --ctp-pink:       #ff66cc;
+      --ctp-flamingo:   #ff9999;
+      --ctp-rosewater:  #ffcccc;
+
+      --theme-accent: var(--ctp-green);
+    }
+    :root[data-theme="matrix"] body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Courier New', monospace;
+      margin: 20px;
+      text-align: center;
+    }
+
+    /* ---------- Catppuccin Mocha Theme ---------- */
+    :root[data-theme="mocha"] {
+      /* Base */
+      --ctp-base:       #1e1e2e;
+      --ctp-mantle:     #181825;
+      --ctp-crust:      #11111b;
+
+      /* Surfaces */
+      --ctp-surface0:   #313244;
+      --ctp-surface1:   #45475a;
+      --ctp-surface2:   #585b70;
+
+      /* Overlays */
+      --ctp-overlay0:   #6c7086;
+      --ctp-overlay1:   #7f849c;
+      --ctp-overlay2:   #9399b2;
+
+      /* Subtext & Text */
+      --ctp-subtext0:   #a6adc8;
+      --ctp-subtext1:   #bac2de;
+      --ctp-text:       #cdd6f4;
+
+      /* Accents */
+      --ctp-lavender:   #b4befe;
+      --ctp-blue:       #89b4fa;
+      --ctp-sapphire:   #74c7ec;
+      --ctp-sky:        #89dceb;
+      --ctp-teal:       #94e2d5;
+      --ctp-green:      #a6e3a1;
+      --ctp-yellow:     #f9e2af;
+      --ctp-peach:      #fab387;
+      --ctp-maroon:     #eba0ac;
+      --ctp-red:        #f38ba8;
+      --ctp-mauve:      #cba6f7;
+      --ctp-pink:       #f5c2e7;
+      --ctp-flamingo:   #f2cdcd;
+      --ctp-rosewater:  #f5e0dc;
+
+      --theme-accent: var(--ctp-blue);
+    }
+    :root[data-theme="mocha"] body {
+      background-color: var(--ctp-base);
+      color: var(--ctp-text);
+      font-family: 'JetBrains Mono', monospace;
+      margin: 20px;
+      text-align: center;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* ---------- Catppuccin Latte Theme ---------- */
+    :root[data-theme="latte"] {
+      /* Base */
+      --ctp-base:       #eff1f5;
+      --ctp-mantle:     #e6e9ef;
+      --ctp-crust:      #dce0e8;
+
+      /* Surfaces */
+      --ctp-surface0:   #ccd0da;
+      --ctp-surface1:   #bcc0cc;
+      --ctp-surface2:   #acb0be;
+
+      /* Overlays */
+      --ctp-overlay0:   #9ca0b0;
+      --ctp-overlay1:   #8c8fa1;
+      --ctp-overlay2:   #7c7f93;
+
+      /* Subtext & Text */
+      --ctp-subtext0:   #6c6f85;
+      --ctp-subtext1:   #5c5f77;
+      --ctp-text:       #4c4f69;
+
+      /* Accents */
+      --ctp-blue:       #1e66f5;
+      --ctp-lavender:   #7287fd;
+      --ctp-green:      #40a02b;
+      --ctp-teal:       #179299;
+      --ctp-red:        #d20f39;
+      --ctp-maroon:     #e64553;
+      --ctp-yellow:     #df8e1d;
+      --ctp-peach:      #fe640b;
+      --ctp-pink:       #ea76cb;
+      --ctp-mauve:      #8839ef;
+      --ctp-sky:        #04a5e5;
+      --ctp-sapphire:   #209fb5;
+      --ctp-rosewater:  #dc8a78;
+
+      --theme-accent: var(--ctp-blue);
+    }
+    :root[data-theme="latte"] body {
+      background-color: var(--ctp-base);
+      color: var(--ctp-text);
+      font-family: 'JetBrains Mono', monospace;
+      margin: 20px;
+      text-align: center;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /*****************************************************************
+     *  3) SHARED STYLES
+     *****************************************************************/
+    h1 {
+      margin-bottom: 20px;
+    }
+    .gradient-text {
+      /* fallback for initial load; JS overrides */
+      background: linear-gradient(90deg, #00ff00, #00ffff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .form-container {
+      width: 50%; max-width: 700px;
+      margin: auto; text-align: left;
+      padding: 20px; border-radius: 10px;
+    }
+
+    /* ---------- MATRIX THEME STYLES ---------- */
+    :root[data-theme="matrix"] .form-container {
+      background-color: var(--surface-color);
+      border: 2px solid var(--border-color);
+      box-shadow: 0 0 15px var(--border-color);
+    }
+    :root[data-theme="matrix"] select,
+    :root[data-theme="matrix"] input,
+    :root[data-theme="matrix"] textarea {
+      width: 100%; padding: 8px;
+      background-color: #222;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      box-sizing: border-box;
+    }
+    :root[data-theme="matrix"] button {
+      flex: 1; padding: 10px; margin: 10px;
+      background-color: #000; color: var(--text-color);
+      border: 2px solid var(--border-color);
+      cursor: pointer; font-weight: bold;
+    }
+    :root[data-theme="matrix"] button:hover {
+      background-color: #111;
+    }
+    :root[data-theme="matrix"] #cli-output {
+      margin-top: 20px; padding: 10px;
+      background-color: #111; color: var(--text-color);
+      border: 2px solid var(--border-color);
+      white-space: pre-wrap; word-wrap: break-word;
+      min-height: 50px;
+    }
+    :root[data-theme="matrix"] #copy-button {
+      margin-top: 10px; background-color: #000; color: var(--text-color);
+      border: 2px solid var(--border-color);
+      cursor: pointer; font-weight: bold;
+      padding: 10px; width: 40%;
+      display: block; margin-left: auto; margin-right: auto;
+    }
+    :root[data-theme="matrix"] #copy-button:hover {
+      background-color: #111;
+    }
+
+    /* ---------- MOCHA/LATTE SHARED STYLES ---------- */
+    :root[data-theme="mocha"] .form-container,
+    :root[data-theme="latte"] .form-container {
+      background-color: var(--ctp-mantle);
+      border: 2px solid var(--theme-accent);
+      box-shadow: 0 0 15px var(--theme-accent);
+    }
+    :root[data-theme="mocha"] select,
+    :root[data-theme="mocha"] input,
+    :root[data-theme="mocha"] textarea,
+    :root[data-theme="latte"] select,
+    :root[data-theme="latte"] input,
+    :root[data-theme="latte"] textarea {
+      width: 100%; padding: 8px;
+      border: 2px solid var(--theme-accent);
+      background-color: var(--ctp-surface0);
+      color: var(--theme-accent);
+      box-sizing: border-box;
+    }
+    :root[data-theme="mocha"] input[type="datetime-local"],
+    :root[data-theme="latte"] input[type="datetime-local"] {
+      background-color: var(--ctp-surface0) !important;
+      color: var(--theme-accent) !important;
+      border: 2px solid var(--theme-accent) !important;
+    }
+    :root[data-theme="mocha"] input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+    :root[data-theme="latte"] input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+    :root[data-theme="mocha"] button,
+    :root[data-theme="latte"] button {
+      flex: 1; padding: 10px; margin: 10px;
+      background-color: var(--ctp-crust);
+      color: var(--theme-accent);
+      border: 2px solid var(--theme-accent);
+      cursor: pointer; font-weight: bold;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    :root[data-theme="mocha"] button:hover,
+    :root[data-theme="latte"] button:hover {
+      background-color: var(--theme-accent);
+      color: var(--ctp-crust);
+    }
+    :root[data-theme="mocha"] #cli-output,
+    :root[data-theme="latte"] #cli-output {
+      margin-top: 20px; padding: 10px;
+      background-color: var(--ctp-surface1);
+      color: var(--theme-accent);
+      border: 2px solid var(--theme-accent);
+      white-space: pre-wrap; word-wrap: break-word;
+      min-height: 50px;
+      box-shadow: 0 0 10px var(--theme-accent);
+      border-radius: 6px;
+    }
+    :root[data-theme="mocha"] #copy-button,
+    :root[data-theme="latte"] #copy-button {
+      margin-top: 10px;
+      background-color: var(--ctp-crust);
+      color: var(--theme-accent);
+      border: 2px solid var(--theme-accent);
+      cursor: pointer; font-weight: bold;
+      padding: 10px; width: 40%;
+      display: block; margin-left: auto; margin-right: auto;
+      border-radius: 6px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    :root[data-theme="mocha"] #copy-button:hover,
+    :root[data-theme="latte"] #copy-button:hover {
+      background-color: var(--theme-accent);
+      color: var(--ctp-crust);
+    }
+
+    /* ---------- FOOTER ---------- */
+    .footer {
+      margin-top: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
+    :root[data-theme="matrix"] .footer {
+      color: var(--text-color);
+    }
+    :root[data-theme="mocha"] .footer,
+    :root[data-theme="latte"] .footer {
+      color: var(--theme-accent);
+    }
+
+    /*****************************************************************
+     *  4) THEME PICKER (TOP-RIGHT)
+     *****************************************************************/
+    #theme-controls {
+      position: fixed; top: 10px; right: 10px;
+      display: flex; flex-direction: column; align-items: flex-end;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border: 2px solid #888;
+      border-radius: 5px;
+    }
+    #theme-controls label {
+      color: #fff;
+      margin-right: 5px;
+    }
+    #accent-picker-container {
+      display: block;
+    }
+    #accent-picker {
+      padding: 6px;
+    }
+    #custom-hex-container {
+      display: none;
+      margin-top: 5px;
+    }
+    #custom-hex {
+      padding: 6px;
+      width: 80px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Matrix Canvas & Toggle -->
+  <canvas id="matrix-canvas"></canvas>
+  <div class="matrix-toggle-container">
+    <span class="matrix-toggle-label" id="pill-status">Blue Pill</span>
+    <label class="matrix-switch">
+      <input type="checkbox" id="toggle-matrix">
+      <span class="matrix-slider square"></span>
+    </label>
+  </div>
+
+  <!-- THEME & ACCENT PICKER -->
+  <div id="theme-controls">
+    <div>
+      <label for="theme-picker">Theme:</label>
+      <select id="theme-picker">
+        <option value="matrix">Matrix</option>
+        <option value="mocha">Catppuccin Mocha</option>
+        <option value="latte">Catppuccin Latte</option>
+      </select>
+    </div>
+    <div id="accent-picker-container">
+      <label for="accent-picker">Accent:</label>
+      <select id="accent-picker">
+        <option value="green" selected>Green</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="pink">Pink</option>
+        <option value="orange">Orange</option>
+        <option value="lavender">Lavender</option>
+        <option value="sapphire">Sapphire</option>
+        <option value="sky">Sky</option>
+        <option value="teal">Teal</option>
+        <option value="yellow">Yellow</option>
+        <option value="peach">Peach</option>
+        <option value="maroon">Maroon</option>
+        <option value="mauve">Mauve</option>
+        <option value="flamingo">Flamingo</option>
+        <option value="rosewater">Rosewater</option>
+        <option value="custom">Custom</option>
+      </select>
+      <div id="custom-hex-container">
+        <label for="custom-hex">Hex:</label>
+        <input type="text" id="custom-hex" placeholder="#00ff00">
+      </div>
+    </div>
+  </div>
+
+  <h1>
+    <span class="gradient-text" id="heading-text">XSOAR CLI Generator</span>
+  </h1>
+
+  <!-- FORM CONTAINER -->
+  <div class="form-container">
+    <form id="xsoar-cli-form">
+      <div class="field-container">
+        <label for="occurred-time">Occurred Time (UTC)</label>
+        <input type="text" id="occurred-time" readonly>
+        <input type="datetime-local" id="occurred-time-picker" oninput="syncTimePicker()">
+      </div>
+      <!-- More fields as needed -->
+      <div style="display: flex; justify-content: space-between;">
+        <button type="button" onclick="generateCLI()">Generate</button>
+        <button type="reset">Reset</button>
+      </div>
+    </form>
+    <div id="cli-output"></div>
+    <button id="copy-button" onclick="copyToClipboard()">Copy</button>
+  </div>
+
+  <div class="footer">
+    Made with 💚 by Jeff Morris | Hack The Planet 🌎
+  </div>
+
+  <script>
+    /************************************************************
+     *  1) MATRIX CODE RAIN
+     ************************************************************/
+    const canvas = document.getElementById("matrix-canvas");
+    const ctx = canvas.getContext("2d");
+
+    let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+    let matrix = letters.split("");
+    let fontSize = 16;
+    let columns;
+    let drops;
+    let matrixColor = "#0f0"; // default green
+
+    function recalcMatrix() {
+      columns = Math.floor(canvas.width / fontSize);
+      drops = Array.from({ length: columns }).fill(1);
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      recalcMatrix();
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = matrixColor;
+      ctx.font = fontSize + "px Courier New";
+
+      drops.forEach((y, i) => {
+        const text = matrix[Math.floor(Math.random() * matrix.length)];
+        const x = i * fontSize;
+        ctx.fillText(text, x, y * fontSize);
+
+        if (y * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      });
+    }
+    setInterval(drawMatrix, 50);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggle = document.getElementById("toggle-matrix");
+      const pillStatus = document.getElementById("pill-status");
+
+      toggle.checked = false;
+      pillStatus.textContent = "Blue Pill";
+      document.documentElement.setAttribute("data-matrix", "false");
+
+      toggle.addEventListener("change", function() {
+        if (this.checked) {
+          document.documentElement.setAttribute("data-matrix", "true");
+          pillStatus.textContent = "Red Pill";
+        } else {
+          document.documentElement.setAttribute("data-matrix", "false");
+          pillStatus.textContent = "Blue Pill";
+        }
+      });
+
+      // localStorage restore
+      const savedTheme = localStorage.getItem("theme") || "matrix";
+      const savedAccent = localStorage.getItem("accent") || "green";
+      const savedCustomHex = localStorage.getItem("customHex") || "";
+
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      themePicker.value = savedTheme;
+      accentPicker.value = savedAccent;
+      if (savedAccent === "custom") {
+        customHexContainer.style.display = "block";
+        customHex.value = savedCustomHex;
+      }
+
+      applyAccent(savedAccent, savedCustomHex);
+    });
+
+    /************************************************************
+     *  2) THEME + ACCENT
+     ************************************************************/
+    const themePicker = document.getElementById("theme-picker");
+    const accentPicker = document.getElementById("accent-picker");
+    const customHexContainer = document.getElementById("custom-hex-container");
+    const customHex = document.getElementById("custom-hex");
+    const headingText = document.getElementById("heading-text");
+
+    themePicker.addEventListener("change", () => {
+      const newTheme = themePicker.value;
+      localStorage.setItem("theme", newTheme);
+      document.documentElement.setAttribute("data-theme", newTheme);
+
+      if (newTheme === "matrix") {
+        // default to green unless user had something else
+        accentPicker.value = "green";
+        localStorage.setItem("accent", "green");
+        localStorage.removeItem("customHex");
+      }
+      applyAccent(accentPicker.value, customHex.value.trim());
+    });
+
+    accentPicker.addEventListener("change", () => {
+      const val = accentPicker.value;
+      localStorage.setItem("accent", val);
+      if (val === "custom") {
+        customHexContainer.style.display = "block";
+      } else {
+        customHexContainer.style.display = "none";
+        localStorage.removeItem("customHex");
+      }
+      applyAccent(val, customHex.value.trim());
+    });
+
+    customHex.addEventListener("input", () => {
+      const hexVal = customHex.value.trim();
+      const hexRegex = /^#[0-9A-Fa-f]{6}$/;
+      if (hexRegex.test(hexVal)) {
+        localStorage.setItem("customHex", hexVal);
+        applyAccent("custom", hexVal);
+      }
+    });
+
+    function applyAccent(accent, hexVal) {
+      if (accent === "custom") {
+        if (/^#[0-9A-Fa-f]{6}$/.test(hexVal)) {
+          setThemeAccent(hexVal);
+          setGradientText(hexVal, true);
+        }
+      } else {
+        setThemeAccent(accent);
+        setGradientText(accent, false);
+      }
+    }
+
+    function setThemeAccent(accentOrHex) {
+      const theme = document.documentElement.getAttribute("data-theme");
+      if (accentOrHex.startsWith("#")) {
+        // custom hex
+        if (theme === "matrix") {
+          document.documentElement.style.setProperty("--text-color", accentOrHex);
+          document.documentElement.style.setProperty("--border-color", accentOrHex);
+          matrixColor = accentOrHex;
+        } else {
+          document.documentElement.style.setProperty("--theme-accent", accentOrHex);
+          matrixColor = accentOrHex;
+        }
+      } else {
+        // named accent => get var
+        const varName = `--ctp-${accentOrHex}`;
+        let colorVal = getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || "#00ff00";
+        if (theme === "matrix") {
+          document.documentElement.style.setProperty("--text-color", colorVal);
+          document.documentElement.style.setProperty("--border-color", colorVal);
+          matrixColor = colorVal;
+        } else {
+          document.documentElement.style.setProperty("--theme-accent", `var(${varName})`);
+          matrixColor = colorVal;
+        }
+      }
+    }
+
+    /************************************************************
+     *  3) TIME PICKER
+     ************************************************************/
+    function syncTimePicker() {
+      const picker = document.getElementById("occurred-time-picker");
+      const manualInput = document.getElementById("occurred-time");
+      if (picker.value) {
+        let date = new Date(picker.value + "Z");
+        let formattedTime = date.toISOString().slice(0, 19).replace("T", " ");
+        manualInput.value = formattedTime;
+      }
+    }
+
+    /************************************************************
+     *  4) TIMEZONE CONVERSION
+     ************************************************************/
+    function convertToUserTime(utcDateStr) {
+      const utcDate = new Date(utcDateStr + "Z");
+      const localDate = new Date(utcDate.getTime());
+      const pad = (num) => num.toString().padStart(2, '0');
+      const year = localDate.getFullYear();
+      const month = pad(localDate.getMonth() + 1);
+      const day = pad(localDate.getDate());
+      const hours = pad(localDate.getHours());
+      const minutes = pad(localDate.getMinutes());
+      const seconds = pad(localDate.getSeconds());
+      const offsetMinutes = localDate.getTimezoneOffset();
+      const offsetHours = Math.abs(offsetMinutes / 60);
+      const offsetSign = offsetMinutes > 0 ? "-" : "+";
+      const offsetFormatted = `${offsetSign}${pad(offsetHours)}:${pad(offsetMinutes % 60)}`;
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetFormatted}`;
+    }
+
+    /************************************************************
+     *  5) GENERATE CLI
+     ************************************************************/
+    function generateCLI() {
+      const occurredTime = document.getElementById("occurred-time").value.trim();
+      if (!occurredTime) {
+        alert("Please select an Occurred Time.");
+        return;
+      }
+      const containmentTime = convertToUserTime(occurredTime);
+      const remediationTime = convertToUserTime(occurredTime);
+
+      // Example fields
+      let params = {
+        containmenttime: containmentTime,
+        remediationtime: remediationTime
+      };
+      // build up with more fields as needed
+
+      const cliCommand = "!setIncident " + Object.entries(params)
+        .map(([key, value]) => `${key}="${value}"`)
+        .join(" ");
+      document.getElementById("cli-output").textContent = cliCommand;
+    }
+
+    /************************************************************
+     *  6) COPY
+     ************************************************************/
+    function copyToClipboard() {
+      const output = document.getElementById('cli-output').textContent;
+      navigator.clipboard.writeText(output).then(() => {
+        alert("CLI Command Copied!");
+      });
+    }
+
+    /************************************************************
+     *  7) GRADIENT HEADING
+     ************************************************************/
+    const allAccents = [
+      "green","red","blue","pink","orange",
+      "lavender","sapphire","sky","teal",
+      "yellow","peach","maroon","mauve",
+      "flamingo","rosewater"
+    ];
+
+    function setGradientText(accentOrHex, isHex = false) {
+      let primaryColor;
+      if (isHex) {
+        primaryColor = accentOrHex;
+      } else {
+        const varName = `--ctp-${accentOrHex}`;
+        primaryColor = getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || accentOrHex;
+      }
+      // pick a random second accent
+      let second = accentOrHex;
+      while (second === accentOrHex) {
+        second = allAccents[Math.floor(Math.random() * allAccents.length)];
+      }
+      let secondaryColor;
+      if (second.startsWith("#")) {
+        secondaryColor = second;
+      } else {
+        const varName2 = `--ctp-${second}`;
+        secondaryColor = getComputedStyle(document.documentElement).getPropertyValue(varName2).trim() || second;
+      }
+      const headingText = document.getElementById("heading-text");
+      headingText.style.background = `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`;
+      headingText.style.webkitBackgroundClip = "text";
+      headingText.style.webkitTextFillColor = "transparent";
+    }
+  </script>
+</body>
+</html>
