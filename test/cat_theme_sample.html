@@ -1,252 +1,419 @@
-<!<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="matrix" data-matrix="false">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="color-scheme" content="dark">
-  <title>XSOAR CLI Generator (Catppuccin Mocha Enhanced)</title>
+  <title>XSOAR CLI Generator</title>
 
   <style>
-    /******************************************************************************
-     *  1) CATPPUCCIN MOCHA PALETTE
-     ******************************************************************************/
-    :root {
-      /* Mocha Base Colors */
-      --ctp-rosewater: #f5e0dc;
-      --ctp-flamingo:  #f2cdcd;
-      --ctp-pink:      #f5c2e7;
-      --ctp-mauve:     #cba6f7;
-      --ctp-red:       #f38ba8;
-      --ctp-maroon:    #eba0ac;
-      --ctp-peach:     #fab387;
-      --ctp-yellow:    #f9e2af;
-      --ctp-green:     #a6e3a1;
-      --ctp-teal:      #94e2d5;
-      --ctp-sky:       #89dceb;
-      --ctp-sapphire:  #74c7ec;
-      --ctp-blue:      #89b4fa;
-      --ctp-lavender:  #b4befe;
+    /*****************************************************************
+     *  1) MATRIX RAIN
+     *****************************************************************/
+    #matrix-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+      display: none; /* toggled on/off by Red/Blue pill */
+    }
+    .matrix-toggle-container {
+      position: fixed; bottom: 15px; right: 15px;
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 5px 10px;
+      border: 2px solid #0f0;
+      border-radius: 5px;
+    }
+    .matrix-toggle-label {
+      color: #0f0;
+      font-size: 14px; font-weight: bold;
+    }
+    .matrix-switch {
+      position: relative; display: inline-block; width: 40px; height: 20px;
+    }
+    .matrix-switch input { opacity: 0; width: 0; height: 0; }
+    .matrix-slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: blue; /* OFF = Blue Pill */
+      border: 1px solid #0f0;
+      transition: .4s;
+    }
+    .matrix-slider:before {
+      content: "";
+      position: absolute;
+      height: 14px; width: 14px;
+      left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .4s;
+    }
+    /* ON = Red Pill */
+    input:checked + .matrix-slider {
+      background-color: red;
+    }
+    input:checked + .matrix-slider:before {
+      transform: translateX(18px);
+    }
+    .matrix-slider.square { border-radius: 4px; }
 
-      /* Background / Foreground */
-      --ctp-text:      #cdd6f4;
-      --ctp-subtext1:  #bac2de;
-      --ctp-subtext0:  #a6adc8;
-      --ctp-overlay2:  #9399b2;
-      --ctp-overlay1:  #7f849c;
-      --ctp-overlay0:  #6c7086;
-      --ctp-surface2:  #585b70;
-      --ctp-surface1:  #45475a;
-      --ctp-surface0:  #313244;
-      --ctp-base:      #1e1e2e;
-      --ctp-mantle:    #181825;
-      --ctp-crust:     #11111b;
-
-      /* Default accent color (can be changed by the accent picker) */
-      --theme-accent: var(--ctp-blue);
+    /* Show matrix canvas only if data-matrix="true" */
+    :root[data-matrix="true"] #matrix-canvas {
+      display: block;
     }
 
-    /******************************************************************************
-     *  2) PAGE & GLOBAL
-     ******************************************************************************/
-    body {
+    /*****************************************************************
+     *  2) THEMES: MATRIX, MOCHA, LATTE
+     *****************************************************************/
+
+    /* === Matrix theme === */
+    :root[data-theme="matrix"] {
+      /* Basic matrix variables */
+      --bg-color: #000;
+      --text-color: #00ff00;
+      --surface-color: #111;
+      --border-color: #00ff00;
+
+      /* We'll store the “accent color” for matrix in this var. 
+         If user picks custom hex, we store it here. */
+      --matrix-accent: #00ff00; /* default is green */
+
+      /* Provide default catppuccin-like variables 
+         in case we want to reuse the same "accent" logic for heading. */
+      --ctp-blue:       #0000ff;
+      --ctp-red:        #ff0000;
+      --ctp-orange:     #ffa500;
+      --ctp-pink:       #ff66cc;
+      /* you can add more or rename, up to you */
+    }
+    :root[data-theme="matrix"] body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Courier New', monospace;
       margin: 20px;
       text-align: center;
+    }
+
+    /* === Catppuccin Mocha === */
+    :root[data-theme="mocha"] {
+      /* Base */
+      --ctp-base:       #1e1e2e;
+      --ctp-mantle:     #181825;
+      --ctp-crust:      #11111b;
+
+      /* Surfaces */
+      --ctp-surface0:   #313244;
+      --ctp-surface1:   #45475a;
+      --ctp-surface2:   #585b70;
+
+      /* Overlays */
+      --ctp-overlay0:   #6c7086;
+      --ctp-overlay1:   #7f849c;
+      --ctp-overlay2:   #9399b2;
+
+      /* Subtext & Text */
+      --ctp-subtext0:   #a6adc8;
+      --ctp-subtext1:   #bac2de;
+      --ctp-text:       #cdd6f4;
+
+      /* Accents (official) */
+      --ctp-blue:       #89b4fa;
+      --ctp-red:        #f38ba8;
+      --ctp-orange:     #fab387; /* or “peach” */
+      --ctp-pink:       #f5c2e7;
+      /* etc. ... */
+
+      --theme-accent: var(--ctp-blue);
+    }
+    :root[data-theme="mocha"] body {
       background-color: var(--ctp-base);
       color: var(--ctp-text);
       font-family: 'JetBrains Mono', monospace;
+      margin: 20px;
+      text-align: center;
+      transition: background-color 0.3s, color 0.3s;
     }
 
+    /* === Catppuccin Latte === */
+    :root[data-theme="latte"] {
+      /* Base */
+      --ctp-base:       #eff1f5;
+      --ctp-mantle:     #e6e9ef;
+      --ctp-crust:      #dce0e8;
+
+      /* Surfaces */
+      --ctp-surface0:   #ccd0da;
+      --ctp-surface1:   #bcc0cc;
+      --ctp-surface2:   #acb0be;
+
+      /* Overlays */
+      --ctp-overlay0:   #9ca0b0;
+      --ctp-overlay1:   #8c8fa1;
+      --ctp-overlay2:   #7c7f93;
+
+      /* Subtext & Text */
+      --ctp-subtext0:   #6c6f85;
+      --ctp-subtext1:   #5c5f77;
+      --ctp-text:       #4c4f69;
+
+      /* Accents (official) */
+      --ctp-blue:       #1e66f5;
+      --ctp-red:        #d20f39;
+      --ctp-orange:     #fe640b; /* or “peach” */
+      --ctp-pink:       #ea76cb;
+      /* etc. ... */
+
+      --theme-accent: var(--ctp-blue);
+    }
+    :root[data-theme="latte"] body {
+      background-color: var(--ctp-base);
+      color: var(--ctp-text);
+      font-family: 'JetBrains Mono', monospace;
+      margin: 20px;
+      text-align: center;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /*****************************************************************
+     *  3) SHARED STYLES
+     *****************************************************************/
     h1 {
       margin-bottom: 20px;
     }
-
-    /* 
-      Example: gradient text for the heading 
-      (You can also just apply the gradient directly to h1 if you prefer)
-    */
     .gradient-text {
-      background: linear-gradient(90deg, var(--ctp-blue), var(--ctp-mauve));
+      /* fallback gradient for initial load. 
+         We'll override in JS. */
+      background: linear-gradient(90deg, #0f0, #0ff);
       -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
       -webkit-text-fill-color: transparent;
     }
 
-    /******************************************************************************
-     *  3) FORM CONTAINER
-     ******************************************************************************/
     .form-container {
-      width: 50%;
-      max-width: 700px;
-      margin: auto;
-      text-align: left;
+      width: 50%; max-width: 700px;
+      margin: auto; text-align: left;
+      padding: 20px; border-radius: 10px;
+    }
+
+    /* === MATRIX THEME STYLES === */
+    :root[data-theme="matrix"] .form-container {
+      background-color: var(--surface-color);
+      border: 2px solid var(--matrix-accent); /* Use the dynamic accent */
+      box-shadow: 0 0 15px var(--matrix-accent);
+    }
+    :root[data-theme="matrix"] select,
+    :root[data-theme="matrix"] input,
+    :root[data-theme="matrix"] textarea {
+      width: 100%; padding: 8px;
+      background-color: #222;
+      color: var(--matrix-accent); /* text color is accent now */
+      border: 1px solid var(--matrix-accent);
+      box-sizing: border-box;
+    }
+    :root[data-theme="matrix"] button {
+      flex: 1; padding: 10px; margin: 10px;
+      background-color: #000; color: var(--matrix-accent);
+      border: 2px solid var(--matrix-accent);
+      cursor: pointer; font-weight: bold;
+    }
+    :root[data-theme="matrix"] button:hover {
+      background-color: #111;
+      color: #000;
+    }
+    :root[data-theme="matrix"] #cli-output {
+      margin-top: 20px; padding: 10px;
+      background-color: #111; color: var(--matrix-accent);
+      border: 2px solid var(--matrix-accent);
+      white-space: pre-wrap; word-wrap: break-word;
+      min-height: 50px;
+      box-shadow: 0 0 10px var(--matrix-accent);
+      border-radius: 6px;
+    }
+    :root[data-theme="matrix"] #copy-button {
+      margin-top: 10px; background-color: #000; color: var(--matrix-accent);
+      border: 2px solid var(--matrix-accent);
+      cursor: pointer; font-weight: bold;
+      padding: 10px; width: 40%;
+      display: block; margin-left: auto; margin-right: auto;
+      border-radius: 6px;
+    }
+    :root[data-theme="matrix"] #copy-button:hover {
+      background-color: #111;
+      color: #000;
+    }
+
+    /* === MOCHA/LATTE SHARED === */
+    :root[data-theme="mocha"] .form-container,
+    :root[data-theme="latte"] .form-container {
       background-color: var(--ctp-mantle);
       border: 2px solid var(--theme-accent);
       box-shadow: 0 0 15px var(--theme-accent);
-      padding: 20px;
-      border-radius: 10px;
     }
-
-    .field-container {
-      margin: 10px 0;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--ctp-subtext0);
-    }
-
-    /******************************************************************************
-     *  4) INPUTS, SELECTS, TEXTAREAS
-     ******************************************************************************/
-    select,
-    input,
-    textarea {
-      width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
+    :root[data-theme="mocha"] select,
+    :root[data-theme="mocha"] input,
+    :root[data-theme="mocha"] textarea,
+    :root[data-theme="latte"] select,
+    :root[data-theme="latte"] input,
+    :root[data-theme="latte"] textarea {
+      width: 100%; padding: 8px;
+      border: 2px solid var(--theme-accent);
       background-color: var(--ctp-surface0);
-      color: var(--ctp-text);
-      border: 1px solid var(--theme-accent);
-      border-radius: 4px; /* subtle rounding */
-      transition: box-shadow 0.2s, border 0.2s;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 40px;
-    }
-
-    input[type="datetime-local"] {
-      background-color: var(--ctp-surface0);
-      color: var(--ctp-text);
-      border: 1px solid var(--theme-accent);
-      padding: 8px;
+      color: var(--theme-accent);
       box-sizing: border-box;
     }
 
-    /* Focus glow */
-    select:focus,
-    input:focus,
-    textarea:focus {
-      outline: none;
-      border: 2px solid var(--theme-accent);
-      box-shadow: 0 0 8px var(--theme-accent);
+    /* Force the time picker dark in Mocha, invert icon */
+    :root[data-theme="mocha"] input[type="datetime-local"] {
+      background-color: var(--ctp-surface0) !important;
+      color: var(--theme-accent) !important;
+      border: 2px solid var(--theme-accent) !important;
+    }
+    :root[data-theme="mocha"] input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
     }
 
-    /******************************************************************************
-     *  5) BUTTONS
-     ******************************************************************************/
-    .button-container {
-      display: flex;
-      justify-content: space-between;
+    /* Latte can invert icon as well */
+    :root[data-theme="latte"] input[type="datetime-local"] {
+      background-color: var(--ctp-surface0) !important;
+      color: var(--theme-accent) !important;
+      border: 2px solid var(--theme-accent) !important;
+    }
+    :root[data-theme="latte"] input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
     }
 
-    button {
-      flex: 1;
-      padding: 10px;
-      margin: 10px;
-      background-color: var(--ctp-crust);
-      color: var(--ctp-text);
-      border: 2px solid var(--theme-accent);
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
-      border-radius: 4px;
+    :root[data-theme="mocha"] button,
+    :root[data-theme="latte"] button {
+      flex: 1; padding: 10px; margin: 10px;
+      background-color: var(--ctp-crust); color: var(--theme-accent);
+      border: 2px solid var(--theme-accent); cursor: pointer; font-weight: bold;
+      transition: background-color 0.2s, color 0.2s;
     }
-
-    /* Enhanced hover effect */
-    button:hover {
+    :root[data-theme="mocha"] button:hover,
+    :root[data-theme="latte"] button:hover {
       background-color: var(--theme-accent);
       color: var(--ctp-crust);
-      transform: scale(1.02);
-      box-shadow: 0 0 10px var(--theme-accent);
     }
-
-    /******************************************************************************
-     *  6) CLI OUTPUT & COPY BUTTON
-     ******************************************************************************/
-    #cli-output {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: var(--ctp-surface1);
-      color: var(--ctp-text);
+    :root[data-theme="mocha"] #cli-output,
+    :root[data-theme="latte"] #cli-output {
+      margin-top: 20px; padding: 10px;
+      background-color: var(--ctp-surface1); color: var(--theme-accent);
       border: 2px solid var(--theme-accent);
-      border-radius: 8px; /* subtle rounding */
-      white-space: pre-wrap;
-      word-wrap: break-word;
+      white-space: pre-wrap; word-wrap: break-word;
       min-height: 50px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.95em;
-      line-height: 1.4;
+      box-shadow: 0 0 10px var(--theme-accent);
+      border-radius: 6px;
     }
-
-    #copy-button {
+    :root[data-theme="mocha"] #copy-button,
+    :root[data-theme="latte"] #copy-button {
       margin-top: 10px;
       background-color: var(--ctp-crust);
-      color: var(--ctp-text);
+      color: var(--theme-accent);
       border: 2px solid var(--theme-accent);
-      cursor: pointer;
-      font-weight: bold;
-      padding: 10px;
-      width: 40%;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      transition: background-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
-      border-radius: 4px;
+      cursor: pointer; font-weight: bold;
+      padding: 10px; width: 40%;
+      display: block; margin-left: auto; margin-right: auto;
+      transition: background-color 0.2s, color 0.2s;
+      border-radius: 6px;
     }
-    #copy-button:hover {
+    :root[data-theme="mocha"] #copy-button:hover,
+    :root[data-theme="latte"] #copy-button:hover {
       background-color: var(--theme-accent);
       color: var(--ctp-crust);
-      transform: scale(1.02);
-      box-shadow: 0 0 10px var(--theme-accent);
     }
 
-    /******************************************************************************
-     *  7) FOOTER
-     ******************************************************************************/
+    /* Footer for all themes */
     .footer {
       margin-top: 20px;
       font-size: 14px;
-      color: var(--ctp-subtext0);
+      text-align: center;
+    }
+    :root[data-theme="matrix"] .footer {
+      color: var(--matrix-accent);
+    }
+    :root[data-theme="mocha"] .footer,
+    :root[data-theme="latte"] .footer {
+      color: var(--theme-accent);
     }
 
-    /******************************************************************************
-     *  8) OPTIONAL: ACCENT PICKER
-     ******************************************************************************/
-    #accent-picker {
-      background-color: var(--ctp-surface0);
-      color: var(--ctp-text);
-      border: 1px solid var(--theme-accent);
-      border-radius: 4px;
+    /*****************************************************************
+     *  4) THEME PICKER (TOP-RIGHT)
+     *****************************************************************/
+    #theme-controls {
+      position: fixed; top: 10px; right: 10px;
+      display: flex; flex-direction: column; align-items: flex-end;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border: 2px solid #888;
+      border-radius: 5px;
+    }
+    #theme-controls label {
+      color: #fff;
+      margin-right: 5px;
+    }
+    #accent-picker-container {
+      display: flex; flex-direction: row; gap: 8px; align-items: center;
+    }
+    #accent-picker, #custom-hex {
       padding: 6px;
     }
+    /* Hide custom hex input by default */
+    #custom-hex {
+      display: none;
+      width: 90px; /* small input for hex code */
+    }
+    /* We'll show it if user picks "custom" */
   </style>
 </head>
 
 <body>
+  <!-- 1) Matrix Canvas & Toggle -->
+  <canvas id="matrix-canvas"></canvas>
+  <div class="matrix-toggle-container">
+    <span class="matrix-toggle-label" id="pill-status">Blue Pill</span>
+    <label class="matrix-switch">
+      <input type="checkbox" id="toggle-matrix">
+      <span class="matrix-slider square"></span>
+    </label>
+  </div>
 
-  <!-- Heading with gradient text -->
-  <h1>
-    <span class="gradient-text">XSOAR CLI Generator</span>
-  </h1>
-
-  <div class="form-container">
-    <!-- Optional accent picker (demo) -->
-    <div class="field-container">
-      <label for="accent-picker">Theme Accent</label>
-      <select id="accent-picker" onchange="updateAccent(this.value)">
-        <option value="--ctp-blue">Blue</option>
-        <option value="--ctp-mauve">Mauve</option>
-        <option value="--ctp-teal">Teal</option>
-        <option value="--ctp-red">Red</option>
+  <!-- THEME PICKER & ACCENT PICKER -->
+  <div id="theme-controls">
+    <div>
+      <label for="theme-picker">Theme:</label>
+      <select id="theme-picker">
+        <option value="matrix">Matrix</option>
+        <option value="mocha">Catppuccin Mocha</option>
+        <option value="latte">Catppuccin Latte</option>
       </select>
     </div>
+    <div id="accent-picker-container">
+      <label for="accent-picker">Accent:</label>
+      <select id="accent-picker">
+        <option value="blue">Blue</option>
+        <option value="red">Red</option>
+        <option value="orange">Orange</option>
+        <option value="pink">Pink</option>
+        <option value="custom">Custom Hex</option>
+      </select>
+      <!-- Custom hex input (hidden by default) -->
+      <input type="text" id="custom-hex" placeholder="#RRGGBB">
+    </div>
+  </div>
 
+  <h1>
+    <span class="gradient-text" id="heading-text">XSOAR CLI Generator</span>
+  </h1>
+
+  <!-- FORM CONTAINER -->
+  <div class="form-container">
     <form id="xsoar-cli-form">
       <div class="field-container">
         <label for="occurred-time">Occurred Time (UTC)</label>
-        <input type="datetime-local" id="occurred-time">
+        <input type="text" id="occurred-time" readonly>
+        <input type="datetime-local" id="occurred-time-picker" oninput="syncTimePicker()">
       </div>
 
       <div class="field-container">
@@ -317,7 +484,7 @@
         <textarea id="signatureupdate">N/A</textarea>
       </div>
 
-      <div class="button-container">
+      <div style="display: flex; justify-content: space-between;">
         <button type="button" onclick="generateCLI()">Generate</button>
         <button type="reset">Reset</button>
       </div>
@@ -332,19 +499,163 @@
   </div>
 
   <script>
-    /******************************************************************************
-     *  1) ACCENT PICKER LOGIC
-     ******************************************************************************/
-    function updateAccent(colorVar) {
-      // Overwrite --theme-accent with whichever var is selected
-      // e.g. --ctp-blue, --ctp-mauve, etc.
-      document.documentElement.style.setProperty('--theme-accent', `var(${colorVar})`);
+    /************************************************************
+     *  1) MATRIX CODE RAIN
+     ************************************************************/
+    const canvas = document.getElementById("matrix-canvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+    const matrix = letters.split("");
+    const fontSize = 16;
+    let columns = canvas.width / fontSize;
+    const drops = Array.from({ length: columns }).fill(1);
+
+    let matrixColor = "#0f0"; // default green
+
+    function drawMatrix() {
+      // fade out effect
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = matrixColor;
+      ctx.font = fontSize + "px Courier New";
+
+      drops.forEach((y, i) => {
+        const text = matrix[Math.floor(Math.random() * matrix.length)];
+        const x = i * fontSize;
+        ctx.fillText(text, x, y * fontSize);
+
+        if (y * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      });
+    }
+    setInterval(drawMatrix, 50);
+
+    // Red/Blue Pill toggle
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggle = document.getElementById("toggle-matrix");
+      const pillStatus = document.getElementById("pill-status");
+
+      // Start OFF
+      toggle.checked = false;
+      pillStatus.textContent = "Blue Pill";
+      document.documentElement.setAttribute("data-matrix", "false");
+
+      toggle.addEventListener("change", function() {
+        if (this.checked) {
+          // ON => Red Pill => show matrix
+          document.documentElement.setAttribute("data-matrix", "true");
+          pillStatus.textContent = "Red Pill";
+        } else {
+          // OFF => Blue Pill => hide matrix
+          document.documentElement.setAttribute("data-matrix", "false");
+          pillStatus.textContent = "Blue Pill";
+        }
+      });
+    });
+
+    /************************************************************
+     *  2) THEME PICKER & ACCENT PICKER
+     ************************************************************/
+    const themePicker = document.getElementById("theme-picker");
+    const accentPicker = document.getElementById("accent-picker");
+    const customHexInput = document.getElementById("custom-hex");
+    const headingText = document.getElementById("heading-text");
+
+    // Start in "matrix" theme
+    document.documentElement.setAttribute("data-theme", "matrix");
+
+    // If user picks a theme
+    themePicker.addEventListener("change", () => {
+      const selectedTheme = themePicker.value;
+      document.documentElement.setAttribute("data-theme", selectedTheme);
+      // Re-apply accent logic
+      setThemeAccent(accentPicker.value);
+      setGradientText(accentPicker.value);
+    });
+
+    // If user picks an accent from the dropdown
+    accentPicker.addEventListener("change", () => {
+      const val = accentPicker.value;
+      // If "custom," show the #custom-hex input
+      if (val === "custom") {
+        customHexInput.style.display = "inline-block";
+      } else {
+        customHexInput.style.display = "none";
+        setThemeAccent(val);
+        setGradientText(val);
+      }
+    });
+
+    // If user enters a custom hex
+    customHexInput.addEventListener("input", () => {
+      const hexVal = customHexInput.value.trim();
+      // simple hex regex: # followed by 3 or 6 hex digits
+      const hexRegex = /^#(?:[0-9A-Fa-f]{3}){1,2}$/;
+      if (hexRegex.test(hexVal)) {
+        // valid hex
+        setThemeAccent(hexVal); // pass the raw hex
+        setGradientText(hexVal, true); // pass a flag that it's a raw hex
+      }
+    });
+
+    // setThemeAccent can handle either a named accent or a raw hex
+    function setThemeAccent(accentOrHex) {
+      const theme = document.documentElement.getAttribute("data-theme");
+      // If it's a valid hex code (starts with #), store it
+      if (accentOrHex.startsWith("#")) {
+        if (theme === "matrix") {
+          // store it in --matrix-accent
+          document.documentElement.style.setProperty("--matrix-accent", accentOrHex);
+          matrixColor = accentOrHex; // for the matrix rain
+        } else {
+          // for mocha/latte, override --theme-accent
+          document.documentElement.style.setProperty("--theme-accent", accentOrHex);
+          matrixColor = accentOrHex;
+        }
+      } else {
+        // It's one of our named accents (like "blue" or "red")
+        // For matrix, we define --ctp-blue, --ctp-red, etc.
+        const varName = `--ctp-${accentOrHex}`;
+        const colorVal = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+        if (theme === "matrix") {
+          document.documentElement.style.setProperty("--matrix-accent", colorVal);
+          matrixColor = colorVal;
+        } else {
+          document.documentElement.style.setProperty("--theme-accent", `var(${varName})`);
+          matrixColor = colorVal;
+        }
+      }
     }
 
-    /******************************************************************************
-     *  2) TIMEZONE HELPER
-     ******************************************************************************/
-    function convertUTCToLocal(utcDateStr) {
+    /************************************************************
+     *  3) TIME PICKER SYNC
+     ************************************************************/
+    function syncTimePicker() {
+      let picker = document.getElementById("occurred-time-picker");
+      let manualInput = document.getElementById("occurred-time");
+
+      if (picker.value) {
+        let date = new Date(picker.value + "Z");
+        let formattedTime = date.toISOString().slice(0, 19).replace("T", " ");
+        manualInput.value = formattedTime;
+      }
+    }
+
+    /************************************************************
+     *  4) TIMEZONE CONVERSION
+     ************************************************************/
+    function convertToUserTime(utcDateStr) {
       const utcDate = new Date(utcDateStr + "Z");
       const localDate = new Date(utcDate.getTime());
 
@@ -364,45 +675,94 @@
       return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetFormatted}`;
     }
 
-    /******************************************************************************
-     *  3) GENERATE CLI
-     ******************************************************************************/
+    /************************************************************
+     *  5) GENERATE CLI
+     ************************************************************/
     function generateCLI() {
-      const occurredTimeInput = document.getElementById('occurred-time').value;
-      let params = {
-        majorincident: document.getElementById('majorincident').value,
-        falsepositive: document.getElementById('falsepositive').value,
-        falsepositivenotes: document.getElementById('falsepositivenotes').value,
-        classification: document.getElementById('classification').value,
-        escalationto: document.getElementById('escalationto').value,
-        attackvector: document.getElementById('attackvector').value,
-        detectionsource: document.getElementById('detectionsource').value,
-        impact: document.getElementById('impact').value,
-        repeatoffendername: document.getElementById('repeatoffendername').value,
-        signatureupdate: document.getElementById('signatureupdate').value
-      };
-
-      if (occurredTimeInput) {
-        const localTime = convertUTCToLocal(occurredTimeInput);
-        params["remediationtime"] = localTime;
-        params["containmenttime"] = localTime;
+      let occurredTime = document.getElementById("occurred-time").value.trim();
+      if (!occurredTime) {
+        alert("Please select an Occurred Time.");
+        return;
       }
+
+      let containmentTime = convertToUserTime(occurredTime);
+      let remediationTime = convertToUserTime(occurredTime);
+
+      let params = {
+        containmenttime: containmentTime,
+        remediationtime: remediationTime,
+        majorincident: document.getElementById("majorincident").value,
+        falsepositive: document.getElementById("falsepositive").value,
+        falsepositivenotes: document.getElementById("falsepositivenotes").value,
+        classification: document.getElementById("classification").value,
+        escalationto: document.getElementById("escalationto").value,
+        attackvector: document.getElementById("attackvector").value,
+        detectionsource: document.getElementById("detectionsource").value,
+        impact: document.getElementById("impact").value,
+        repeatoffendername: document.getElementById("repeatoffendername").value,
+        signatureupdate: document.getElementById("signatureupdate").value,
+      };
 
       const cliCommand = "!setIncident " + Object.entries(params)
         .map(([key, value]) => `${key}="${value}"`)
-        .join(' ');
+        .join(" ");
 
-      document.getElementById('cli-output').textContent = cliCommand;
+      document.getElementById("cli-output").textContent = cliCommand;
     }
 
-    /******************************************************************************
-     *  4) COPY TO CLIPBOARD
-     ******************************************************************************/
+    /************************************************************
+     *  6) COPY TO CLIPBOARD
+     ************************************************************/
     function copyToClipboard() {
       const output = document.getElementById('cli-output').textContent;
       navigator.clipboard.writeText(output).then(() => {
         alert("CLI Command Copied!");
       });
+    }
+
+    /************************************************************
+     *  7) GRADIENT HEADING
+     ************************************************************/
+    function setGradientText(accentOrHex, isHex = false) {
+      // We do random 2-accent from the same "set" or raw hex
+      // But let's define a smaller set for matrix or mocha/latte
+      // For simplicity, use the same approach for all themes
+
+      const theme = document.documentElement.getAttribute("data-theme");
+      let color1 = "";
+      let color2 = "";
+
+      // If user typed a custom hex, color1 is that hex
+      if (isHex) {
+        color1 = accentOrHex;
+      } else {
+        // It's one of the named accents, get the var
+        const varName = `--ctp-${accentOrHex}`;
+        color1 = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+      }
+
+      // pick a random second color from the same approach
+      const possibleAccents = ["blue","red","orange","pink"]; // or the full set
+      // or we can just re-use the same logic from setThemeAccent if you like
+
+      let second = accentOrHex;
+      while (second === accentOrHex) {
+        second = possibleAccents[Math.floor(Math.random()*possibleAccents.length)];
+      }
+      // get the actual color for second
+      let colorVal2 = "";
+      if (second.startsWith("#")) {
+        colorVal2 = second; // custom hex
+      } else {
+        const var2Name = `--ctp-${second}`;
+        colorVal2 = getComputedStyle(document.documentElement).getPropertyValue(var2Name).trim();
+      }
+      color2 = colorVal2 || "#00ffff";
+
+      // apply the heading gradient
+      headingText.style.background = `linear-gradient(90deg, ${color1}, ${color2})`;
+      headingText.style.webkitBackgroundClip = "text";
+      headingText.style.webkitTextFillColor = "transparent";
     }
   </script>
 </body>
