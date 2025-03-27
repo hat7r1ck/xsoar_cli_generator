@@ -1,0 +1,9 @@
+document.addEventListener("DOMContentLoaded", () => {
+  const canvas = document.getElementById("matrix-canvas");
+  // Remove any intrinsic width/height set on the canvas element
+  canvas.removeAttribute("width");
+  canvas.removeAttribute("height");
+  // Now set its dimensions to the full viewport
+  canvas.style.width = "100vw";
+  canvas.style.height = "100vh";
+});
