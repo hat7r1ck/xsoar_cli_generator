@@ -95,6 +95,17 @@
     <button id="copy-query-button" class="copy-button">Copy &amp; Open Search</button>
   </div>
   
+  <div id="case-notes-output" class="output-box">
+    <div id="lookback-query" class="query-output">
+  <!-- When no values are provided, this will show "<IoCs here>" -->
+  </div>
+  <button id="copy-query-button" class="copy-button">Copy &amp; Open Search</button>
+</div>
+
+
+
+
+  
   <script>
     // Escape regex special characters so they are treated literally.
     function escapeRegex(text) {
@@ -149,6 +160,7 @@
       const cloud = document.getElementById("cloud-input").value.trim();
       const username = document.getElementById("user-input").value.trim();
       
+      // Build regex using your helper functions
       const regexQuery = buildRegexFromEntities({
         host: hostname,
         ip: ip,
@@ -156,8 +168,11 @@
         username: username
       });
       
-      document.getElementById("lookback-query").textContent = regexQuery;
+      const outputBox = document.getElementById("lookback-query");
+      // If no entities are provided, show the placeholder.
+      outputBox.textContent = regexQuery || "<IoCs here>";
     }
+
     
     // Attach listeners to update the output when inputs change
     document.getElementById("host-input").addEventListener("input", updateLookbackQueryOutput);
