@@ -38,30 +38,37 @@
       display: block;
     }
     
-    /* ----- Form Container ----- */
+    /* ----- Form Container as 2x2 grid ----- */
     .form-container {
       background-color: var(--ctp-mantle);
       padding: 20px;
       border: 2px solid var(--theme-accent);
       border-radius: 8px;
       margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
     }
     .form-field {
-      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
     }
     .form-field label {
-      display: block;
       margin-bottom: 5px;
       color: var(--ctp-text);
     }
     .form-field input {
-      width: 100%;
       padding: 8px;
       border: 1px solid var(--ctp-overlay1);
       border-radius: 4px;
       background-color: var(--ctp-surface0);
       color: var(--ctp-text);
       box-sizing: border-box;
+    }
+    /* Make the output box span both columns */
+    .output-row {
+      grid-column: 1 / -1;
+      margin-top: 15px;
     }
     
     /* ----- Table Styles ----- */
@@ -82,7 +89,6 @@
     
     /* ----- Output Box (for dynamic links) ----- */
     .output-box {
-      margin-top: 20px;
       padding: 10px;
       background-color: var(--ctp-surface1);
       border: 2px solid var(--theme-accent);
@@ -90,7 +96,7 @@
       box-shadow: 0 0 10px var(--theme-accent);
       font-family: 'JetBrains Mono', monospace;
     }
-    .output-box .query-output {
+    .query-output {
       margin-bottom: 10px;
       white-space: pre-wrap;
       color: var(--theme-accent);
@@ -110,9 +116,8 @@
       color: var(--ctp-crust);
     }
     
-    /* ----- Catppuccin Tokens Example (Mocha & Latte) ----- */
+    /* ----- Catppuccin Tokens Example (Mocha) ----- */
     :root {
-      /* Mocha Example */
       --ctp-base:       #1e1e2e;
       --ctp-mantle:     #181825;
       --ctp-crust:      #11111b;
@@ -130,34 +135,40 @@
   <!-- Tab Navigation -->
   <div class="tab-container">
     <button class="tab-button" onclick="showTab('resources')">Resources</button>
-    <!-- You can add other tabs here -->
+    <!-- Other tabs could be added here -->
   </div>
   
   <!-- Resources Tab Content -->
   <div id="resources" class="tab-content active">
-    <!-- Form Container for Input Fields -->
+    <!-- Form Container for Input Fields arranged in a 2x2 grid -->
     <div class="form-container">
-      <form id="resource-form">
-        <div class="form-field">
-          <label for="host-input">Hostname:</label>
-          <input type="text" id="host-input" placeholder="Enter hostname">
+      <div class="form-field">
+        <label for="host-input">Hostname:</label>
+        <input type="text" id="host-input" placeholder="Enter hostname">
+      </div>
+      <div class="form-field">
+        <label for="ip-input">IP Address:</label>
+        <input type="text" id="ip-input" placeholder="Enter IP address">
+      </div>
+      <div class="form-field">
+        <label for="cloud-input">Cloud Resource:</label>
+        <input type="text" id="cloud-input" placeholder="Enter cloud resource">
+      </div>
+      <div class="form-field">
+        <label for="user-input">Username:</label>
+        <input type="text" id="user-input" placeholder="Enter username">
+      </div>
+      
+      <!-- Output row: Lookback Query box spanning both columns -->
+      <div class="output-row output-box" id="lookback-query-container">
+        <div id="lookback-query" class="query-output">
+          &lt;IoCs here&gt;
         </div>
-        <div class="form-field">
-          <label for="ip-input">IP Address:</label>
-          <input type="text" id="ip-input" placeholder="Enter IP address">
-        </div>
-        <div class="form-field">
-          <label for="cloud-input">Cloud Resource:</label>
-          <input type="text" id="cloud-input" placeholder="Enter cloud resource">
-        </div>
-        <div class="form-field">
-          <label for="user-input">Username:</label>
-          <input type="text" id="user-input" placeholder="Enter username">
-        </div>
-      </form>
+        <button id="copy-query-button" class="copy-button">Copy &amp; Open Search</button>
+      </div>
     </div>
     
-    <!-- Static Links Table -->
+    <!-- Optionally, you can add your static/dynamic links tables here -->
     <div class="field-container">
       <h3>Static Links</h3>
       <table>
@@ -180,7 +191,7 @@
       </table>
     </div>
     
-    <!-- Dynamic Links Table (e.g., Lookback Query) -->
+    <!-- Dynamic Links Table (optional) -->
     <div class="field-container">
       <h3>Dynamic Links</h3>
       <table>
@@ -199,17 +210,10 @@
       </table>
     </div>
     
-    <!-- Output Box with Inline Copy Button (if needed) -->
-    <div id="lookback-query-container" class="output-box">
-      <div id="lookback-query" class="query-output">
-        &lt;IoCs here&gt;
-      </div>
-      <button id="copy-query-button" class="copy-button">Copy &amp; Open Search</button>
-    </div>
   </div>
   
   <script>
-    // Simple tab switcher
+    // --- Simple Tab Switcher ---
     function showTab(tabId) {
       const tabs = document.querySelectorAll('.tab-content');
       tabs.forEach(tab => tab.classList.remove('active'));
@@ -231,12 +235,14 @@
       }).join('');
     }
     
-    // Process email-like input: if it contains '@', extract the local part and join pieces with ".*"
+    // Process email-like input: if it contains '@', extract local part,
+    // split by dots/spaces, convert each piece, then join with ".*"
     function processEmailLikeInput(value) {
       if (value.includes("@")) {
         let localPart = value.split("@")[0];
         let parts = localPart.split(/[.\s]+/).filter(Boolean);
-        return parts.join(".*");
+        let patterns = parts.map(part => makeCaseInsensitivePattern(part));
+        return patterns.join(".*");
       }
       return makeCaseInsensitivePattern(value);
     }
@@ -260,7 +266,7 @@
       return `"/.*(${patterns.join("|")}).*/"`;
     }
     
-    // Update the dynamic regex output
+    // Update the lookback query output area using the current entity inputs
     function updateLookbackQueryOutput() {
       const hostname = document.getElementById("host-input").value.trim();
       const ip = document.getElementById("ip-input").value.trim();
@@ -285,18 +291,18 @@
     document.getElementById("cloud-input").addEventListener("input", updateLookbackQueryOutput);
     document.getElementById("user-input").addEventListener("input", updateLookbackQueryOutput);
     
-    // Copy & Open Search button handler
+    // Attach event listener for the Copy & Open Search button
     document.getElementById("copy-query-button").addEventListener("click", function() {
       const regexQuery = document.getElementById("lookback-query").textContent;
       navigator.clipboard.writeText(regexQuery).then(() => {
-        // Open the XSOAR search page (replace with actual URL)
+        // Replace with your actual XSOAR search page URL
         window.open("https://your-xsoar-search-page.example.com", "_blank");
       }).catch(err => {
         console.error("Failed to copy query: ", err);
       });
     });
     
-    // Initial update
+    // Initial update on page load
     updateLookbackQueryOutput();
   </script>
 </body>
