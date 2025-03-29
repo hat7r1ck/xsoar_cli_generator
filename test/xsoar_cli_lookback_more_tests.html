@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Resources & Lookback Queries</title>
+  <style>
+    /* ----- Basic Layout ----- */
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      margin: 20px;
+      background-color: var(--ctp-base);
+      color: var(--ctp-text);
+    }
+    .tab-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tab-button {
+      padding: 10px 20px;
+      background-color: var(--ctp-surface0);
+      color: var(--ctp-text);
+      border: 2px solid var(--ctp-overlay1);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .tab-button:hover {
+      background-color: var(--theme-accent);
+      color: var(--ctp-crust);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* ----- Form Container ----- */
+    .form-container {
+      background-color: var(--ctp-mantle);
+      padding: 20px;
+      border: 2px solid var(--theme-accent);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .form-field {
+      margin-bottom: 15px;
+    }
+    .form-field label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ctp-text);
+    }
+    .form-field input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--ctp-overlay1);
+      border-radius: 4px;
+      background-color: var(--ctp-surface0);
+      color: var(--ctp-text);
+      box-sizing: border-box;
+    }
+    
+    /* ----- Table Styles ----- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid var(--ctp-overlay1);
+      padding: 8px;
+      text-align: left;
+      color: var(--ctp-text);
+    }
+    th {
+      background-color: var(--ctp-crust);
+    }
+    
+    /* ----- Output Box (for dynamic links) ----- */
+    .output-box {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: var(--ctp-surface1);
+      border: 2px solid var(--theme-accent);
+      border-radius: 6px;
+      box-shadow: 0 0 10px var(--theme-accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .output-box .query-output {
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+      color: var(--theme-accent);
+    }
+    .copy-button {
+      display: inline-block;
+      padding: 8px 12px;
+      background-color: var(--ctp-crust);
+      color: var(--theme-accent);
+      border: 2px solid var(--theme-accent);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .copy-button:hover {
+      background-color: var(--theme-accent);
+      color: var(--ctp-crust);
+    }
+    
+    /* ----- Catppuccin Tokens Example (Mocha & Latte) ----- */
+    :root {
+      /* Mocha Example */
+      --ctp-base:       #1e1e2e;
+      --ctp-mantle:     #181825;
+      --ctp-crust:      #11111b;
+      --ctp-surface0:   #313244;
+      --ctp-surface1:   #45475a;
+      --ctp-surface2:   #585b70;
+      --ctp-overlay1:   #7f849c;
+      --ctp-text:       #cdd6f4;
+      --theme-accent:   var(--ctp-blue);
+      --ctp-blue:       #89b4fa;
+    }
+  </style>
+</head>
+<body>
+  <!-- Tab Navigation -->
+  <div class="tab-container">
+    <button class="tab-button" onclick="showTab('resources')">Resources</button>
+    <!-- You can add other tabs here -->
+  </div>
+  
+  <!-- Resources Tab Content -->
+  <div id="resources" class="tab-content active">
+    <!-- Form Container for Input Fields -->
+    <div class="form-container">
+      <form id="resource-form">
+        <div class="form-field">
+          <label for="host-input">Hostname:</label>
+          <input type="text" id="host-input" placeholder="Enter hostname">
+        </div>
+        <div class="form-field">
+          <label for="ip-input">IP Address:</label>
+          <input type="text" id="ip-input" placeholder="Enter IP address">
+        </div>
+        <div class="form-field">
+          <label for="cloud-input">Cloud Resource:</label>
+          <input type="text" id="cloud-input" placeholder="Enter cloud resource">
+        </div>
+        <div class="form-field">
+          <label for="user-input">Username:</label>
+          <input type="text" id="user-input" placeholder="Enter username">
+        </div>
+      </form>
+    </div>
+    
+    <!-- Static Links Table -->
+    <div class="field-container">
+      <h3>Static Links</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Resource Name</th>
+            <th>URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dashboard</td>
+            <td><a href="#" target="_blank">https://dashboard.example.com</a></td>
+          </tr>
+          <tr>
+            <td>Incident Reports</td>
+            <td><a href="#" target="_blank">https://incidents.example.com</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Dynamic Links Table (e.g., Lookback Query) -->
+    <div class="field-container">
+      <h3>Dynamic Links</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Query Type</th>
+            <th>Generated Regex</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Look Back Query</td>
+            <td id="dynamic-regex">/.*(placeholder).*/</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Output Box with Inline Copy Button (if needed) -->
+    <div id="lookback-query-container" class="output-box">
+      <div id="lookback-query" class="query-output">
+        &lt;IoCs here&gt;
+      </div>
+      <button id="copy-query-button" class="copy-button">Copy &amp; Open Search</button>
+    </div>
+  </div>
+  
+  <script>
+    // Simple tab switcher
+    function showTab(tabId) {
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
+    
+    // --- Regex Generation Functions ---
+    function escapeRegex(text) {
+      return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    function makeCaseInsensitivePattern(term) {
+      term = escapeRegex(term);
+      return term.split('').map(ch => {
+        if (/[a-zA-Z]/.test(ch)) {
+          return `[${ch.toLowerCase()}${ch.toUpperCase()}]`;
+        }
+        return ch;
+      }).join('');
+    }
+    
+    // Process email-like input: if it contains '@', extract the local part and join pieces with ".*"
+    function processEmailLikeInput(value) {
+      if (value.includes("@")) {
+        let localPart = value.split("@")[0];
+        let parts = localPart.split(/[.\s]+/).filter(Boolean);
+        return parts.join(".*");
+      }
+      return makeCaseInsensitivePattern(value);
+    }
+    
+    // Build regex from entity values using capturing groups, wrapped in wildcards and slashes.
+    function buildRegexFromEntities(entities) {
+      let patterns = [];
+      if (entities.host) {
+        patterns.push(makeCaseInsensitivePattern(entities.host));
+      }
+      if (entities.ip) {
+        patterns.push(makeCaseInsensitivePattern(entities.ip));
+      }
+      if (entities.cloud) {
+        patterns.push(processEmailLikeInput(entities.cloud));
+      }
+      if (entities.username) {
+        patterns.push(processEmailLikeInput(entities.username));
+      }
+      if (patterns.length === 0) return "";
+      return `"/.*(${patterns.join("|")}).*/"`;
+    }
+    
+    // Update the dynamic regex output
+    function updateLookbackQueryOutput() {
+      const hostname = document.getElementById("host-input").value.trim();
+      const ip = document.getElementById("ip-input").value.trim();
+      const cloud = document.getElementById("cloud-input").value.trim();
+      const username = document.getElementById("user-input").value.trim();
+      
+      const regexQuery = buildRegexFromEntities({
+        host: hostname,
+        ip: ip,
+        cloud: cloud,
+        username: username
+      });
+      
+      // Update both the dynamic links table and the output box
+      document.getElementById("dynamic-regex").textContent = regexQuery || "<IoCs here>";
+      document.getElementById("lookback-query").textContent = regexQuery || "<IoCs here>";
+    }
+    
+    // Attach input event listeners to update the regex on the fly
+    document.getElementById("host-input").addEventListener("input", updateLookbackQueryOutput);
+    document.getElementById("ip-input").addEventListener("input", updateLookbackQueryOutput);
+    document.getElementById("cloud-input").addEventListener("input", updateLookbackQueryOutput);
+    document.getElementById("user-input").addEventListener("input", updateLookbackQueryOutput);
+    
+    // Copy & Open Search button handler
+    document.getElementById("copy-query-button").addEventListener("click", function() {
+      const regexQuery = document.getElementById("lookback-query").textContent;
+      navigator.clipboard.writeText(regexQuery).then(() => {
+        // Open the XSOAR search page (replace with actual URL)
+        window.open("https://your-xsoar-search-page.example.com", "_blank");
+      }).catch(err => {
+        console.error("Failed to copy query: ", err);
+      });
+    });
+    
+    // Initial update
+    updateLookbackQueryOutput();
+  </script>
+</body>
+</html>
