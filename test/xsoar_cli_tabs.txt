@@ -280,3 +280,27 @@
     </script>
 </body>
 </html>
+
+
+
+
+function showTab(tabId) {
+  // Remove 'active' class from all tabs
+  document.querySelectorAll('.tab-button').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  // Hide all tab contents
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.style.display = 'none';
+  });
+  // Show the selected tab content
+  document.getElementById(tabId).style.display = 'block';
+  // Mark the clicked tab as active (assuming each tab button has an id that corresponds to the content)
+  document.querySelector(`.tab-button[onclick*="${tabId}"]`).classList.add('active');
+}
+
+.tab-button.active {
+  background-color: var(--theme-color);
+  color: var(--ctp-crust);
+}
+
