@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case Notes Lookback Query</title>
+  <style>
+    /* Basic styling for your form fields */
+    .form-field {
+      margin: 10px 0;
+      display: block;
+    }
+    input[type="text"] {
+      padding: 6px;
+      width: 100%;
+      box-sizing: border-box;
+      border: 2px solid var(--ctp-overlay1);
+      border-radius: 4px;
+      background-color: var(--ctp-surface0);
+      color: var(--ctp-text);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    /* Output box styling for the generated lookback query */
+    .output-box {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: var(--ctp-surface1);
+      border: 2px solid var(--theme-accent);
+      border-radius: 6px;
+      box-shadow: 0 0 10px var(--theme-accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .output-box .query-output {
+      margin-bottom: 10px;
+      word-wrap: break-word;
+      color: var(--theme-accent);
+    }
+    
+    /* Styling for the copy button */
+    .copy-button {
+      display: inline-block;
+      padding: 8px 12px;
+      background-color: var(--ctp-crust);
+      color: var(--theme-accent);
+      border: 2px solid var(--theme-accent);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    
+    .copy-button:hover {
+      background-color: var(--theme-accent);
+      color: var(--ctp-crust);
+    }
+  </style>
+  
+  <!-- Example Catppuccin tokens (for Mocha). Replace with your own tokens as needed. -->
+  <style>
+    :root {
+      --ctp-base:       #1e1e2e;
+      --ctp-mantle:     #181825;
+      --ctp-crust:      #11111b;
+      --ctp-surface0:   #313244;
+      --ctp-surface1:   #45475a;
+      --ctp-surface2:   #585b70;
+      --ctp-overlay1:   #7f849c;
+      --ctp-text:       #cdd6f4;
+      --theme-accent:   var(--ctp-blue);
+      --ctp-blue:       #89b4fa;
+    }
+  </style>
+</head>
+<body>
+  <!-- Input fields for existing entities -->
+  <div class="form-field">
+    <input type="text" id="host-input" placeholder="Hostname">
+  </div>
+  <div class="form-field">
+    <input type="text" id="ip-input" placeholder="IP Address">
+  </div>
+  <div class="form-field">
+    <input type="text" id="cloud-input" placeholder="Cloud Resource">
+  </div>
+  <div class="form-field">
+    <input type="text" id="user-input" placeholder="Username">
+  </div>
+  
+  <!-- Output area for the Look Back Query -->
+  <div id="case-notes-output" class="output-box">
+    <div id="lookback-query" class="query-output">
+      <!-- Generated regex appears here -->
+    </div>
+    <button id="copy-query-button" class="copy-button">Copy &amp; Open Search</button>
+  </div>
+  
+  <script>
+    // Escape regex special characters so they are treated literally.
+    function escapeRegex(text) {
+      return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // Convert each character into a pattern that matches both cases.
+    function makeCaseInsensitivePattern(term) {
+      term = escapeRegex(term);
+      return term.split('').map(ch => {
+        if (/[a-zA-Z]/.test(ch)) {
+          return `[${ch.toLowerCase()}${ch.toUpperCase()}]`;
+        }
+        return ch;
+      }).join('');
+    }
+
+    // Process email-like inputs: if the input contains '@', split the local part by dots/spaces and join with ".*"
+    function processEmailLikeInput(value) {
+      if (value.includes("@")) {
+        let localPart = value.split("@")[0];
+        let parts = localPart.split(/[.\s]+/).filter(Boolean);
+        return parts.join(".*");
+      }
+      return makeCaseInsensitivePattern(value);
+    }
+
+    // Build a regex string from your entity values.
+    // It returns a string in the form: "/.*(?:pattern1|pattern2|pattern3|pattern4).*/"
+    function buildRegexFromEntities(entities) {
+      let patterns = [];
+      if (entities.host) {
+        patterns.push(makeCaseInsensitivePattern(entities.host));
+      }
+      if (entities.ip) {
+        patterns.push(makeCaseInsensitivePattern(entities.ip));
+      }
+      if (entities.cloud) {
+        patterns.push(processEmailLikeInput(entities.cloud));
+      }
+      if (entities.username) {
+        patterns.push(processEmailLikeInput(entities.username));
+      }
+      if (patterns.length === 0) return "";
+      return `"/.*(?:${patterns.join("|")}).*/"`;
+    }
+
+    // Update the lookback query output area using your existing input values.
+    function updateLookbackQueryOutput() {
+      const hostname = document.getElementById("host-input").value.trim();
+      const ip = document.getElementById("ip-input").value.trim();
+      const cloud = document.getElementById("cloud-input").value.trim();
+      const username = document.getElementById("user-input").value.trim();
+      
+      const regexQuery = buildRegexFromEntities({
+        host: hostname,
+        ip: ip,
+        cloud: cloud,
+        username: username
+      });
+      
+      document.getElementById("lookback-query").textContent = regexQuery;
+    }
+    
+    // Attach listeners to update the output when inputs change
+    document.getElementById("host-input").addEventListener("input", updateLookbackQueryOutput);
+    document.getElementById("ip-input").addEventListener("input", updateLookbackQueryOutput);
+    document.getElementById("cloud-input").addEventListener("input", updateLookbackQueryOutput);
+    document.getElementById("user-input").addEventListener("input", updateLookbackQueryOutput);
+    
+    // On click, copy the regex and open the XSOAR search page (use your own URL here)
+    document.getElementById("copy-query-button").addEventListener("click", function() {
+      const regexQuery = document.getElementById("lookback-query").textContent;
+      navigator.clipboard.writeText(regexQuery).then(() => {
+        // Replace with your actual XSOAR search page URL
+        window.open("https://your-xsoar-search-page.example.com", "_blank");
+      }).catch(err => {
+        console.error("Failed to copy query: ", err);
+      });
+    });
+    
+    // Initial update on page load
+    updateLookbackQueryOutput();
+  </script>
+</body>
+</html>
