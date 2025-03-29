@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Case Notes Lookback Query</title>
   <style>
-    /* Basic styling for your form fields */
+    /* Basic styling for your input fields */
     .form-field {
       margin: 10px 0;
       display: block;
@@ -38,7 +38,7 @@
       color: var(--theme-accent);
     }
     
-    /* Styling for the copy button */
+    /* Button styling */
     .copy-button {
       display: inline-block;
       padding: 8px 12px;
@@ -54,10 +54,8 @@
       background-color: var(--theme-accent);
       color: var(--ctp-crust);
     }
-  </style>
-  
-  <!-- Example Catppuccin tokens (for Mocha). Replace with your own tokens as needed. -->
-  <style>
+    
+    /* Example Catppuccin tokens for Mocha (adjust as needed) */
     :root {
       --ctp-base:       #1e1e2e;
       --ctp-mantle:     #181825;
@@ -90,21 +88,10 @@
   <!-- Output area for the Look Back Query -->
   <div id="case-notes-output" class="output-box">
     <div id="lookback-query" class="query-output">
-      <!-- Generated regex appears here -->
+      &lt;IoCs here&gt;
     </div>
     <button id="copy-query-button" class="copy-button">Copy &amp; Open Search</button>
   </div>
-  
-  <div id="case-notes-output" class="output-box">
-    <div id="lookback-query" class="query-output">
-  <!-- When no values are provided, this will show "<IoCs here>" -->
-  </div>
-  <button id="copy-query-button" class="copy-button">Copy &amp; Open Search</button>
-</div>
-
-
-
-
   
   <script>
     // Escape regex special characters so they are treated literally.
@@ -112,7 +99,7 @@
       return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
-    // Convert each character into a pattern that matches both cases.
+    // Convert each character into a pattern that matches both lowercase and uppercase.
     function makeCaseInsensitivePattern(term) {
       term = escapeRegex(term);
       return term.split('').map(ch => {
@@ -123,7 +110,7 @@
       }).join('');
     }
 
-    // Process email-like inputs: if the input contains '@', split the local part by dots/spaces and join with ".*"
+    // For email-like inputs, if the value contains '@', take the local part and join the pieces with ".*"
     function processEmailLikeInput(value) {
       if (value.includes("@")) {
         let localPart = value.split("@")[0];
@@ -133,8 +120,8 @@
       return makeCaseInsensitivePattern(value);
     }
 
-    // Build a regex string from your entity values.
-    // It returns a string in the form: "/.*(?:pattern1|pattern2|pattern3|pattern4).*/"
+    // Build the regex string from entity values using capturing groups (not non-capturing)
+    // The output will be in the form: "/.*(pattern1|pattern2|pattern3|pattern4).*/"
     function buildRegexFromEntities(entities) {
       let patterns = [];
       if (entities.host) {
@@ -150,17 +137,16 @@
         patterns.push(processEmailLikeInput(entities.username));
       }
       if (patterns.length === 0) return "";
-      return `"/.*(?:${patterns.join("|")}).*/"`;
+      return `"/.*(${patterns.join("|")}).*/"`;
     }
 
-    // Update the lookback query output area using your existing input values.
+    // Update the lookback query output area using the current entity inputs
     function updateLookbackQueryOutput() {
       const hostname = document.getElementById("host-input").value.trim();
       const ip = document.getElementById("ip-input").value.trim();
       const cloud = document.getElementById("cloud-input").value.trim();
       const username = document.getElementById("user-input").value.trim();
       
-      // Build regex using your helper functions
       const regexQuery = buildRegexFromEntities({
         host: hostname,
         ip: ip,
@@ -168,23 +154,21 @@
         username: username
       });
       
-      const outputBox = document.getElementById("lookback-query");
-      // If no entities are provided, show the placeholder.
-      outputBox.textContent = regexQuery || "<IoCs here>";
+      // If no regexQuery is generated, show a default placeholder
+      document.getElementById("lookback-query").textContent = regexQuery || "<IoCs here>";
     }
-
     
-    // Attach listeners to update the output when inputs change
+    // Attach event listeners to update the output when any input field changes
     document.getElementById("host-input").addEventListener("input", updateLookbackQueryOutput);
     document.getElementById("ip-input").addEventListener("input", updateLookbackQueryOutput);
     document.getElementById("cloud-input").addEventListener("input", updateLookbackQueryOutput);
     document.getElementById("user-input").addEventListener("input", updateLookbackQueryOutput);
     
-    // On click, copy the regex and open the XSOAR search page (use your own URL here)
+    // Attach event listener for the Copy & Open Search button
     document.getElementById("copy-query-button").addEventListener("click", function() {
       const regexQuery = document.getElementById("lookback-query").textContent;
       navigator.clipboard.writeText(regexQuery).then(() => {
-        // Replace with your actual XSOAR search page URL
+        // Replace the URL below with your actual XSOAR search page URL.
         window.open("https://your-xsoar-search-page.example.com", "_blank");
       }).catch(err => {
         console.error("Failed to copy query: ", err);
