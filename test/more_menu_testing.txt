@@ -1,128 +1,123 @@
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  /* Optional styling */
-  padding: 10px;
-  border-bottom: 2px solid var(--ctp-overlay1);
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Powershell Script Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <style>
+    body {
+      background-color: #1e1e2e; /* Catppuccin Mocha Base */
+      color: #cdd6f4;           /* Catppuccin Mocha Text */
+      font-family: 'JetBrains Mono', monospace;
+      margin: 20px;
+    }
+    .input-group {
+      margin-bottom: 10px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 3px;
+      font-weight: bold;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #7f849c; /* Overlay color */
+      border-radius: 4px;
+      background-color: #313244; /* Surface0 */
+      color: #cdd6f4;
+      box-sizing: border-box;
+    }
+    .button-group {
+      margin-top: 15px;
+    }
+    .button-group button {
+      padding: 10px 15px;
+      margin-right: 10px;
+      background-color: #45475a; /* Surface1 */
+      color: #cdd6f4;
+      border: 2px solid var(--theme-accent, #89b4fa);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .button-group button:hover {
+      background-color: var(--theme-accent, #89b4fa);
+      color: #11111b; /* Crust */
+    }
+    .output-box {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #45475a; /* Surface1 */
+      border: 2px solid var(--theme-accent, #89b4fa);
+      border-radius: 6px;
+      box-shadow: 0 0 10px var(--theme-accent, #89b4fa);
+      font-family: Consolas, monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>Powershell Script Generator</h1>
 
-.tabs-container {
-  display: flex;
-  gap: 10px;
-  flex: 1;
-  justify-content: center; /* Centers tabs */
-}
-
-.hamburger-container {
-  /* This container will stay at the right side */
-  position: relative; /* To position dropdown relative to it */
-}
-
-#hamburger-button {
-  background: transparent;
-  border: none;
-  color: var(--ctp-text);
-  font-size: 1.5em;
-  cursor: pointer;
-}
-
-#menu-dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: var(--ctp-mantle);
-  border: 2px solid var(--theme-accent);
-  border-radius: 4px;
-  padding: 10px;
-  margin-top: 5px;
-  min-width: 200px;
-  z-index: 1000;
-}
-
-<div class="header-container">
-  <div class="tabs-container">
-    <button class="tab-button">Tab 1</button>
-    <button class="tab-button">Tab 2</button>
-    <button class="tab-button">Tab 3</button>
+  <!-- Input Fields -->
+  <div class="input-group">
+    <label for="username">Username (AD):</label>
+    <input type="text" id="username" placeholder="e.g., jdoe">
   </div>
-  <div class="hamburger-container">
-    <button id="hamburger-button">&#9776;</button>
-    <div id="menu-dropdown">
-      <!-- Dropdown content here -->
-    </div>
+  <div class="input-group">
+    <label for="sid">SID (optional):</label>
+    <input type="text" id="sid" placeholder="e.g., S-1-5-21-...">
   </div>
-</div>
 
-
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
-
-
-<div id="menu-dropdown">
-  <!-- Existing theme and accent controls -->
-  <div>
-    <label for="theme-picker">Theme:</label>
-    <select id="theme-picker">
-      <option value="matrix">Matrix</option>
-      <option value="mocha">Catppuccin Mocha</option>
-      <option value="latte">Catppuccin Latte</option>
-    </select>
+  <!-- Buttons for Different Scripts -->
+  <div class="button-group">
+    <button onclick="generateGetAdUser()">Get AD User</button>
+    <button onclick="generatePasswordReset()">Password Last Set</button>
+    <button onclick="generateSearchBySID()">Search by SID</button>
   </div>
-  <div style="margin-top: 10px;">
-    <label for="accent-picker">Accent:</label>
-    <select id="accent-picker">
-      <!-- options here -->
-    </select>
+
+  <!-- Output Box for the Generated Script -->
+  <div class="output-box" id="scriptOutput">
+    <!-- Default placeholder -->
+    !setIncident ...
   </div>
-  <!-- Optional custom hex input -->
-  <div id="custom-hex-container" style="display: none; margin-top: 10px;">
-    <label for="custom-hex">Custom Hex (#RRGGBB):</label>
-    <input type="text" id="custom-hex" placeholder="#RRGGBB">
-  </div>
-  
-  <!-- Moved matrix toggle -->
-  <div style="margin-top: 10px; display: flex; align-items: center; gap: 5px;">
-    <span id="pill-status" style="font-size: 0.9em; color: var(--ctp-text);">Blue Pill</span>
-    <label class="matrix-switch" style="display: inline-flex; align-items: center;">
-      <input type="checkbox" id="toggle-matrix">
-      <span class="matrix-slider square" style="width: 40px; height: 20px;"></span>
-    </label>
-  </div>
-</div>
 
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(137, 180, 250, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(137, 180, 250, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(137, 180, 250, 0);
-  }
-}
+  <script>
+    // Function to generate a basic Get-ADUser command
+    function generateGetAdUser() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) {
+        alert("Please enter a username.");
+        return;
+      }
+      const script = `Get-ADUser -Identity "${username}"`;
+      document.getElementById("scriptOutput").textContent = script;
+    }
 
-.matrix-toggle-section.highlight {
-  animation: pulse 1s ease-out;
-}
+    // Function to generate a command to get the password last set property
+    function generatePasswordReset() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) {
+        alert("Please enter a username.");
+        return;
+      }
+      const script = `Get-ADUser -Identity "${username}" -Properties PasswordLastSet | Select-Object Name,PasswordLastSet`;
+      document.getElementById("scriptOutput").textContent = script;
+    }
 
-const hamburgerButton = document.getElementById("hamburger-button");
-const menuDropdown = document.getElementById("menu-dropdown");
-const matrixToggleSection = document.querySelector(".matrix-toggle-section");
-
-hamburgerButton.addEventListener("click", (e) => {
-  // Toggle the dropdown
-  if (menuDropdown.style.display === "none" || menuDropdown.style.display === "") {
-    menuDropdown.style.display = "block";
-    // Add the pulse effect to draw attention to the toggle
-    matrixToggleSection.classList.add("highlight");
-    // Optionally remove the highlight after the animation completes (1s)
-    setTimeout(() => {
-      matrixToggleSection.classList.remove("highlight");
-    }, 1000);
-  } else {
-    menuDropdown.style.display = "none";
-  }
-  e.stopPropagation();
-});
+    // Function to generate a command to search by SID
+    function generateSearchBySID() {
+      const sid = document.getElementById("sid").value.trim();
+      if (!sid) {
+        alert("Please enter a SID for this command, or use the AD User search if you don't have a SID.");
+        return;
+      }
+      const script = `Get-ADUser -Filter { SID -eq '${sid}' }`;
+      document.getElementById("scriptOutput").textContent = script;
+    }
+  </script>
+</body>
+</html>
