@@ -91,3 +91,38 @@
   </div>
 </div>
 
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(137, 180, 250, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(137, 180, 250, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(137, 180, 250, 0);
+  }
+}
+
+.matrix-toggle-section.highlight {
+  animation: pulse 1s ease-out;
+}
+
+const hamburgerButton = document.getElementById("hamburger-button");
+const menuDropdown = document.getElementById("menu-dropdown");
+const matrixToggleSection = document.querySelector(".matrix-toggle-section");
+
+hamburgerButton.addEventListener("click", (e) => {
+  // Toggle the dropdown
+  if (menuDropdown.style.display === "none" || menuDropdown.style.display === "") {
+    menuDropdown.style.display = "block";
+    // Add the pulse effect to draw attention to the toggle
+    matrixToggleSection.classList.add("highlight");
+    // Optionally remove the highlight after the animation completes (1s)
+    setTimeout(() => {
+      matrixToggleSection.classList.remove("highlight");
+    }, 1000);
+  } else {
+    menuDropdown.style.display = "none";
+  }
+  e.stopPropagation();
+});
