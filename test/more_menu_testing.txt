@@ -58,3 +58,36 @@
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
 
+
+<div id="menu-dropdown">
+  <!-- Existing theme and accent controls -->
+  <div>
+    <label for="theme-picker">Theme:</label>
+    <select id="theme-picker">
+      <option value="matrix">Matrix</option>
+      <option value="mocha">Catppuccin Mocha</option>
+      <option value="latte">Catppuccin Latte</option>
+    </select>
+  </div>
+  <div style="margin-top: 10px;">
+    <label for="accent-picker">Accent:</label>
+    <select id="accent-picker">
+      <!-- options here -->
+    </select>
+  </div>
+  <!-- Optional custom hex input -->
+  <div id="custom-hex-container" style="display: none; margin-top: 10px;">
+    <label for="custom-hex">Custom Hex (#RRGGBB):</label>
+    <input type="text" id="custom-hex" placeholder="#RRGGBB">
+  </div>
+  
+  <!-- Moved matrix toggle -->
+  <div style="margin-top: 10px; display: flex; align-items: center; gap: 5px;">
+    <span id="pill-status" style="font-size: 0.9em; color: var(--ctp-text);">Blue Pill</span>
+    <label class="matrix-switch" style="display: inline-flex; align-items: center;">
+      <input type="checkbox" id="toggle-matrix">
+      <span class="matrix-slider square" style="width: 40px; height: 20px;"></span>
+    </label>
+  </div>
+</div>
+
