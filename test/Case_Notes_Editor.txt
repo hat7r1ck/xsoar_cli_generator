@@ -1,293 +1,295 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark">
-  <title>CTFC Toolkit – Tabbed Case Notes Editor</title>
-  <style>
-    /* Global styles for the page */
-    body {
-      background-color: #1e1e2e; /* Mocha Base */
-      color: #cdd6f4;           /* Mocha Text */
-      font-family: 'JetBrains Mono', monospace;
-      margin: 20px;
-      text-align: center;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    /* Button to open modal */
-    #openNotesEditor {
-      padding: 10px 15px;
-      border: 2px solid #89b4fa;
-      background-color: #45475a;
-      color: #cdd6f4;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1em;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    #openNotesEditor:hover {
-      background-color: #89b4fa;
-      color: #11111b;
-    }
-    /* Output area for case notes */
-    .output-box {
-      margin: 20px auto;
-      padding: 10px;
-      background-color: #45475a;
-      border: 2px solid #89b4fa;
-      border-radius: 6px;
-      box-shadow: 0 0 10px #89b4fa;
-      font-family: Consolas, monospace;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      text-align: left;
-      max-width: 700px;
-    }
+<!-- Trigger button -->
+<button id="editNotesBtn">✎ Edit Notes</button>
 
-    /* ===== Scoped Modal Styles ===== */
-    /* Use a unique container ID to override external CSS */
-    #caseNotesModalContainer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.7) !important;
-      display: none !important;
-      align-items: center !important;
-      justify-content: center !important;
-      z-index: 10000 !important;
-    }
-    #caseNotesModalContainer .modal {
-      all: unset; /* Remove all inherited styles */
-      display: block !important;
-      background-color: #313244 !important; /* Surface0 */
-      color: #cdd6f4 !important;
-      font-family: 'JetBrains Mono', monospace !important;
-      padding: 20px !important;
-      border: 2px solid #89b4fa !important;
-      border-radius: 6px !important;
-      box-shadow: 0 0 15px #89b4fa !important;
-      max-width: 600px !important;
-      width: 90% !important;
-      text-align: left !important;
-      margin: 0 !important;
-    }
-    #caseNotesModalContainer .modal-header {
-      display: flex !important;
-      align-items: center !important;
-      margin-bottom: 10px !important;
-      border-bottom: 1px solid #89b4fa !important;
-      padding-bottom: 5px !important;
-    }
-    #caseNotesModalContainer .modal-header h3 {
-      margin: 0 !important;
-      font-size: 1.2em !important;
-    }
-    #caseNotesModalContainer .modal-header button {
-      all: unset;
-      cursor: pointer !important;
-      padding: 6px 12px !important;
-      margin-right: 5px !important;
-      border-bottom: 2px solid transparent !important;
-      transition: border-color 0.2s !important;
-      color: #cdd6f4 !important;
-      font-size: 1em !important;
-    }
-    #caseNotesModalContainer .modal-header button:hover {
-      border-color: #89b4fa !important;
-    }
-    #caseNotesModalContainer .modal-header button.active {
-      border-color: #89b4fa !important;
-    }
-    #caseNotesModalContainer .close-button {
-      margin-left: auto !important;
-      font-size: 1.5em !important;
-      color: #cdd6f4 !important;
-      cursor: pointer !important;
-    }
-    #caseNotesModalContainer .input-row {
-      margin-top: 10px !important;
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 5px !important;
-    }
-    #caseNotesModalContainer .input-row label {
-      font-size: 0.9em !important;
-      color: #bac2de !important;
-    }
-    #caseNotesModalContainer .input-row input {
-      padding: 8px !important;
-      border: 1px solid #7f849c !important;
-      border-radius: 4px !important;
-      background-color: #45475a !important;
-      color: #cdd6f4 !important;
-      box-sizing: border-box !important;
-      font-family: inherit !important;
-    }
-    #caseNotesModalContainer .tab-content {
-      margin-top: 10px !important;
-    }
-    #caseNotesModalContainer .tab-content textarea {
-      width: 100% !important;
-      height: 200px !important;
-      padding: 10px !important;
-      border: 1px solid #7f849c !important;
-      border-radius: 4px !important;
-      background-color: #45475a !important;
-      color: #cdd6f4 !important;
-      box-sizing: border-box !important;
-      resize: vertical !important;
-      font-family: inherit !important;
-    }
-    #caseNotesModalContainer #previewArea {
-      background-color: #45475a !important;
-      padding: 10px !important;
-      border-radius: 4px !important;
-      border: 1px solid #7f849c !important;
-      max-height: 200px !important;
-      overflow-y: auto !important;
-      color: #cdd6f4 !important;
-      font-family: Consolas, monospace !important;
-      white-space: pre-wrap !important;
-      word-wrap: break-word !important;
-    }
-    #caseNotesModalContainer .hidden {
-      display: none !important;
-    }
-    #caseNotesModalContainer .modal-buttons {
-      margin-top: 10px !important;
-      display: flex !important;
-      gap: 10px !important;
-      justify-content: flex-end !important;
-    }
-    #caseNotesModalContainer .modal-buttons button {
-      padding: 8px 12px !important;
-      border: 2px solid #89b4fa !important;
-      background-color: #45475a !important;
-      color: #cdd6f4 !important;
-      border-radius: 4px !important;
-      cursor: pointer !important;
-      transition: background-color 0.3s, color 0.3s !important;
-      font-family: inherit !important;
-    }
-    #caseNotesModalContainer .modal-buttons button:hover {
-      background-color: #89b4fa !important;
-      color: #11111b !important;
-    }
-  </style>
-</head>
-<body>
-  <h1>CTFC Toolkit – Tabbed Case Notes Editor</h1>
-  <!-- Button to open the modal -->
-  <button id="openNotesEditor">✎ Edit Notes</button>
-  
-  <!-- Read-only output for case notes -->
-  <div class="output-box" id="caseNotesOutput">
-    Case Notes will appear here...
-  </div>
-  
-  <!-- Modal Overlay (scoped by #caseNotesModalContainer) -->
-  <div id="caseNotesModalContainer" class="modal-overlay">
-    <div class="modal">
-      <div class="modal-header">
-        <button id="editTab" class="active" onclick="switchTab('edit')">Edit</button>
-        <button id="previewTab" onclick="switchTab('preview')">Preview</button>
-        <button class="close-button" onclick="closeNotesEditor()">&times;</button>
-      </div>
-      <!-- Row for Case ID input -->
-      <div class="input-row">
-        <label for="caseIdInput">Case ID (e.g., 12345)</label>
-        <input type="text" id="caseIdInput" placeholder="Enter Case ID (e.g., 12345)">
-      </div>
-      <!-- Tab contents: Edit vs Preview -->
-      <div class="tab-content" id="editContent">
-        <textarea id="notesEditor" placeholder="Enter or modify your case notes here..."></textarea>
-      </div>
-      <div class="tab-content hidden" id="previewContent">
-        <div id="previewArea"></div>
-      </div>
-      <!-- Modal Buttons -->
-      <div class="modal-buttons">
-        <button onclick="saveNotes()">Save</button>
-        <button onclick="copyNotes()">Copy</button>
-        <button onclick="downloadNotes()">Download</button>
-        <button onclick="closeNotesEditor()">Close</button>
+<!-- Read-only output area (display saved notes) -->
+<div id="caseOutput" class="output-display"></div>
+
+<!-- Modal Overlay and Content -->
+<div id="notesModalOverlay" class="modal-overlay hidden">
+  <div class="modal-content">
+    <!-- Modal Header with Tabs -->
+    <div class="modal-header">
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="edit">Edit</button>
+        <button type="button" class="tab" data-tab="preview">Preview</button>
       </div>
     </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <!-- Edit View (visible by default) -->
+      <div class="edit-view">
+        <label>Case ID: 
+          <input type="text" id="caseIdInput" />
+        </label>
+        <label>Case Notes:
+          <textarea id="notesTextarea"></textarea>
+        </label>
+      </div>
+      <!-- Preview View (hidden by default) -->
+      <div class="preview-view" style="display:none;">
+        <p><strong>Case ID:</strong> <span id="caseIdDisplay"></span></p>
+        <div id="notesPreviewContent"></div>
+      </div>
+    </div>
+
+    <!-- Modal Footer with action buttons -->
+    <div class="modal-footer">
+      <button type="button" id="saveBtn">Save</button>
+      <button type="button" id="copyBtn">Copy</button>
+      <button type="button" id="downloadBtn">Download</button>
+      <button type="button" id="closeBtn">Close</button>
+    </div>
   </div>
+</div>
 
-  <script>
-    // DOM elements (using our scoped modal container)
-    const openNotesEditorBtn = document.getElementById("openNotesEditor");
-    const modalContainer = document.getElementById("caseNotesModalContainer");
-    const editTabBtn = document.getElementById("editTab");
-    const previewTabBtn = document.getElementById("previewTab");
-    const editContent = document.getElementById("editContent");
-    const previewContent = document.getElementById("previewContent");
-    const previewArea = document.getElementById("previewArea");
-    const notesEditor = document.getElementById("notesEditor");
-    const caseIdInput = document.getElementById("caseIdInput");
-    const caseNotesOutput = document.getElementById("caseNotesOutput");
 
-    // Open modal and load current notes
-    openNotesEditorBtn.addEventListener("click", () => {
-      notesEditor.value = caseNotesOutput.textContent.trim();
-      modalContainer.style.display = "flex";
-    });
+/* Modal Overlay (full-screen cover) */
+#notesModalOverlay.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+/* Initially hidden */
+#notesModalOverlay.hidden { display: none; }
 
-    function closeNotesEditor() {
-      modalContainer.style.display = "none";
+/* Modal Content Box */
+#notesModalOverlay .modal-content {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: 2px solid #89b4fa;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 0 10px #000;
+  font-family: sans-serif;
+}
+
+/* Modal Header */
+#notesModalOverlay .modal-header {
+  padding: 0.5em 1em;
+  border-bottom: 1px solid #89b4fa; /* blue accent separator line */
+}
+#notesModalOverlay .tabs {
+  display: flex;
+}
+#notesModalOverlay .tabs .tab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #cdd6f4;
+  font-weight: bold;
+  padding: 0.5em;
+  cursor: pointer;
+  text-align: center;
+  border-bottom: 2px solid transparent;
+}
+#notesModalOverlay .tabs .tab.active {
+  color: #89b4fa;
+  border-bottom-color: #89b4fa;  /* underline active tab in blue */
+}
+#notesModalOverlay .tabs .tab:hover {
+  background: #313244; 
+}
+
+/* Modal Body */
+#notesModalOverlay .modal-body {
+  padding: 1em;
+}
+#notesModalOverlay .modal-body label {
+  display: block;
+  margin: 0.5em 0;
+  color: #bac2de;
+}
+#notesModalOverlay .modal-body input[type="text"],
+#notesModalOverlay .modal-body textarea {
+  width: 100%;
+  background: #313244;
+  color: #cdd6f4;
+  border: 1px solid #45475a;  /* Surface1 border */
+  border-radius: 4px;
+  padding: 0.5em;
+  box-sizing: border-box;
+  font: inherit;
+}
+#notesModalOverlay .modal-body input:focus,
+#notesModalOverlay .modal-body textarea:focus {
+  outline: 2px solid #89b4fa; /* blue focus outline */
+}
+
+/* Preview text styling (inside preview-view) */
+#notesModalOverlay .preview-view {
+  /* (display is toggled via inline style in JS) */
+}
+#notesModalOverlay .preview-view p {
+  margin: 0.5em 0;
+}
+#notesModalOverlay .preview-view h1,
+#notesModalOverlay .preview-view h2,
+#notesModalOverlay .preview-view h3 {
+  color: #89b4fa;
+}
+#notesModalOverlay .preview-view strong {
+  color: #cdd6f4;
+}
+#notesModalOverlay .preview-view em {
+  color: #f5c2e7; /* Pink for italic emphasis (optional) */
+}
+#notesModalOverlay .preview-view code {
+  background: #45475a;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #f9e2af; /* Yellow text for code */
+}
+
+/* Modal Footer */
+#notesModalOverlay .modal-footer {
+  padding: 0.5em 1em;
+  border-top: 1px solid #89b4fa;
+  text-align: right;
+}
+#notesModalOverlay .modal-footer button {
+  background: #585b70;  /* Surface2 button background */
+  color: #cdd6f4;
+  border: 1px solid #89b4fa;
+  border-radius: 4px;
+  padding: 0.3em 0.6em;
+  margin-left: 0.5em;
+  cursor: pointer;
+}
+#notesModalOverlay .modal-footer button:hover {
+  background: #6943FF33; /* slight change on hover (using a semi-transparent accent) */
+}
+#notesModalOverlay .modal-footer button:active {
+  background: #89b4fa;
+  color: #1e1e2e;
+}
+
+/* Read-only output display (on main page) */
+.output-display {
+  margin-top: 1em;
+  padding: 0.5em;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: 1px solid #89b4fa;
+  border-radius: 4px;
+  white-space: pre-wrap;  /* preserve formatting and line breaks */
+}
+
+
+// Elements
+const editBtn    = document.getElementById('editNotesBtn');
+const overlay    = document.getElementById('notesModalOverlay');
+const caseIdInput= document.getElementById('caseIdInput');
+const notesTA    = document.getElementById('notesTextarea');
+const caseIdDisp = document.getElementById('caseIdDisplay');
+const previewDiv = document.getElementById('notesPreviewContent');
+const outputDiv  = document.getElementById('caseOutput');
+const tabButtons = document.querySelectorAll('#notesModalOverlay .tab');
+const saveBtn    = document.getElementById('saveBtn');
+const copyBtn    = document.getElementById('copyBtn');
+const downloadBtn= document.getElementById('downloadBtn');
+const closeBtn   = document.getElementById('closeBtn');
+
+// Function: open modal
+editBtn.addEventListener('click', () => {
+  overlay.classList.remove('hidden');    // show modal
+  caseIdInput.focus();                   // focus Case ID field for convenience
+});
+
+// Function: close modal
+function closeModal() {
+  overlay.classList.add('hidden');
+}
+closeBtn.addEventListener('click', closeModal);
+
+// Function: switch to Edit or Preview tab
+tabButtons.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.getAttribute('data-tab');  // "edit" or "preview"
+    // Toggle active tab styling
+    tabButtons.forEach(t => t.classList.toggle('active', t === tab));
+    // Toggle visible view
+    if (target === 'edit') {
+      document.querySelector('.edit-view').style.display = 'block';
+      document.querySelector('.preview-view').style.display = 'none';
+    } else if (target === 'preview') {
+      // When switching to Preview, generate the formatted output
+      generatePreview();
+      document.querySelector('.edit-view').style.display = 'none';
+      document.querySelector('.preview-view').style.display = 'block';
     }
+  });
+});
 
-    // Tab switching between Edit and Preview
-    function switchTab(mode) {
-      if (mode === "edit") {
-        editTabBtn.classList.add("active");
-        previewTabBtn.classList.remove("active");
-        editContent.classList.remove("hidden");
-        previewContent.classList.add("hidden");
-      } else if (mode === "preview") {
-        const text = notesEditor.value;
-        previewArea.textContent = text;
-        previewTabBtn.classList.add("active");
-        editTabBtn.classList.remove("active");
-        previewContent.classList.remove("hidden");
-        editContent.classList.add("hidden");
-      }
-    }
+// Function: generate preview HTML from markdown text
+function generatePreview() {
+  const rawText = notesTA.value;
+  const caseId = caseIdInput.value.trim();
+  caseIdDisp.textContent = caseId || '(none)';  // display Case ID or placeholder
 
-    // Save notes: update output and close modal
-    function saveNotes() {
-      caseNotesOutput.textContent = notesEditor.value;
-      closeNotesEditor();
-    }
+  // Basic Markdown conversions using regex:
+  let html = rawText
+    // Escape HTML special chars first to prevent injection
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    // Headings: #, ##, ### (supports H1-H3 for demo purposes)
+    .replace(/^### (.*$)/gmi, "<h3>$1</h3>")
+    .replace(/^## (.*$)/gmi, "<h2>$1</h2>")
+    .replace(/^# (.*$)/gmi, "<h1>$1</h1>")
+    // Bold: **text** or __text__
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/__(.*?)__/g, "<strong>$1</strong>")
+    // Italic: *text* or _text_
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/_(.*?)_/g, "<em>$1</em>")
+    // Inline code: `code`
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    // Line breaks: replace newline with <br> (simple approach)
+    .replace(/\n/g, "<br/>");
 
-    // Copy notes to clipboard
-    function copyNotes() {
-      navigator.clipboard.writeText(notesEditor.value)
-        .then(() => alert("Notes copied to clipboard!"))
-        .catch(err => alert("Error copying notes: " + err));
-    }
+  previewDiv.innerHTML = html;
+}
 
-    // Download notes as a file, naming using the Case ID if provided
-    function downloadNotes() {
-      const notesBlob = new Blob([notesEditor.value], { type: "text/plain" });
-      const downloadUrl = URL.createObjectURL(notesBlob);
-      const caseId = caseIdInput.value.trim() || "untitled";
-      const fileName = `case-${caseId}.txt`;
-      
-      const tempLink = document.createElement("a");
-      tempLink.href = downloadUrl;
-      tempLink.download = fileName;
-      document.body.appendChild(tempLink);
-      tempLink.click();
-      document.body.removeChild(tempLink);
-      URL.revokeObjectURL(downloadUrl);
-    }
-  </script>
-</body>
-</html>
+// Save button: update output div and close modal
+saveBtn.addEventListener('click', () => {
+  // Ensure preview is up-to-date (in case Save clicked while in Edit mode)
+  generatePreview();
+  // Combine Case ID and notes for output display
+  const caseId = caseIdInput.value.trim();
+  outputDiv.innerHTML = `<p><strong>Case ID:</strong> ${caseId || '(none)'}</p>` + 
+                        previewDiv.innerHTML;
+  closeModal();
+});
+
+// Copy button: copy raw markdown text to clipboard
+copyBtn.addEventListener('click', () => {
+  const textToCopy = notesTA.value;
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    console.log("Notes copied to clipboard");  // success (could show a toast instead)
+  }).catch(err => {
+    console.error("Clipboard copy failed: ", err);
+  });
+});
+
+// Download button: save notes to file named after Case ID
+downloadBtn.addEventListener('click', () => {
+  const caseId = caseIdInput.value.trim() || "notes";
+  // Prepare file content: include Case ID and raw notes
+  const fileContent = "Case ID: " + caseId + "\n\n" + notesTA.value;
+  const blob = new Blob([fileContent], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = caseId + ".txt";    // use Case ID as filename
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
