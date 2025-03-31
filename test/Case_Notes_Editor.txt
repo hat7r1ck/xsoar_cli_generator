@@ -147,6 +147,98 @@
       background-color: #89b4fa;
       color: #11111b;
     }
+    /************************************************************
+ * Modal Overlay and Container
+ ************************************************************/
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: none; /* Hidden by default; show with JS */
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+/* The modal itself – reset and define your desired styles */
+.modal {
+  background-color: #313244; /* Catppuccin Mocha Surface0 */
+  color: #cdd6f4;           /* Catppuccin Mocha Text */
+  font-family: 'JetBrains Mono', monospace;
+  padding: 20px;
+  border: 2px solid #89b4fa; /* Your theme accent */
+  border-radius: 6px;
+  box-shadow: 0 0 15px #89b4fa;
+  max-width: 600px;
+  width: 90%;
+  text-align: left;
+  margin: 0; /* Reset any inherited margins */
+}
+
+/* Ensure all modal content is left-aligned */
+.modal * {
+  text-align: left !important;
+}
+
+/************************************************************
+ * Modal Header (optional, for tab switching or titles)
+ ************************************************************/
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #89b4fa;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}
+
+/************************************************************
+ * Modal Textarea (for editing notes)
+ ************************************************************/
+.modal textarea {
+  width: 100%;
+  height: 300px;
+  padding: 10px;
+  border: 1px solid #7f849c;
+  border-radius: 4px;
+  background-color: #45475a; /* Catppuccin Mocha Surface1 */
+  color: #cdd6f4;
+  font-family: 'JetBrains Mono', monospace;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+/************************************************************
+ * Modal Buttons Container and Buttons
+ ************************************************************/
+.modal .modal-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Reset inherited button styles inside the modal and define new ones */
+.modal .modal-buttons button {
+  all: unset;
+  display: inline-block;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 8px 12px;
+  border: 2px solid #89b4fa;
+  background-color: #45475a;
+  color: #cdd6f4;
+  border-radius: 4px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.modal .modal-buttons button:hover {
+  background-color: #89b4fa;
+  color: #11111b; /* Catppuccin Mocha Crust */
+}
   </style>
 </head>
 <body>
