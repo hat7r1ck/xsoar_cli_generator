@@ -2,42 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Case Notes Editor</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="color-scheme" content="dark">
+  <title>CTFC Toolkit – Case Notes Editor</title>
   <style>
-    /* Base Theme (Catppuccin Mocha example) */
+    /* Global styles */
     body {
-      background-color: #1e1e2e;  /* Catppuccin Mocha Base */
-      color: #cdd6f4;            /* Catppuccin Mocha Text */
+      background-color: #1e1e2e; /* Mocha Base */
+      color: #cdd6f4;           /* Mocha Text */
       font-family: 'JetBrains Mono', monospace;
       margin: 20px;
       text-align: center;
     }
-    .header-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    .tab-button, .menu-button, .notes-button {
+    /* Button to open the modal */
+    #openNotesEditor {
       padding: 10px 15px;
-      background-color: #45475a; /* e.g., Surface1 */
+      border: 2px solid #89b4fa;
+      background-color: #45475a;
       color: #cdd6f4;
-      border: 2px solid #89b4fa;  /* e.g., Theme Accent */
       border-radius: 4px;
       cursor: pointer;
+      font-size: 1em;
       transition: background-color 0.3s, color 0.3s;
     }
-    .tab-button:hover, .menu-button:hover, .notes-button:hover {
+    #openNotesEditor:hover {
       background-color: #89b4fa;
-      color: #11111b; /* e.g., Crust */
+      color: #11111b;
     }
+    /* Read-only output for case notes */
     .output-box {
       margin: 20px auto;
       padding: 10px;
-      max-width: 700px;
       background-color: #45475a;
       border: 2px solid #89b4fa;
       border-radius: 6px;
@@ -46,8 +41,9 @@
       white-space: pre-wrap;
       word-wrap: break-word;
       text-align: left;
+      max-width: 700px;
     }
-    /* Modal Overlay for the Notes Editor */
+    /* Modal overlay placed directly under body */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -58,350 +54,134 @@
       display: none; /* Hidden by default */
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 10000;
     }
+    /* Modal container with isolated styling */
     .modal {
-      background-color: #313244; /* e.g., Surface0 */
+      background-color: #313244;  /* Mocha Surface0 */
+      color: #cdd6f4;
+      font-family: 'JetBrains Mono', monospace;
       padding: 20px;
-      border: 2px solid #89b4fa;
+      border: 2px solid #89b4fa;  /* Theme Accent */
       border-radius: 6px;
+      box-shadow: 0 0 15px #89b4fa;
       max-width: 600px;
       width: 90%;
-      box-shadow: 0 0 15px #89b4fa;
       text-align: left;
+      margin: 0; /* Reset inherited margins */
     }
-    /* Modal Header for Tab Toggle */
+    /* Ensure modal's inner elements are left-aligned */
+    .modal * {
+      text-align: left !important;
+    }
+    /* Modal header styling */
     .modal-header {
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 10px;
+      border-bottom: 1px solid #89b4fa;
+      padding-bottom: 5px;
     }
-    .modal-header button {
-      flex: 1;
-      padding: 8px;
-      background-color: #45475a;
-      color: #cdd6f4;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .modal-header button.active {
-      background-color: #89b4fa;
-      color: #11111b;
-    }
-    /* Input group for Case ID */
-    .modal .input-group {
-      margin-bottom: 10px;
-    }
-    .modal .input-group label {
-      display: block;
-      margin-bottom: 3px;
-      font-size: 0.9em;
-      font-weight: bold;
-    }
-    .modal .input-group input {
-      width: 100%;
-      padding: 6px;
-      border: 1px solid #7f849c;
-      border-radius: 4px;
-      background-color: #45475a;
-      color: #cdd6f4;
-      box-sizing: border-box;
-    }
-    /* Modal Content Areas */
-    .modal-content {
-      display: none;
-    }
-    .modal-content.active {
-      display: block;
-    }
+    /* Modal textarea styling */
     .modal textarea {
       width: 100%;
-      height: 300px;
+      height: 200px;
       padding: 10px;
       border: 1px solid #7f849c;
       border-radius: 4px;
       background-color: #45475a;
       color: #cdd6f4;
-      font-family: 'JetBrains Mono', monospace;
       box-sizing: border-box;
       resize: vertical;
+      font-family: inherit;
     }
-    /* Modal Buttons */
-    .modal .modal-buttons {
+    /* Modal buttons container */
+    .modal-buttons {
       margin-top: 10px;
       display: flex;
       gap: 10px;
       justify-content: flex-end;
     }
-    .modal .modal-buttons button {
+    /* Modal buttons styling */
+    .modal-buttons button {
       padding: 8px 12px;
+      border: 2px solid #89b4fa;
       background-color: #45475a;
       color: #cdd6f4;
-      border: 2px solid #89b4fa;
       border-radius: 4px;
       cursor: pointer;
       transition: background-color 0.3s, color 0.3s;
+      font-family: inherit;
     }
-    .modal .modal-buttons button:hover {
+    .modal-buttons button:hover {
       background-color: #89b4fa;
       color: #11111b;
     }
-    /************************************************************
- * Modal Overlay and Container
- ************************************************************/
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  display: none; /* Hidden by default; show with JS */
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-/* The modal itself – reset and define your desired styles */
-.modal {
-  background-color: #313244; /* Catppuccin Mocha Surface0 */
-  color: #cdd6f4;           /* Catppuccin Mocha Text */
-  font-family: 'JetBrains Mono', monospace;
-  padding: 20px;
-  border: 2px solid #89b4fa; /* Your theme accent */
-  border-radius: 6px;
-  box-shadow: 0 0 15px #89b4fa;
-  max-width: 600px;
-  width: 90%;
-  text-align: left;
-  margin: 0; /* Reset any inherited margins */
-}
-
-/* Ensure all modal content is left-aligned */
-.modal * {
-  text-align: left !important;
-}
-
-/************************************************************
- * Modal Header (optional, for tab switching or titles)
- ************************************************************/
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #89b4fa;
-  margin-bottom: 10px;
-  padding-bottom: 5px;
-}
-
-/************************************************************
- * Modal Textarea (for editing notes)
- ************************************************************/
-.modal textarea {
-  width: 100%;
-  height: 300px;
-  padding: 10px;
-  border: 1px solid #7f849c;
-  border-radius: 4px;
-  background-color: #45475a; /* Catppuccin Mocha Surface1 */
-  color: #cdd6f4;
-  font-family: 'JetBrains Mono', monospace;
-  box-sizing: border-box;
-  resize: vertical;
-}
-
-/************************************************************
- * Modal Buttons Container and Buttons
- ************************************************************/
-.modal .modal-buttons {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-/* Reset inherited button styles inside the modal and define new ones */
-.modal .modal-buttons button {
-  all: unset;
-  display: inline-block;
-  cursor: pointer;
-  font-family: inherit;
-  padding: 8px 12px;
-  border: 2px solid #89b4fa;
-  background-color: #45475a;
-  color: #cdd6f4;
-  border-radius: 4px;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.modal .modal-buttons button:hover {
-  background-color: #89b4fa;
-  color: #11111b; /* Catppuccin Mocha Crust */
-}
   </style>
 </head>
 <body>
-  <!-- Header with Tabs and a Notes (pencil) Button -->
-  <div class="header-container">
-    <button class="tab-button">Cases</button>
-    <button class="tab-button">Links</button>
-    <button class="menu-button">☰</button>
-    <button class="notes-button" id="openNotesEditor">✎ Edit Notes</button>
-  </div>
+  <h1>CTFC Toolkit – Case Notes Editor</h1>
+  <!-- Button to open modal -->
+  <button id="openNotesEditor">✎ Edit Notes</button>
   
-  <!-- Output area for saved notes (read-only) -->
+  <!-- Read-only output for case notes -->
   <div class="output-box" id="caseNotesOutput">
-    Your saved notes will appear here...
+    Case Notes will appear here...
   </div>
   
-  <!-- Modal Overlay for Notes Editor with Tab Toggle -->
+  <!-- Modal Overlay (placed directly under body) -->
   <div class="modal-overlay" id="notesModal">
     <div class="modal">
       <div class="modal-header">
-        <button id="editTab" class="active">Edit</button>
-        <button id="previewTab">Preview</button>
+        <h3>Edit Case Notes</h3>
+        <!-- Close button (×) -->
+        <button onclick="closeNotesEditor()" style="background: none; border: none; font-size: 1.5em; color: #cdd6f4; cursor: pointer;">&times;</button>
       </div>
-      
-      <!-- Case ID input -->
-      <div class="input-group">
-        <label for="caseIdInput">Case ID:</label>
-        <input type="text" id="caseIdInput" placeholder="Enter Case ID (e.g., 12345)">
-      </div>
-      
-      <!-- Edit Mode: Textarea -->
-      <div id="editContent" class="modal-content active">
-        <textarea id="notesEditor" placeholder="Enter or modify your case notes here..."></textarea>
-      </div>
-      
-      <!-- Preview Mode: Rendered Markdown -->
-      <div id="previewContent" class="modal-content">
-        <div id="previewArea" style="background-color:#45475a; padding:10px; border-radius:4px; max-height:300px; overflow:auto;"></div>
-      </div>
-      
-      <!-- Modal Buttons -->
+      <textarea id="notesEditor" placeholder="Enter or modify your case notes here..."></textarea>
       <div class="modal-buttons">
         <button onclick="saveNotes()">Save</button>
-        <button onclick="copyNotes()">Copy</button>
-        <button onclick="downloadNotes()">Download</button>
-        <button onclick="closeNotesEditor()">Close</button>
+        <button onclick="copyNotes()">Copy to Clipboard</button>
+        <button onclick="previewNotes()">Preview</button>
       </div>
     </div>
   </div>
   
   <script>
-    let caseNotes = "";
-
+    // Get DOM elements
     const openNotesEditorBtn = document.getElementById("openNotesEditor");
     const notesModal = document.getElementById("notesModal");
     const notesEditor = document.getElementById("notesEditor");
     const caseNotesOutput = document.getElementById("caseNotesOutput");
-    const editTab = document.getElementById("editTab");
-    const previewTab = document.getElementById("previewTab");
-    const editContent = document.getElementById("editContent");
-    const previewContent = document.getElementById("previewContent");
-    const previewArea = document.getElementById("previewArea");
-    const caseIdInput = document.getElementById("caseIdInput");
-
-    // Open modal in Edit mode
+    
+    // Open the modal and load current case notes into editor
     openNotesEditorBtn.addEventListener("click", () => {
-      notesEditor.value = caseNotes;
+      notesEditor.value = caseNotesOutput.textContent.trim();
       notesModal.style.display = "flex";
-      switchTab("edit");
     });
-
+    
+    // Close modal function
     function closeNotesEditor() {
       notesModal.style.display = "none";
     }
-
-    function switchTab(mode) {
-      if (mode === "edit") {
-        editTab.classList.add("active");
-        previewTab.classList.remove("active");
-        editContent.classList.add("active");
-        previewContent.classList.remove("active");
-      } else if (mode === "preview") {
-        // Update notes and render preview
-        caseNotes = notesEditor.value;
-        previewArea.innerHTML = renderMarkdown(caseNotes);
-        previewTab.classList.add("active");
-        editTab.classList.remove("active");
-        previewContent.classList.add("active");
-        editContent.classList.remove("active");
-      }
-    }
-
-    previewTab.addEventListener("click", () => switchTab("preview"));
-    editTab.addEventListener("click", () => switchTab("edit"));
-
+    
+    // Save notes: update the output box and close the modal
     function saveNotes() {
-      caseNotes = notesEditor.value;
-      caseNotesOutput.textContent = caseNotes;
-      alert("Notes saved.");
+      caseNotesOutput.textContent = notesEditor.value;
+      closeNotesEditor();
     }
-
+    
+    // Copy notes to clipboard
     function copyNotes() {
-      navigator.clipboard.writeText(caseNotes)
-        .then(() => alert("Copied to clipboard!"))
-        .catch(err => alert("Copy failed: " + err));
+      navigator.clipboard.writeText(notesEditor.value)
+        .then(() => alert("Case notes copied to clipboard!"))
+        .catch(err => alert("Error copying notes: " + err));
     }
-
-    function downloadNotes() {
-      const caseId = caseIdInput.value.trim() || "unknown";
-      const filename = `case-#${caseId}.md`;
-      const blob = new Blob([notesEditor.value], { type: 'text/markdown' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function renderMarkdown(markdown) {
-      let html = `<p style="color:#f9e2af; font-style: italic; margin-bottom:1em;">
-        Warning: This preview is temporary and not persistently saved.
-      </p>` + markdown;
-      
-      // Fenced code blocks
-      html = html.replace(/```([\s\S]*?)```/g, (match, p1) => `<pre><code>${p1.trim()}</code></pre>`);
-      // Inline code
-      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-      
-      // Headers (levels 6 to 1)
-      html = html.replace(/^###### (.*)$/gm, '<h6>$1</h6>');
-      html = html.replace(/^##### (.*)$/gm, '<h5>$1</h5>');
-      html = html.replace(/^#### (.*)$/gm, '<h4>$1</h4>');
-      html = html.replace(/^### (.*)$/gm, '<h3>$1</h3>');
-      html = html.replace(/^## (.*)$/gm, '<h2>$1</h2>');
-      html = html.replace(/^# (.*)$/gm, '<h1>$1</h1>');
-      
-      // Bold, Italic, and Strikethrough
-      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      html = html.replace(/~~(.*?)~~/g, '<del>$1</del>');
-      
-      // Links
-      html = html.replace(/\$begin:math:display\$([^\$end:math:display\$]+)\]\$begin:math:text\$(https?:\/\/[^\$end:math:text\$]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-      
-      // Horizontal rules
-      html = html.replace(/^(---|\*\*\*|___)$/gm, '<hr>');
-      
-      // Blockquotes
-      html = html.replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>');
-      
-      // Unordered lists
-      html = html.replace(/^\s*[\-\+\*] (.*)$/gm, '<li>$1</li>');
-      html = html.replace(/(<li>[\s\S]+?<\/li>)/g, '<ul>$1</ul>');
-      
-      // Ordered lists
-      html = html.replace(/^\s*\d+\.\s+(.*)$/gm, '<li>$1</li>');
-      html = html.replace(/(<li>[\s\S]+?<\/li>)/g, '<ol>$1</ol>');
-      
-      // Convert newlines to <br>
-      html = html.replace(/\n/g, '<br>');
-      
-      return html;
+    
+    // Preview notes: update output box (or implement markdown rendering if desired)
+    function previewNotes() {
+      // Here we simply update the output; you can extend this to render markdown
+      caseNotesOutput.textContent = notesEditor.value;
     }
   </script>
 </body>
