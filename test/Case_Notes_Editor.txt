@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
-  <title>CTFC Toolkit – Case Notes Editor (Tabbed)</title>
+  <title>CTFC Toolkit – Tabbed Case Notes Editor</title>
   <style>
-    /* Global styling */
+    /* Global styles for the page */
     body {
       background-color: #1e1e2e; /* Mocha Base */
       color: #cdd6f4;           /* Mocha Text */
@@ -17,12 +17,11 @@
     h1 {
       margin-bottom: 20px;
     }
-
-    /* Button to open the modal */
+    /* Button to open modal */
     #openNotesEditor {
       padding: 10px 15px;
       border: 2px solid #89b4fa;
-      background-color: #45475a; /* Surface1 */
+      background-color: #45475a;
       color: #cdd6f4;
       border-radius: 4px;
       cursor: pointer;
@@ -31,10 +30,9 @@
     }
     #openNotesEditor:hover {
       background-color: #89b4fa;
-      color: #11111b; /* Crust */
+      color: #11111b;
     }
-
-    /* Read-only output area */
+    /* Output area for case notes */
     .output-box {
       margin: 20px auto;
       padding: 10px;
@@ -49,164 +47,151 @@
       max-width: 700px;
     }
 
-    /************************************************************
-     * Modal Overlay – Placed directly under <body>
-     ************************************************************/
-    .modal-overlay {
+    /* ===== Scoped Modal Styles ===== */
+    /* Use a unique container ID to override external CSS */
+    #caseNotesModalContainer {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      display: none; /* Hidden by default */
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
+      background: rgba(0,0,0,0.7) !important;
+      display: none !important;
+      align-items: center !important;
+      justify-content: center !important;
+      z-index: 10000 !important;
     }
-
-    /************************************************************
-     * Modal Container with Tabbed Layout
-     ************************************************************/
-    .modal {
-      background-color: #313244; /* Surface0 */
-      color: #cdd6f4;
-      font-family: 'JetBrains Mono', monospace;
-      padding: 20px;
-      border: 2px solid #89b4fa; /* Theme Accent */
-      border-radius: 6px;
-      box-shadow: 0 0 15px #89b4fa;
-      max-width: 600px;
-      width: 90%;
-      margin: 0;
-      text-align: left;
+    #caseNotesModalContainer .modal {
+      all: unset; /* Remove all inherited styles */
+      display: block !important;
+      background-color: #313244 !important; /* Surface0 */
+      color: #cdd6f4 !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      padding: 20px !important;
+      border: 2px solid #89b4fa !important;
+      border-radius: 6px !important;
+      box-shadow: 0 0 15px #89b4fa !important;
+      max-width: 600px !important;
+      width: 90% !important;
+      text-align: left !important;
+      margin: 0 !important;
     }
-
-    /* Header with tabs (Edit / Preview) */
-    .modal-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      border-bottom: 1px solid #89b4fa;
-      padding-bottom: 5px;
+    #caseNotesModalContainer .modal-header {
+      display: flex !important;
+      align-items: center !important;
+      margin-bottom: 10px !important;
+      border-bottom: 1px solid #89b4fa !important;
+      padding-bottom: 5px !important;
     }
-    .modal-header button {
-      background: none;
-      border: none;
-      color: #cdd6f4;
-      font-size: 1em;
-      padding: 6px 12px;
-      margin-right: 5px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: border-color 0.2s;
+    #caseNotesModalContainer .modal-header h3 {
+      margin: 0 !important;
+      font-size: 1.2em !important;
     }
-    .modal-header button:hover {
-      border-color: #89b4fa;
+    #caseNotesModalContainer .modal-header button {
+      all: unset;
+      cursor: pointer !important;
+      padding: 6px 12px !important;
+      margin-right: 5px !important;
+      border-bottom: 2px solid transparent !important;
+      transition: border-color 0.2s !important;
+      color: #cdd6f4 !important;
+      font-size: 1em !important;
     }
-    .modal-header button.active {
-      border-color: #89b4fa;
+    #caseNotesModalContainer .modal-header button:hover {
+      border-color: #89b4fa !important;
     }
-    .close-button {
-      margin-left: auto;
-      font-size: 1.5em;
-      color: #cdd6f4;
-      background: none;
-      border: none;
-      cursor: pointer;
+    #caseNotesModalContainer .modal-header button.active {
+      border-color: #89b4fa !important;
     }
-
-    /* Container for the input row (Case ID) */
-    .input-row {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
+    #caseNotesModalContainer .close-button {
+      margin-left: auto !important;
+      font-size: 1.5em !important;
+      color: #cdd6f4 !important;
+      cursor: pointer !important;
     }
-    .input-row label {
-      font-size: 0.9em;
-      color: #bac2de; /* Subtext1 */
+    #caseNotesModalContainer .input-row {
+      margin-top: 10px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 5px !important;
     }
-    .input-row input {
-      padding: 8px;
-      border: 1px solid #7f849c;
-      border-radius: 4px;
-      background-color: #45475a;
-      color: #cdd6f4;
-      font-family: inherit;
-      box-sizing: border-box;
+    #caseNotesModalContainer .input-row label {
+      font-size: 0.9em !important;
+      color: #bac2de !important;
     }
-
-    /* Tabs container */
-    .tab-content {
-      margin-top: 10px;
+    #caseNotesModalContainer .input-row input {
+      padding: 8px !important;
+      border: 1px solid #7f849c !important;
+      border-radius: 4px !important;
+      background-color: #45475a !important;
+      color: #cdd6f4 !important;
+      box-sizing: border-box !important;
+      font-family: inherit !important;
     }
-    .tab-content textarea {
-      width: 100%;
-      height: 200px;
-      padding: 10px;
-      border: 1px solid #7f849c;
-      border-radius: 4px;
-      background-color: #45475a;
-      color: #cdd6f4;
-      box-sizing: border-box;
-      resize: vertical;
-      font-family: inherit;
+    #caseNotesModalContainer .tab-content {
+      margin-top: 10px !important;
     }
-    /* Preview area with scroll if needed */
-    #previewArea {
-      background-color: #45475a;
-      padding: 10px;
-      border-radius: 4px;
-      border: 1px solid #7f849c;
-      max-height: 200px;
-      overflow-y: auto;
-      color: #cdd6f4;
-      font-family: Consolas, monospace;
-      white-space: pre-wrap;
-      word-wrap: break-word;
+    #caseNotesModalContainer .tab-content textarea {
+      width: 100% !important;
+      height: 200px !important;
+      padding: 10px !important;
+      border: 1px solid #7f849c !important;
+      border-radius: 4px !important;
+      background-color: #45475a !important;
+      color: #cdd6f4 !important;
+      box-sizing: border-box !important;
+      resize: vertical !important;
+      font-family: inherit !important;
     }
-    /* Hidden by default; shown when preview tab is active */
-    .hidden {
-      display: none;
+    #caseNotesModalContainer #previewArea {
+      background-color: #45475a !important;
+      padding: 10px !important;
+      border-radius: 4px !important;
+      border: 1px solid #7f849c !important;
+      max-height: 200px !important;
+      overflow-y: auto !important;
+      color: #cdd6f4 !important;
+      font-family: Consolas, monospace !important;
+      white-space: pre-wrap !important;
+      word-wrap: break-word !important;
     }
-
-    /* Modal Buttons (Save, Copy, Download, Close) */
-    .modal-buttons {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
+    #caseNotesModalContainer .hidden {
+      display: none !important;
     }
-    .modal-buttons button {
-      padding: 8px 12px;
-      border: 2px solid #89b4fa;
-      background-color: #45475a;
-      color: #cdd6f4;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: background-color 0.3s, color 0.3s;
+    #caseNotesModalContainer .modal-buttons {
+      margin-top: 10px !important;
+      display: flex !important;
+      gap: 10px !important;
+      justify-content: flex-end !important;
     }
-    .modal-buttons button:hover {
-      background-color: #89b4fa;
-      color: #11111b;
+    #caseNotesModalContainer .modal-buttons button {
+      padding: 8px 12px !important;
+      border: 2px solid #89b4fa !important;
+      background-color: #45475a !important;
+      color: #cdd6f4 !important;
+      border-radius: 4px !important;
+      cursor: pointer !important;
+      transition: background-color 0.3s, color 0.3s !important;
+      font-family: inherit !important;
+    }
+    #caseNotesModalContainer .modal-buttons button:hover {
+      background-color: #89b4fa !important;
+      color: #11111b !important;
     }
   </style>
 </head>
 <body>
   <h1>CTFC Toolkit – Tabbed Case Notes Editor</h1>
-
-  <!-- Button to open modal -->
+  <!-- Button to open the modal -->
   <button id="openNotesEditor">✎ Edit Notes</button>
-
+  
   <!-- Read-only output for case notes -->
   <div class="output-box" id="caseNotesOutput">
     Case Notes will appear here...
   </div>
-
-  <!-- Modal Overlay (placed directly under <body>) -->
-  <div class="modal-overlay" id="notesModal">
+  
+  <!-- Modal Overlay (scoped by #caseNotesModalContainer) -->
+  <div id="caseNotesModalContainer" class="modal-overlay">
     <div class="modal">
       <div class="modal-header">
         <button id="editTab" class="active" onclick="switchTab('edit')">Edit</button>
@@ -236,9 +221,9 @@
   </div>
 
   <script>
-    // DOM elements
+    // DOM elements (using our scoped modal container)
     const openNotesEditorBtn = document.getElementById("openNotesEditor");
-    const notesModal = document.getElementById("notesModal");
+    const modalContainer = document.getElementById("caseNotesModalContainer");
     const editTabBtn = document.getElementById("editTab");
     const previewTabBtn = document.getElementById("previewTab");
     const editContent = document.getElementById("editContent");
@@ -248,20 +233,17 @@
     const caseIdInput = document.getElementById("caseIdInput");
     const caseNotesOutput = document.getElementById("caseNotesOutput");
 
-    // Open the modal
+    // Open modal and load current notes
     openNotesEditorBtn.addEventListener("click", () => {
-      // Load existing notes (if any) into the editor
       notesEditor.value = caseNotesOutput.textContent.trim();
-      // Optional: parse a Case ID if you store it somewhere else
-      // For now, just leave it blank or set a known value
-      notesModal.style.display = "flex";
+      modalContainer.style.display = "flex";
     });
 
     function closeNotesEditor() {
-      notesModal.style.display = "none";
+      modalContainer.style.display = "none";
     }
 
-    // Tab switching
+    // Tab switching between Edit and Preview
     function switchTab(mode) {
       if (mode === "edit") {
         editTabBtn.classList.add("active");
@@ -269,7 +251,6 @@
         editContent.classList.remove("hidden");
         previewContent.classList.add("hidden");
       } else if (mode === "preview") {
-        // Update preview area with the current notes
         const text = notesEditor.value;
         previewArea.textContent = text;
         previewTabBtn.classList.add("active");
@@ -279,12 +260,9 @@
       }
     }
 
-    // Save notes
+    // Save notes: update output and close modal
     function saveNotes() {
-      // Combine the notes + case ID if needed
-      // For example, you might store them together or just store the notes
       caseNotesOutput.textContent = notesEditor.value;
-      // You can store caseIdInput.value somewhere if you want
       closeNotesEditor();
     }
 
@@ -295,7 +273,7 @@
         .catch(err => alert("Error copying notes: " + err));
     }
 
-    // Download notes as a file
+    // Download notes as a file, naming using the Case ID if provided
     function downloadNotes() {
       const notesBlob = new Blob([notesEditor.value], { type: "text/plain" });
       const downloadUrl = URL.createObjectURL(notesBlob);
