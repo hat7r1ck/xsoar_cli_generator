@@ -351,6 +351,11 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       });
+    document.getElementById("notesModalOverlay").addEventListener("click", function(e) {
+      if (e.target === this) {
+        this.classList.add("hidden");
+      }
+    });
     </script>
   </body>
 </html>
