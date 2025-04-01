@@ -1,0 +1,70 @@
+// The helper function isNA() returns true if a field is empty or matches variations of “n/a” (case-insensitive).
+// Checks are performed on the containment and remediation times. If they are not “N/A”, a message is added.
+// A check on the impact selection compares against a list of high-risk impacts.
+// A set of regex patterns checks if specific phrases (like “red team”) are present in the case notes.
+// Finally, if no messages were added (i.e. no issues found), the output displays a positive message including “Good job!”. Otherwise, it lists all messages.
+
+
+<!-- Example HTML snippet -->
+<textarea id="complianceOutput" rows="6" cols="60" placeholder="Compliance messages will appear here..."></textarea>
+<button onclick="runComplianceCheck()">Run Compliance Check</button>
+
+function runComplianceCheck() {
+  let messages = [];
+
+  // Retrieve values from fields (make sure these IDs exist in your HTML)
+  const occurredTime = document.getElementById("occurredTime").value.trim();
+  const containmentTime = document.getElementById("containmentTime").value.trim();
+  const remediationTime = document.getElementById("remediationTime").value.trim();
+  const impactSelection = document.getElementById("impactSelection").value.trim();
+  const caseNotes = document.getElementById("caseNotes").value;
+
+  // Helper: consider a field "N/A" if it's empty or matches "n/a" (case-insensitive)
+  function isNA(val) {
+    return !val || /^n\s*\/?\s*a$/i.test(val);
+  }
+
+  // Time fields check: if containment or remediation is not "N/A", remind to review manually.
+  if (!isNA(containmentTime)) {
+    messages.push("Containment time is set. Please verify and update it manually prior to case closure.");
+  }
+  if (!isNA(remediationTime)) {
+    messages.push("Remediation time is set. Please verify and update it manually prior to case closure.");
+  }
+
+  // Impact selection check: if the selected impact is high-risk, prompt to verify.
+  const highRiskImpacts = ["field1", "field2", "field3"];
+  
+  if (highRiskImpacts.some(impact => impact.toLowerCase() === impactSelection.toLowerCase())) {
+    messages.push(`Impact is set to "${impactSelection}". Please double-check that this is correct.`);
+  }
+
+  // Keyword check in case notes:
+  // Use regex patterns that look for specific phrases (e.g. "red team" requires "red" and "team" together)
+  const keywordPatterns = [
+    /red\s+team/i, // matches "red team" with one or more spaces
+    /field1/i,
+    /field2/i,
+    /field3/i
+  ];
+  const foundKeywords = keywordPatterns.filter(regex => regex.test(caseNotes));
+  if (foundKeywords.length === 0) {
+    messages.push("None of the critical keywords (e.g., 'red team', field1, field2, field3) were found in the case notes.");
+  } else {
+    // Optionally list the matching patterns (as strings)
+    const keywordsFound = foundKeywords.map(regex => regex.toString());
+    messages.push("Found keywords: " + keywordsFound.join(", "));
+  }
+
+  // Output the results to the element with id "complianceOutput"
+  const outputEl = document.getElementById("complianceOutput");
+  if (outputEl) {
+    if (messages.length === 0) {
+      outputEl.value = "All time fields are set to 'N/A' or are empty. No manual updates needed. Good job!";
+    } else {
+      outputEl.value = messages.join("\n");
+    }
+  } else {
+    alert("Compliance output element not found.");
+  }
+}
