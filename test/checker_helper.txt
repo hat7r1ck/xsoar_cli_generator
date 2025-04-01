@@ -74,19 +74,19 @@ function runComplianceCheck() {
 function runComplianceCheck() {
   let messages = [];
 
-  // Retrieve values from fields (make sure these IDs exist in your HTML)
-  const occurredTime = document.getElementById("occurredTime").value.trim();
-  const containmentTime = document.getElementById("containmentTime").value.trim();
-  const remediationTime = document.getElementById("remediationTime").value.trim();
-  const impactSelection = document.getElementById("impactSelection").value.trim();
-  const caseNotes = document.getElementById("caseNotes").value;
+  // Get values from the UI
+  const occurredTime     = document.getElementById("occurredTime").value.trim();
+  const containmentTime  = document.getElementById("containmentTime").value.trim();
+  const remediationTime  = document.getElementById("remediationTime").value.trim();
+  const impactSelection  = document.getElementById("impactSelection").value.trim();
+  const caseNotes        = document.getElementById("caseNotes").value;
 
-  // Helper: consider a field "N/A" if it's empty or matches "n/a" (case-insensitive)
+  // Consider a field "N/A" if it's empty or matches "n/a", "na", "n a", etc.
   function isNA(val) {
     return !val || /^n\s*\/?\s*a$/i.test(val);
   }
 
-  // Time fields check: if containment or remediation is not "N/A", remind to review manually.
+  // === Manual Time Checks ===
   if (!isNA(containmentTime)) {
     messages.push("Containment time is set. Please verify and update it manually prior to case closure.");
   }
@@ -94,13 +94,13 @@ function runComplianceCheck() {
     messages.push("Remediation time is set. Please verify and update it manually prior to case closure.");
   }
 
-  // Impact selection check: if the selected impact is high-risk, prompt to verify.
+  // === High-Risk Impact Check ===
   const highRiskImpacts = ["ransomware", "malicious insider", "data breach"];
   if (highRiskImpacts.includes(impactSelection.toLowerCase())) {
     messages.push(`Impact is set to "${impactSelection}". Please double-check that this is correct.`);
   }
 
-  // Keyword check in case notes (only if notes exist)
+  // === Keyword Checks (only if notes exist) ===
   if (caseNotes.trim().length > 0) {
     const keywordPatterns = [
       /red\s*team/i,
@@ -108,21 +108,20 @@ function runComplianceCheck() {
       /dast/i,
       /blast/i
     ];
+
     const foundKeywords = keywordPatterns.filter(regex => regex.test(caseNotes));
     if (foundKeywords.length > 0) {
-      const keywordsFound = foundKeywords.map(regex => regex.toString());
+      const keywordsFound = foundKeywords.map(r => r.toString().replace(/\//g, '').replace(/i$/, ''));
       messages.push("Critical keywords detected: " + keywordsFound.join(", ") + ". Please confirm this impact.");
     }
   }
 
-  // Output the results to a textarea or element with id "complianceOutput"
+  // === Output ===
   const outputEl = document.getElementById("complianceOutput");
   if (outputEl) {
-    if (messages.length === 0) {
-      outputEl.value = " All time fields are set to 'N/A' or are empty. No manual updates needed. Good job!";
-    } else {
-      outputEl.value = messages.join("\n");
-    }
+    outputEl.value = messages.length === 0
+      ? "👍 All time fields are set to 'N/A' or are empty. No manual updates needed. Good job!"
+      : messages.join("\n");
   } else {
     alert("Compliance output element not found.");
   }
